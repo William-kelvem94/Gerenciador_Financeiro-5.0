@@ -1,0 +1,17 @@
+{
+  "file_name": "d552f0a7-08b6-42ef-957e-1080674ef464.pdf",
+  "fields": [
+    {"label": "data", "value": "13/01/2025", "bbox": [0,0,0,0]},
+    {"label": "descricao", "value": "DEVOLUCAO PIX REM: AMAZON.COM.BR 11/01", "bbox": [0,0,0,0]},
+    {"label": "docto", "value": "0107075", "bbox": [0,0,0,0]},
+    {"label": "credito", "value": "374,99", "bbox": [0,0,0,0]},
+    {"label": "debito", "value": "", "bbox": [0,0,0,0]},
+    {"label": "saldo", "value": "374,99", "bbox": [0,0,0,0]},
+    {"label": "data", "value": "03/02/2025", "bbox": [0,0,0,0]},
+    {"label": "descricao", "value": "TRANSFERENCIA PIX REM: AROLDO PINHEIRO PEREI 01/02", "bbox": [0,0,0,0]},
+    {"label": "docto", "value": "1437410", "bbox": [0,0,0,0]},
+    {"label": "credito", "value": "20,00", "bbox": [0,0,0,0]},
+    {"label": "debito", "value": "", "bbox": [0,0,0,0]},
+    {"label": "saldo", "value": "394,99", "bbox": [0,0,0,0]}
+  ]
+}

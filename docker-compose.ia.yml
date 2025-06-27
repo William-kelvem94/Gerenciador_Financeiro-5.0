@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  ia-train:
+    build:
+      context: ./IA
+      dockerfile: Dockerfile
+    volumes:
+      - ./IA/datasets:/workspace/IA/datasets
+      - ./IA/models:/workspace/IA/models
+      - ./IA/src:/workspace/IA/src
+      - ./IA/notebooks:/workspace/IA/notebooks
+    working_dir: /workspace/IA/src
+    command: ["python", "train_extrato_ia.py"]
+    environment:
+      - TRANSFORMERS_CACHE=/workspace/IA/models
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    # Para usar GPU, descomente a linha abaixo e configure o host
+    # runtime: nvidia
+    # environment:
+    #   - NVIDIA_VISIBLE_DEVICES=all

@@ -1,0 +1,17 @@
+{
+  "file_name": "Comprovante_19-03-2025_132216.pdf",
+  "fields": [
+    {"label": "data", "value": "24/02/2025", "bbox": [0,0,0,0]},
+    {"label": "descricao", "value": "TRANSFERENCIA PIX REM: AROLDO PINHEIRO PEREI 24/02", "bbox": [0,0,0,0]},
+    {"label": "docto", "value": "1800765", "bbox": [0,0,0,0]},
+    {"label": "credito", "value": "100,00", "bbox": [0,0,0,0]},
+    {"label": "debito", "value": "", "bbox": [0,0,0,0]},
+    {"label": "saldo", "value": "102,36", "bbox": [0,0,0,0]},
+    {"label": "data", "value": "24/02/2025", "bbox": [0,0,0,0]},
+    {"label": "descricao", "value": "TRANSFERENCIA PIX DES: WILLIAM KELVEM DE SOUZA 24/02", "bbox": [0,0,0,0]},
+    {"label": "docto", "value": "0947426", "bbox": [0,0,0,0]},
+    {"label": "credito", "value": "", "bbox": [0,0,0,0]},
+    {"label": "debito", "value": "102,36", "bbox": [0,0,0,0]},
+    {"label": "saldo", "value": "0,00", "bbox": [0,0,0,0]}
+  ]
+}

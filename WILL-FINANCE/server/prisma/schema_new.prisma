@@ -1,0 +1,235 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  firstName String
+  lastName  String
+  password  String
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // User preferences
+  currency      String  @default("BRL")
+  dateFormat    String  @default("DD/MM/YYYY")
+  language      String  @default("pt-BR")
+  timezone      String  @default("America/Sao_Paulo")
+  theme         String  @default("dark")
+  
+  // Privacy settings
+  isEmailPublic    Boolean @default(false)
+  isProfilePublic  Boolean @default(false)
+  
+  // Notification preferences  
+  emailNotifications   Boolean @default(true)
+  pushNotifications    Boolean @default(true)
+  budgetAlerts         Boolean @default(true)
+  goalReminders        Boolean @default(true)
+  
+  // Security
+  twoFactorEnabled     Boolean @default(false)
+  twoFactorSecret      String?
+  lastLoginAt          DateTime?
+  emailVerified        Boolean @default(false)
+  emailVerifiedAt      DateTime?
+  
+  // Financial Goals
+  monthlyBudget   Float?
+  savingsGoal     Float?
+
+  // Relations
+  accounts      Account[]
+  categories    Category[]
+  transactions  Transaction[]
+  budgets       Budget[]
+  goals         Goal[]
+  notifications Notification[]
+  aiInsights    AiInsight[]
+
+  @@map("users")
+}
+
+model Account {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  type        String   // CHECKING, SAVINGS, CREDIT_CARD, INVESTMENT, CASH, LOAN, OTHER
+  balance     Float    @default(0)
+  isActive    Boolean  @default(true)
+  color       String   @default("#3B82F6")
+  icon        String   @default("wallet")
+  
+  // Banking details
+  bankName     String?
+  accountNumber String?
+  
+  // Credit Card specific
+  creditLimit  Float?
+  interestRate Float?
+  dueDay       Int?
+  closingDay   Int?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  transactions Transaction[]
+
+  @@map("accounts")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  color       String   @default("#6B7280")
+  icon        String   @default("tag")
+  type        String   // INCOME, EXPENSE, TRANSFER
+  isSystem    Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String?
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@unique([name, userId])
+  @@map("categories")
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  amount      Float
+  description String
+  date        DateTime @default(now())
+  type        String   // INCOME, EXPENSE, TRANSFER
+  status      String   @default("COMPLETED") // PENDING, COMPLETED, CANCELLED, FAILED
+  
+  // Optional fields
+  notes       String?
+  reference   String?  // Receipt number, check number, etc.
+  location    String?
+  latitude    Float?
+  longitude   Float?
+  
+  // Recurrence
+  isRecurring    Boolean @default(false)
+  recurringRule  String? // JSON string for recurrence rules
+  parentId       String? // For recurring transactions
+  
+  // AI Analysis
+  aiAnalyzed     Boolean @default(false)
+  aiCategories   String? // JSON array of suggested categories
+  aiTags         String? // JSON array of AI-generated tags
+  aiConfidence   Float?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId  String
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+
+  @@map("transactions")
+}
+
+model Budget {
+  id      String   @id @default(cuid())
+  name    String
+  amount  Float
+  spent   Float    @default(0)
+  period  String   // WEEKLY, MONTHLY, QUARTERLY, YEARLY
+  
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(true)
+  
+  // Alert settings
+  alertPercentage Float @default(80) // Alert when 80% of budget is spent
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations  
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+
+  @@map("budgets")
+}
+
+model Goal {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  targetAmount  Float
+  currentAmount Float    @default(0)
+  targetDate    DateTime?
+  isCompleted   Boolean  @default(false)
+  color         String   @default("#10B981")
+  icon          String   @default("target")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@map("goals")
+}
+
+model Notification {
+  id      String   @id @default(cuid())
+  title   String
+  message String
+  type    String   // BUDGET_ALERT, GOAL_MILESTONE, UNUSUAL_SPENDING, etc.
+  isRead  Boolean  @default(false)
+  data    String?  // JSON string for additional data
+  
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@map("notifications")
+}
+
+model AiInsight {
+  id          String   @id @default(cuid())
+  type        String   // SPENDING_PATTERN, BUDGET_OPTIMIZATION, etc.
+  title       String
+  description String
+  data        String   // JSON string for insight data
+  confidence  Float
+  isRead      Boolean  @default(false)
+  
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@map("ai_insights")
+}

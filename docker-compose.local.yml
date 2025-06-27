@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  # Apenas PostgreSQL no Docker para desenvolvimento local
+  db-local:
+    image: postgres:16
+    restart: always
+    container_name: financeiro-db-local
+    environment:
+      POSTGRES_DB: financeiro
+      POSTGRES_USER: financeiro
+      POSTGRES_PASSWORD: financeiro
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata-local:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U financeiro -d financeiro"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata-local:
