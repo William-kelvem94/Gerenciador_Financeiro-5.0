@@ -1,9 +1,0 @@
-# syntax=docker/dockerfile:1
-FROM node:20-alpine3.19
-WORKDIR /app
-COPY frontend/package*.json ./
-RUN npm install
-COPY frontend .
-EXPOSE 4000
-# Garante que o Vite rode em modo não-interativo e mantenha o container ativo
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "4000"]

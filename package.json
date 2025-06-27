@@ -1,6 +1,55 @@
 {
+  "name": "will-finance-5.0",
+  "version": "5.0.0",
+  "description": "Sistema de Gerenciamento Financeiro Cyberpunk Completo",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "start": "cd server && npm start",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "db:migrate": "cd server && npx prisma migrate dev",
+    "db:generate": "cd server && npx prisma generate",
+    "db:seed": "cd server && npx prisma db seed",
+    "db:studio": "cd server && npx prisma studio",
+    "test": "npm run test:client && npm run test:server",
+    "test:client": "cd client && npm test",
+    "test:server": "cd server && npm test",
+    "lint": "npm run lint:client && npm run lint:server",
+    "lint:client": "cd client && npm run lint",
+    "lint:server": "cd server && npm run lint",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "clean": "rm -rf node_modules client/node_modules server/node_modules",
+    "reset": "npm run clean && npm run install:all"
+  },
+  "keywords": [
+    "finance",
+    "cyberpunk",
+    "react",
+    "typescript",
+    "nodejs",
+    "prisma",
+    "sqlite",
+    "pwa",
+    "real-time"
+  ],
+  "author": "William",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
   "dependencies": {
-    "@reduxjs/toolkit": "^2.8.2",
-    "react-redux": "^9.2.0"
+    "axios": "^1.10.0",
+    "form-data": "^4.0.3"
   }
 }
