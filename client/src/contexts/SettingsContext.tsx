@@ -51,7 +51,7 @@ const defaultSettings: UserSettings = {
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
-export function SettingsProvider({ children }: { children: React.ReactNode }) {
+export function SettingsProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const [settings, setSettings] = useState<UserSettings>(() => {
     const saved = localStorage.getItem('userSettings');
     return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
@@ -149,15 +149,18 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
           
           // Detectar se veio do Google Auth e preencher automaticamente
           if (data.data.googleAuth && !data.data.name && data.data.googleProfile) {
-            serverSettings.name = data.data.googleProfile.name || '';
-            serverSettings.email = data.data.googleProfile.email || '';
-            serverSettings.profilePicture = data.data.googleProfile.picture || '';
-            // Auto-salvar dados do Google
-            updateProfile({
-              name: serverSettings.name,
-              email: serverSettings.email,
-              profilePicture: serverSettings.profilePicture
-            }).catch(console.error);
+            serverSettings.name = data.data.googleProfile.name ?? '';
+            serverSettings.email = data.data.googleProfile.email ?? '';
+            serverSettings.profilePicture = data.data.googleProfile.picture ?? '';
+            
+            // Auto-salvar dados do Google (será executado após o componente montar)
+            setTimeout(() => {
+              updateProfile({
+                name: serverSettings.name,
+                email: serverSettings.email,
+                profilePicture: serverSettings.profilePicture
+              }).catch(console.error);
+            }, 100);
           }
           
           setSettings(serverSettings);
@@ -172,7 +175,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     };
 
     loadSettings();
-  }, []);
+  }, []); // Removido updateProfile das dependências
 
   // Aplicar tema
   useEffect(() => {
@@ -204,6 +207,9 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Token não encontrado');
 
+      // Guardar estado anterior para possível rollback
+      const previousSettings = settings;
+      
       // Primeiro aplicar localmente para feedback imediato
       const newSettings = { ...settings, ...updates };
       setSettings(newSettings);
@@ -222,11 +228,11 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         // Reverter mudanças locais se falhar
-        setSettings(settings);
-        localStorage.setItem('userSettings', JSON.stringify(settings));
+        setSettings(previousSettings);
+        localStorage.setItem('userSettings', JSON.stringify(previousSettings));
         
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao atualizar configurações');
+        throw new Error(errorData.message ?? 'Erro ao atualizar configurações');
       }
 
       const data = await response.json();
@@ -254,6 +260,9 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Token não encontrado');
 
+      // Guardar estado anterior para possível rollback
+      const previousSettings = settings;
+
       // Aplicar localmente primeiro
       const newSettings = { ...settings, ...profile };
       setSettings(newSettings);
@@ -270,11 +279,11 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         // Reverter se falhar
-        setSettings(settings);
-        localStorage.setItem('userSettings', JSON.stringify(settings));
+        setSettings(previousSettings);
+        localStorage.setItem('userSettings', JSON.stringify(previousSettings));
         
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao atualizar perfil');
+        throw new Error(errorData.message ?? 'Erro ao atualizar perfil');
       }
 
       const data = await response.json();
@@ -314,7 +323,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao alterar senha');
+        throw new Error(errorData.message ?? 'Erro ao alterar senha');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido');

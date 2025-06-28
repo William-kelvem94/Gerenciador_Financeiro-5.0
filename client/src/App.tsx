@@ -39,10 +39,16 @@ function App() {
   }, [isAuthenticated])
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <MatrixRain />
+    <div className="min-h-screen bg-gray-900 text-foreground relative overflow-hidden">
+      {/* Matrix Rain Background */}
+      <MatrixRain intensity="high" className="opacity-70" />
       
-      <Routes>
+      {/* Overlay sutil para legibilidade */}
+      <div className="fixed inset-0 bg-gradient-to-br from-gray-900/20 via-transparent to-gray-900/30 pointer-events-none z-10" />
+      
+      {/* Conteúdo Principal */}
+      <div className="relative z-20">
+        <Routes>
         {/* Public Routes */}
         <Route 
           path="/login" 
@@ -105,6 +111,7 @@ function App() {
           },
         }}
       />
+      </div>
     </div>
   )
 }

@@ -24,7 +24,7 @@ export function useTransactions(params?: {
       setLoading(true);
       setError(null);
       const response = await apiService.getTransactions(params);
-      setData(response.data.transactions);
+      setData(response.data.data);
       setPagination(response.data.pagination);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar transações');
@@ -252,9 +252,9 @@ export function useCategories() {
 }
 
 export function useAnalytics(params?: {
-  startDate?: string;
-  endDate?: string;
-  type?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  groupBy?: string;
 }) {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);

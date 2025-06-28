@@ -19,6 +19,8 @@
 
   html {
     scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: #00FFFF #1A1A1A;
   }
 
   /* Custom scrollbar */
@@ -39,15 +41,15 @@
   ::-webkit-scrollbar-corner {
     @apply bg-background-secondary;
   }
-
-  /* Firefox scrollbar */
-  html {
-    scrollbar-width: thin;
-    scrollbar-color: #00FFFF #1A1A1A;
-  }
+}
 }
 
 @layer components {
+  /* Gradient utilities */
+  .bg-gradient-radial {
+    background: radial-gradient(circle, var(--tw-gradient-stops));
+  }
+
   /* Button variants */
   .btn {
     @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;

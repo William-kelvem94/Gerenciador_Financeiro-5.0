@@ -8,6 +8,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 import { errorHandler } from './middleware/errorHandler';
+import { GlobalExceptionFilter } from './filters/global-exception.filter';
 import { logger } from './utils/logger';
 import { connectDatabase } from './config/database';
 import { connectRedis } from './config/redis';
@@ -140,17 +141,13 @@ async function startServer() {
     
     // Initialize Firebase Admin SDK
     console.log('🔥 Initializing Firebase Admin SDK...');
-    logger.info('🔥 Initializing Firebase Admin SDK...');
     initializeFirebaseAdmin();
     console.log('✅ Firebase Admin SDK initialized');
-    logger.info('✅ Firebase Admin SDK initialized');
 
     // Connect to database
     console.log('📦 Connecting to database...');
-    logger.info('Connecting to database...');
     await connectDatabase();
     console.log('✅ Database connected successfully');
-    logger.info('✅ Database connected successfully');
 
     // Connect to Redis (sempre habilitado com mock em desenvolvimento)
     try {
@@ -169,7 +166,6 @@ async function startServer() {
 
     // Start server
     console.log(`🚀 Starting server on port ${PORT}...`);
-    logger.info(`Starting server on port ${PORT}...`);
     server.listen(PORT, () => {
       console.log(`✅ Server is running on port ${PORT}`);
       logger.info(`🚀 Server is running on port ${PORT}`);

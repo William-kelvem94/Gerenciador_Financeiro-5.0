@@ -1,4 +1,4 @@
-import { useAuthStore } from '../store/authStore';
+import { authService } from './auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 
@@ -8,18 +8,33 @@ interface ApiResponse<T> {
   success: boolean;
 }
 
+interface ApiError {
+  message: string;
+  statusCode: number;
+  error?: string;
+  timestamp?: string;
+  path?: string;
+}
+
 class ApiService {
+  private async getAuthHeaders(): Promise<HeadersInit> {
+    const token = await authService.getIdToken();
+    return {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` })
+    };
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
-  ): Promise<T> {
-    const token = useAuthStore.getState().accessToken;
+  ): Promise<ApiResponse<T>> {
+    const headers = await this.getAuthHeaders();
     
     const url = `${API_BASE_URL}${endpoint}`;
     const config: RequestInit = {
       headers: {
-        'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
+        ...headers,
         ...options.headers,
       },
       ...options,
@@ -33,51 +48,112 @@ class ApiService {
       console.log(`📊 API Response: ${response.status} ${response.statusText}`);
       
       if (!response.ok) {
-        // Tentar ler o erro como JSON primeiro
-        let errorMessage = `Erro HTTP: ${response.status}`;
-        
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch (jsonError) {
-          // Se não conseguir parsear como JSON, tentar como texto
-          try {
-            const errorText = await response.text();
-            console.error('🚨 API Error Response:', errorText);
-            
-            // Se for HTML (página de erro), mostrar mensagem mais amigável
-            if (errorText.includes('<!doctype') || errorText.includes('<html')) {
-              errorMessage = 'Servidor indisponível. Verifique se o backend está rodando.';
-            } else {
-              errorMessage = errorText || errorMessage;
-            }
-          } catch (textError) {
-            console.error('❌ Error reading response:', textError);
-          }
-        }
-        
-        if (response.status === 401) {
-          // Token expirado ou inválido
-          useAuthStore.getState().logout();
-          throw new Error('Sessão expirada. Faça login novamente.');
-        }
-        
-        throw new Error(errorMessage);
+        await this.handleErrorResponse(response);
       }
 
-      const data = await response.json();
-      console.log('✅ API Success:', data);
-      return data;
-    } catch (error) {
-      console.error('❌ API Error:', error);
+      const contentType = response.headers.get('content-type');
       
-      // Se for erro de rede, mostrar mensagem específica
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        throw new Error('Erro de conexão. Verifique se o servidor está rodando.');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        return data;
+      } else {
+        // Para responses que não são JSON, retornar como texto
+        const text = await response.text();
+        return {
+          data: text as unknown as T,
+          success: true
+        };
+      }
+    } catch (error: any) {
+      console.error('🚨 API Error:', error);
+      
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Não foi possível conectar ao servidor. Verifique sua conexão com a internet e se o servidor está rodando.');
       }
       
       throw error;
     }
+  }
+
+  private async handleErrorResponse(response: Response): Promise<never> {
+    let errorMessage = `Erro HTTP: ${response.status}`;
+    let apiError: ApiError | null = null;
+    
+    try {
+      const contentType = response.headers.get('content-type');
+      
+      if (contentType && contentType.includes('application/json')) {
+        apiError = await response.json();
+        errorMessage = apiError?.message || errorMessage;
+      } else {
+        const errorText = await response.text();
+        console.error('🚨 API Error Response:', errorText);
+        
+        // Se for HTML (página de erro), mostrar mensagem mais amigável
+        if (errorText.includes('<!doctype') || errorText.includes('<html')) {
+          errorMessage = 'Servidor indisponível. Verifique se o backend está rodando.';
+        } else {
+          errorMessage = errorText || errorMessage;
+        }
+      }
+    } catch (parseError) {
+      console.error('Erro ao parsear resposta de erro:', parseError);
+    }
+
+    // Handle specific HTTP status codes
+    switch (response.status) {
+      case 401:
+        // Token expirado ou inválido
+        errorMessage = 'Sessão expirada. Faça login novamente.';
+        // Optionally trigger logout here
+        break;
+      case 403:
+        errorMessage = 'Você não tem permissão para realizar esta ação.';
+        break;
+      case 404:
+        errorMessage = 'Recurso não encontrado.';
+        break;
+      case 422:
+        errorMessage = apiError?.message || 'Dados inválidos fornecidos.';
+        break;
+      case 429:
+        errorMessage = 'Muitas requisições. Tente novamente em alguns minutos.';
+        break;
+      case 500:
+        errorMessage = 'Erro interno do servidor. Tente novamente mais tarde.';
+        break;
+      case 503:
+        errorMessage = 'Serviço temporariamente indisponível.';
+        break;
+    }
+
+    const error = new Error(errorMessage);
+    (error as any).statusCode = response.status;
+    (error as any).apiError = apiError;
+    
+    throw error;
+  }
+
+  // User management methods
+  async getUserProfile(): Promise<any> {
+    const response = await this.request<any>('/api/users/profile');
+    return response.data;
+  }
+
+  async createUser(userData: any): Promise<any> {
+    const response = await this.request<any>('/api/users', {
+      method: 'POST',
+      body: JSON.stringify(userData)
+    });
+    return response.data;
+  }
+
+  async updateUserProfile(userData: any): Promise<any> {
+    const response = await this.request<any>('/api/users/profile', {
+      method: 'PUT',
+      body: JSON.stringify(userData)
+    });
+    return response.data;
   }
 
   // Auth endpoints

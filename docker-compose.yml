@@ -9,6 +9,7 @@ services:
       POSTGRES_USER: will_finance
       POSTGRES_PASSWORD: cyberpunk2077
       POSTGRES_DB: will_finance_db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
     ports:
       - "5432:5432"
     volumes:
@@ -17,6 +18,11 @@ services:
     networks:
       - will-finance-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U will_finance -d will_finance_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Redis Cache
   redis:
@@ -29,6 +35,11 @@ services:
     networks:
       - will-finance-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Backend API
   api:
@@ -40,13 +51,19 @@ services:
       NODE_ENV: production
       DATABASE_URL: postgresql://will_finance:cyberpunk2077@postgres:5432/will_finance_db
       REDIS_URL: redis://redis:6379
-      JWT_SECRET: your-super-secret-jwt-key-change-in-production
-      CLIENT_URL: http://localhost:3000
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production-2024-cyberpunk
+      CLIENT_URL: http://localhost:5173
+      PORT: 8080
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
+      FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
+      FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
     ports:
-      - "3001:3001"
+      - "8080:8080"
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - will-finance-network
     restart: unless-stopped

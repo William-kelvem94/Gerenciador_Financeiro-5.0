@@ -20,13 +20,13 @@ export interface N8nAnalysisResponse {
 }
 
 class N8nService {
-  private baseUrl: string;
-  private webhookToken: string;
+  private readonly baseUrl: string;
+  private readonly webhookToken: string;
 
   constructor() {
     // Configurações do n8n - ajustar conforme sua instância
-    this.baseUrl = import.meta.env.VITE_N8N_BASE_URL || 'http://localhost:5678';
-    this.webhookToken = import.meta.env.VITE_N8N_WEBHOOK_TOKEN || 'demo-token';
+    this.baseUrl = import.meta.env.VITE_N8N_BASE_URL ?? 'http://localhost:5678';
+    this.webhookToken = import.meta.env.VITE_N8N_WEBHOOK_TOKEN ?? 'demo-token';
   }
 
   /**
@@ -168,8 +168,8 @@ class N8nService {
    * Análise simulada para fallback
    */
   private getSimulatedAnalysis(transactions: any[]): N8nAnalysisResponse {
-    const totalAmount = transactions.reduce((sum, t) => sum + Math.abs(t.amount || 0), 0);
-    const avgTransaction = totalAmount / transactions.length || 0;
+    const totalAmount = transactions.reduce((sum, t) => sum + Math.abs(t.amount ?? 0), 0);
+    const avgTransaction = transactions.length > 0 ? totalAmount / transactions.length : 0;
 
     return {
       success: true,
@@ -270,6 +270,38 @@ class N8nService {
     } catch (error) {
       console.warn('⚠️ n8n não está acessível, usando modo simulado:', error);
       return false;
+    }
+  }
+
+  /**
+   * Envia mensagem para chatbot IA via n8n
+   */
+  async sendMessage(message: string, userId?: string): Promise<string> {
+    try {
+      const response = await fetch(`${this.baseUrl}/webhook/chatbot-ia`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.webhookToken}`,
+        },
+        body: JSON.stringify({
+          message,
+          userId: userId ?? 'anonymous',
+          timestamp: new Date().toISOString()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro no chatbot n8n: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      return result.response ?? result.message ?? 'Resposta da IA não disponível';
+
+    } catch (error) {
+      console.warn('⚠️ Chatbot n8n indisponível, usando resposta local:', error);
+      // Retorna null para usar o sistema local de respostas
+      return '';
     }
   }
 }

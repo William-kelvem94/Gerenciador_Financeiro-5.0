@@ -9,22 +9,25 @@ import {
   Moon,
   Sun,
   Volume2,
-  VolumeX,
   Smartphone,
   Monitor,
   Globe,
   LogOut,
   Trash2,
   Save,
-  Calendar,
   Settings as SettingsIcon,
   Terminal,
   ExternalLink,
   Database,
-  Cloud
+  Cloud,
+  Bug,
+  Activity,
+  Play
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
-import { useActiveSessions, ActiveSession } from '../hooks/useActiveSessions';
+import { useActiveSessions } from '../hooks/useActiveSessions';
+import { BetaTester } from '../components/testing/BetaTester';
+import { OAuthFixer } from '../components/testing/OAuthFixer';
 
 export function SettingsPage() {
   const { settings, updateSettings, updateProfile, changePassword, loading, error } = useSettings();
@@ -44,6 +47,8 @@ export function SettingsPage() {
   });
   const [successMessage, setSuccessMessage] = useState('');
   const [savingField, setSavingField] = useState<string | null>(null);
+  const [showBetaTester, setShowBetaTester] = useState(false);
+  const [showOAuthFixer, setShowOAuthFixer] = useState(false);
 
   // Atualizar formulário quando as configurações mudarem
   useEffect(() => {
@@ -100,7 +105,17 @@ export function SettingsPage() {
       setSuccessMessage('');
       
       await updateProfile({ [field]: value } as any);
-      setSuccessMessage(`${field === 'name' ? 'Nome' : field === 'email' ? 'Email' : 'Telefone'} atualizado com sucesso!`);
+      
+      let fieldName = 'Campo';
+      if (field === 'name') {
+        fieldName = 'Nome';
+      } else if (field === 'email') {
+        fieldName = 'Email';
+      } else if (field === 'phone') {
+        fieldName = 'Telefone';
+      }
+      
+      setSuccessMessage(`${fieldName} atualizado com sucesso!`);
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       console.error('Erro ao atualizar perfil:', err);
@@ -260,11 +275,12 @@ export function SettingsPage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-gray-400 text-sm font-medium mb-2">
+                  <label htmlFor="profile-name" className="block text-gray-400 text-sm font-medium mb-2">
                     Nome Completo
                   </label>
                   <div className="relative">
                     <input
+                      id="profile-name"
                       type="text"
                       value={profileForm.name}
                       onChange={(e) => handleFormChange('name', e.target.value)}
@@ -281,11 +297,12 @@ export function SettingsPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-gray-400 text-sm font-medium mb-2">
+                  <label htmlFor="profile-email" className="block text-gray-400 text-sm font-medium mb-2">
                     Email
                   </label>
                   <div className="relative">
                     <input
+                      id="profile-email"
                       type="email"
                       value={profileForm.email}
                       onChange={(e) => handleFormChange('email', e.target.value)}
@@ -302,11 +319,12 @@ export function SettingsPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-gray-400 text-sm font-medium mb-2">
+                  <label htmlFor="profile-phone" className="block text-gray-400 text-sm font-medium mb-2">
                     Telefone
                   </label>
                   <div className="relative">
                     <input
+                      id="profile-phone"
                       type="tel"
                       value={profileForm.phone}
                       onChange={(e) => handleFormChange('phone', e.target.value)}
@@ -323,7 +341,7 @@ export function SettingsPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-gray-400 text-sm font-medium mb-2">
+                  <label htmlFor="photo-upload" className="block text-gray-400 text-sm font-medium mb-2">
                     Foto do Perfil
                   </label>
                   <div className="flex items-center space-x-3">
@@ -363,11 +381,12 @@ export function SettingsPage() {
                 <h3 className="text-lg font-semibold text-cyan-100 mb-4">Alterar Senha</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">
+                    <label htmlFor="current-password" className="block text-gray-400 text-sm font-medium mb-2">
                       Senha Atual
                     </label>
                     <div className="relative">
                       <input
+                        id="current-password"
                         type={showPassword ? 'text' : 'password'}
                         value={passwords.current}
                         onChange={(e) => setPasswords(prev => ({ ...prev, current: e.target.value }))}
@@ -384,10 +403,11 @@ export function SettingsPage() {
                   </div>
                   
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">
+                    <label htmlFor="new-password" className="block text-gray-400 text-sm font-medium mb-2">
                       Nova Senha
                     </label>
                     <input
+                      id="new-password"
                       type={showPassword ? 'text' : 'password'}
                       value={passwords.new}
                       onChange={(e) => setPasswords(prev => ({ ...prev, new: e.target.value }))}
@@ -396,10 +416,11 @@ export function SettingsPage() {
                   </div>
                   
                   <div>
-                    <label className="block text-gray-400 text-sm font-medium mb-2">
+                    <label htmlFor="confirm-password" className="block text-gray-400 text-sm font-medium mb-2">
                       Confirmar Nova Senha
                     </label>
                     <input
+                      id="confirm-password"
                       type={showPassword ? 'text' : 'password'}
                       value={passwords.confirm}
                       onChange={(e) => setPasswords(prev => ({ ...prev, confirm: e.target.value }))}
@@ -526,7 +547,7 @@ export function SettingsPage() {
                       <span className="text-gray-300">Senha</span>
                     </div>
                     <p className="text-sm text-gray-400">
-                      Última alteração: {settings.lastPasswordChange || 'Nunca alterada'}
+                      Última alteração: {(settings as any).lastPasswordChange ?? 'Nunca alterada'}
                     </p>
                     <button 
                       onClick={() => setActiveTab('profile')}
@@ -571,32 +592,41 @@ export function SettingsPage() {
                   </button>
                 </div>
                 
-                {sessionsLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="animate-spin h-6 w-6 border-2 border-cyan-500 border-t-transparent rounded-full"></div>
-                    <span className="ml-2 text-gray-400">Carregando sessões...</span>
-                  </div>
-                ) : sessions.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400">
-                    <Monitor className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>Nenhuma sessão ativa encontrada</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {sessions.map((session) => (
-                      <div key={session.id} className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-600/50">
-                        <div className="flex items-center space-x-4">
-                          <div className={`p-2 rounded-lg ${session.isCurrent ? 'bg-cyan-500/20' : 'bg-gray-500/30'}`}>
-                            {session.deviceType === 'mobile' ? (
-                              <Smartphone className={`h-5 w-5 ${session.isCurrent ? 'text-cyan-400' : 'text-gray-400'}`} />
-                            ) : (
-                              <Monitor className={`h-5 w-5 ${session.isCurrent ? 'text-cyan-400' : 'text-gray-400'}`} />
-                            )}
-                          </div>
-                          <div>
-                            <div className="flex items-center space-x-2">
-                              <span className="text-gray-300 font-medium">{session.deviceName || 'Dispositivo desconhecido'}</span>
-                              {session.isCurrent && (
+                {(() => {
+                  if (sessionsLoading) {
+                    return (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin h-6 w-6 border-2 border-cyan-500 border-t-transparent rounded-full"></div>
+                        <span className="ml-2 text-gray-400">Carregando sessões...</span>
+                      </div>
+                    );
+                  }
+                  
+                  if (sessions.length === 0) {
+                    return (
+                      <div className="text-center py-8 text-gray-400">
+                        <Monitor className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                        <p>Nenhuma sessão ativa encontrada</p>
+                      </div>
+                    );
+                  }
+                  
+                  return (
+                    <div className="space-y-3">
+                      {sessions.map((session) => (
+                        <div key={session.id} className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-600/50">
+                          <div className="flex items-center space-x-4">
+                            <div className={`p-2 rounded-lg ${session.isCurrent ? 'bg-cyan-500/20' : 'bg-gray-500/30'}`}>
+                              {session.deviceType === 'mobile' ? (
+                                <Smartphone className={`h-5 w-5 ${session.isCurrent ? 'text-cyan-400' : 'text-gray-400'}`} />
+                              ) : (
+                                <Monitor className={`h-5 w-5 ${session.isCurrent ? 'text-cyan-400' : 'text-gray-400'}`} />
+                              )}
+                            </div>
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-gray-300 font-medium">{session.deviceName || 'Dispositivo desconhecido'}</span>
+                                {session.isCurrent && (
                                 <span className="px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs rounded-full">
                                   Sessão atual
                                 </span>
@@ -623,7 +653,8 @@ export function SettingsPage() {
                       </div>
                     ))}
                   </div>
-                )}
+                  );
+                })()}
               </div>
 
               {/* Atividade de Login */}
@@ -797,7 +828,7 @@ export function SettingsPage() {
                       </div>
                     </div>
                     <button 
-                      onClick={() => window.open('https://github.com', '_blank')}
+                      onClick={() => window.open('https://github.com/William-kelvem94/Gerenciador_Financeiro-5.0', '_blank')}
                       className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
                     >
                       <ExternalLink className="h-3 w-3" />
@@ -851,10 +882,71 @@ export function SettingsPage() {
                       <span>Backup Dados</span>
                     </button>
                     
+                    <button 
+                      onClick={() => setShowOAuthFixer(true)}
+                      className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    >
+                      <Shield className="h-4 w-4" />
+                      <span>Corrigir OAuth</span>
+                    </button>
+                    
                     <button className="flex items-center space-x-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
                       <SettingsIcon className="h-4 w-4" />
                       <span>Logs Sistema</span>
                     </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sistema de Testes Beta */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-cyan-400 flex items-center space-x-2">
+                  <Bug className="h-5 w-5" />
+                  <span>Sistema de Testes Beta</span>
+                </h3>
+                
+                <div className="bg-gray-900/50 border border-gray-600 rounded-lg p-4">
+                  <div className="mb-4">
+                    <h4 className="font-semibold text-white mb-2">🧪 Beta Tester Pro</h4>
+                    <p className="text-sm text-gray-400 mb-4">
+                      Sistema completo de testes automatizados que atua como um beta tester avançado.
+                      Testa autenticação, API, interface, performance, segurança e integrações.
+                    </p>
+                    
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={() => setShowBetaTester(!showBetaTester)}
+                        className="flex items-center space-x-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                      >
+                        <Bug className="h-4 w-4" />
+                        <span>{showBetaTester ? 'Fechar' : 'Abrir'} Beta Tester</span>
+                      </button>
+                      
+                      <div className="flex items-center space-x-4 text-sm text-gray-400">
+                        <div className="flex items-center space-x-1">
+                          <Activity className="h-3 w-3 text-green-400" />
+                          <span>8 Suítes de Teste</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Play className="h-3 w-3 text-blue-400" />
+                          <span>55+ Testes Automatizados</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Lista de recursos do Beta Tester */}
+                  <div className="bg-black/20 rounded-lg p-3">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-gray-300">
+                      <div>✅ Autenticação</div>
+                      <div>✅ API Backend</div>
+                      <div>✅ Interface UI</div>
+                      <div>✅ Performance</div>
+                      <div>✅ Segurança</div>
+                      <div>✅ Integrações</div>
+                      <div>✅ Database</div>
+                      <div>✅ WebSocket</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -895,6 +987,52 @@ export function SettingsPage() {
           )}
         </div>
       </div>
+      
+      {/* Modal do OAuth Fixer */}
+      {showOAuthFixer && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm">
+          <div className="fixed inset-4 bg-gray-900 rounded-xl border border-gray-700 overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-800">
+              <div className="flex items-center space-x-3">
+                <Shield className="h-6 w-6 text-red-500" />
+                <h2 className="text-xl font-bold text-white">OAuth Fix Assistant</h2>
+              </div>
+              <button
+                onClick={() => setShowOAuthFixer(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="h-full overflow-auto">
+              <OAuthFixer />
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Modal do Beta Tester */}
+      {showBetaTester && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm">
+          <div className="fixed inset-4 bg-gray-900 rounded-xl border border-gray-700 overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-800">
+              <div className="flex items-center space-x-3">
+                <Bug className="h-6 w-6 text-orange-500" />
+                <h2 className="text-xl font-bold text-white">Beta Tester Pro</h2>
+              </div>
+              <button
+                onClick={() => setShowBetaTester(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="h-full overflow-auto">
+              <BetaTester />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

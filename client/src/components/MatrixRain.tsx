@@ -14,51 +14,48 @@ interface Drop {
   color: string;
 }
 
-export function MatrixRain({ intensity = 'medium', className = '' }: MatrixRainProps) {
+export function MatrixRain({ intensity = 'medium', className = '' }: Readonly<MatrixRainProps>) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dropsRef = useRef<Drop[]>([]);
   const animationRef = useRef<number>();
 
-  // Caracteres financeiros e cyberpunk com bias para números e símbolos
+  // Caracteres Matrix originais + financeiros
   const financialChars = [
-    // Números (bias alto - 40%)
+    // Números (bias alto - Matrix usa muitos números)
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', // duplicado para maior frequência
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', // triplicado
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', // quadruplicado
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
     
-    // Símbolos financeiros (bias médio - 30%)
-    '$', '€', '£', '¥', '₹', '₿', '%', '+', '-', '=',
-    '$', '€', '£', '¥', '₹', '₿', '%', '+', '-', '=', // duplicado
-    '$', '€', '£', '¥', '₹', '₿', '%', '+', '-', '=', // triplicado
+    // Katakana Matrix original
+    'ア', 'イ', 'ウ', 'エ', 'オ', 'カ', 'キ', 'ク', 'ケ', 'コ',
+    'サ', 'シ', 'ス', 'セ', 'ソ', 'タ', 'チ', 'ツ', 'テ', 'ト',
+    'ナ', 'ニ', 'ヌ', 'ネ', 'ノ', 'ハ', 'ヒ', 'フ', 'ヘ', 'ホ',
+    'マ', 'ミ', 'ム', 'メ', 'モ', 'ヤ', 'ユ', 'ヨ', 'ラ', 'リ',
+    'ル', 'レ', 'ロ', 'ワ', 'ヲ', 'ン',
     
-    // Símbolos matemáticos e especiais (bias médio - 20%)
-    '∑', '∆', '∏', '∞', '√', '±', '≤', '≥', '≠', '≈',
-    '∑', '∆', '∏', '∞', '√', '±', '≤', '≥', '≠', '≈', // duplicado
+    // Símbolos financeiros
+    '$', '€', '£', '¥', '₿', '%', '+', '-', '=',
     
-    // Katakana e letras (bias baixo - 10%)
-    'ア', 'カ', 'サ', 'タ', 'ナ', 'ハ', 'マ', 'ヤ', 'ラ', 'ワ',
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-    'U', 'V', 'W', 'X', 'Y', 'Z'
+    // Letras (algumas)
+    'A', 'B', 'C', 'D', 'E', 'F', 'Z', 'X', 'Y'
   ];
 
-  // Cores cyberpunk vibrantes
+  // Cores Matrix mais originais
   const cyberpunkColors = [
-    '#00FFFF', // Cyan neon
+    '#00FF41', // Verde Matrix clássico (principal)
+    '#00FF41', // Verde Matrix (duplicado para maior frequência)
+    '#00FF41', // Verde Matrix (triplicado)
     '#39FF14', // Verde neon
-    '#FFD700', // Dourado
-    '#FF4500', // Laranja neon
-    '#FF0080', // Pink neon
-    '#8A2BE2', // Roxo neon
-    '#00FF41', // Verde Matrix clássico
-    '#FFFF00', // Amarelo neon
+    '#00FFFF', // Cyan neon
+    '#FFFFFF', // Branco (pontos de destaque)
+    '#80FF00', // Verde limão
+    '#00FF80', // Verde aqua
   ];
 
   const intensitySettings = {
-    low: { dropCount: 15, speed: 0.5 },
-    medium: { dropCount: 25, speed: 0.8 },
-    high: { dropCount: 40, speed: 1.2 }
+    low: { dropCount: 30, speed: 0.8 },
+    medium: { dropCount: 60, speed: 1.2 },
+    high: { dropCount: 120, speed: 1.8 }
   };
 
   const getRandomChar = useCallback(() => {
@@ -70,15 +67,15 @@ export function MatrixRain({ intensity = 'medium', className = '' }: MatrixRainP
   }, []);
 
   const createDrop = useCallback((canvas: HTMLCanvasElement): Drop => {
-    const charCount = Math.floor(Math.random() * 20) + 10; // 10-30 caracteres por coluna
+    const charCount = Math.floor(Math.random() * 25) + 15; // 15-40 caracteres por coluna (Matrix style)
     const characters = Array.from({ length: charCount }, () => getRandomChar());
     
     return {
-      x: Math.floor(Math.random() * (canvas.width / 20)) * 20,
+      x: Math.floor(Math.random() * (canvas.width / 12)) * 12, // Colunas mais próximas
       y: Math.random() * -500, // Começar acima da tela
-      speed: (Math.random() * 2 + 1) * intensitySettings[intensity].speed,
+      speed: (Math.random() * 3 + 2) * intensitySettings[intensity].speed,
       characters,
-      opacity: Math.random() * 0.8 + 0.2,
+      opacity: Math.random() * 0.7 + 0.3, // Mais opaco
       color: getRandomColor()
     };
   }, [intensity, getRandomChar, getRandomColor]);
@@ -90,8 +87,8 @@ export function MatrixRain({ intensity = 'medium', className = '' }: MatrixRainP
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Clear com fade effect para rastro
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    // Clear com rastro mais sutil (Matrix original)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Atualizar e desenhar drops
@@ -101,28 +98,28 @@ export function MatrixRain({ intensity = 'medium', className = '' }: MatrixRainP
 
       // Desenhar caracteres da coluna
       drop.characters.forEach((char, charIndex) => {
-        const y = drop.y + (charIndex * 20);
+        const y = drop.y + (charIndex * 14); // Espaçamento menor para densidade Matrix original
         
         if (y > 0 && y < canvas.height + 100) {
           // Efeito de fade - caracteres mais antigos ficam mais transparentes
           const fadeOpacity = Math.max(0, 1 - (charIndex * 0.1));
           
-          // Glow effect
+          // Efeito Matrix original - sem blur excessivo
           ctx.shadowColor = drop.color;
-          ctx.shadowBlur = 10;
+          ctx.shadowBlur = 3; // Glow sutil como no Matrix original
           ctx.fillStyle = drop.color;
           ctx.globalAlpha = drop.opacity * fadeOpacity;
-          ctx.font = '14px "Courier New", monospace';
+          ctx.font = 'bold 13px "Courier New", monospace'; // Fonte Matrix original
           ctx.textAlign = 'center';
           
           // Desenhar caractere principal
           ctx.fillText(char, drop.x, y);
           
-          // Efeito de brilho adicional no primeiro caractere
+          // Efeito de brilho no primeiro caractere (como Matrix original)
           if (charIndex === 0) {
-            ctx.shadowBlur = 20;
+            ctx.shadowBlur = 8;
             ctx.fillStyle = '#FFFFFF';
-            ctx.globalAlpha = drop.opacity * 0.8;
+            ctx.globalAlpha = drop.opacity * 0.9; // Mais brilhante
             ctx.fillText(char, drop.x, y);
           }
         }
@@ -188,10 +185,11 @@ export function MatrixRain({ intensity = 'medium', className = '' }: MatrixRainP
   return (
     <canvas
       ref={canvasRef}
-      className={`fixed inset-0 pointer-events-none z-0 ${className}`}
+      className={`fixed inset-0 pointer-events-none ${className}`}
       style={{ 
         background: 'transparent',
-        mixBlendMode: 'screen' // Efeito de blend para cores mais vibrantes
+        mixBlendMode: 'screen',
+        zIndex: 1
       }}
     />
   );

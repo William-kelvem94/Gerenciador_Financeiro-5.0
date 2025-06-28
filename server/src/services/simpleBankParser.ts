@@ -338,6 +338,8 @@ class BankStatementParser {
         }
       } catch (error) {
         // Ignora linhas que não conseguem ser parseadas
+        console.warn(`Erro ao processar linha: ${line}`, error);
+        continue;
         console.warn(`Erro ao processar linha ${i + 1}: ${error}`);
       }
     }
@@ -409,6 +411,8 @@ class BankStatementParser {
 
     const [, dateStr, description, amountStr] = match;
     
+    if (!dateStr || !description) return null;
+    
     const date = this.parseDate(dateStr);
     if (!date) return null;
 
@@ -417,7 +421,7 @@ class BankStatementParser {
 
     return {
       date,
-      description: description.trim(),
+      description: description?.trim() || 'Transação',
       amount: Math.abs(amount),
       type: amount >= 0 ? 'INCOME' : 'EXPENSE',
       originalLine: line

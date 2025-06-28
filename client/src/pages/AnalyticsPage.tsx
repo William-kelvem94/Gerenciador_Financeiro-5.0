@@ -114,7 +114,7 @@ export function AnalyticsPage() {
     monthlyData: []
   };
 
-  const data = analyticsData || defaultData;
+  const data = analyticsData ?? defaultData;
 
   useEffect(() => {
     if (selectedPeriod === 'custom' && customStartDate && customEndDate) {
@@ -233,11 +233,12 @@ export function AnalyticsPage() {
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                    <label htmlFor="start-date" className="block text-sm font-medium text-gray-400 mb-2">
                       Data de Início
                     </label>
                     <div className="relative">
                       <input
+                        id="start-date"
                         type="date"
                         value={customStartDate}
                         onChange={(e) => setCustomStartDate(e.target.value)}
@@ -251,11 +252,12 @@ export function AnalyticsPage() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                    <label htmlFor="end-date" className="block text-sm font-medium text-gray-400 mb-2">
                       Data de Fim
                     </label>
                     <div className="relative">
                       <input
+                        id="end-date"
                         type="date"
                         value={customEndDate}
                         onChange={(e) => setCustomEndDate(e.target.value)}
@@ -372,7 +374,7 @@ export function AnalyticsPage() {
           </div>
           
           <div className="space-y-4">
-            {data.monthlyData && data.monthlyData.map((month: any) => (
+            {data.monthlyData?.map((month: any) => (
               <div key={month.month} className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 text-sm text-gray-400">{month.month}</div>
@@ -415,7 +417,7 @@ export function AnalyticsPage() {
           </div>
           
           <div className="space-y-4">
-            {data.topCategories && data.topCategories.map((category: any) => (
+            {data.topCategories?.map((category: any) => (
               <div key={category.name} className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div 
@@ -436,7 +438,7 @@ export function AnalyticsPage() {
 
           {/* Progress bars */}
           <div className="mt-6 space-y-3">
-            {data.topCategories && data.topCategories.map((category: any) => (
+            {data.topCategories?.map((category: any) => (
               <div key={category.name} className="space-y-1">
                 <div className="flex justify-between text-xs">
                   <span className="text-gray-400">{category.name}</span>
@@ -501,11 +503,11 @@ export function AnalyticsPage() {
             <div className="w-full bg-gray-700 rounded-full h-3">
               <div 
                 className={`h-3 rounded-full transition-all duration-300 ${
-                  expenseRatio <= 60 
-                    ? 'bg-gradient-to-r from-green-500 to-green-400' 
-                    : expenseRatio <= 80 
-                      ? 'bg-gradient-to-r from-yellow-500 to-yellow-400' 
-                      : 'bg-gradient-to-r from-red-500 to-red-400'
+                  (() => {
+                    if (expenseRatio <= 60) return 'bg-gradient-to-r from-green-500 to-green-400';
+                    if (expenseRatio <= 80) return 'bg-gradient-to-r from-yellow-500 to-yellow-400';
+                    return 'bg-gradient-to-r from-red-500 to-red-400';
+                  })()
                 }`}
                 style={{ width: `${Math.min(expenseRatio, 100)}%` }}
               ></div>

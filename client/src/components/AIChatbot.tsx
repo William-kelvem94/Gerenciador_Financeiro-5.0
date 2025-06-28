@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X, Send, Sparkles, Zap, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PhoenixLogo } from './PhoenixLogo';
@@ -16,7 +16,7 @@ interface ChatbotProps {
   onToggle: () => void;
 }
 
-export function AIChatbot({ isOpen, onToggle }: ChatbotProps) {
+export function AIChatbot({ isOpen, onToggle }: Readonly<ChatbotProps>) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -50,7 +50,7 @@ export function AIChatbot({ isOpen, onToggle }: ChatbotProps) {
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: aiResponse || getBotResponse(currentInput),
+        content: aiResponse ?? getBotResponse(currentInput),
         timestamp: new Date()
       };
       
@@ -127,21 +127,15 @@ export function AIChatbot({ isOpen, onToggle }: ChatbotProps) {
       {/* Botão Flutuante da Fênix */}
       <motion.button
         onClick={onToggle}
-        className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-orange-500 via-red-500 to-yellow-500 rounded-full shadow-2xl flex items-center justify-center text-white hover:from-orange-600 hover:via-red-600 hover:to-yellow-600 transition-all duration-300 z-50 overflow-hidden border-2 border-orange-400"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-orange-500 via-red-500 to-yellow-500 rounded-full shadow-lg flex items-center justify-center text-white hover:from-orange-600 hover:via-red-600 hover:to-yellow-600 transition-all duration-300 z-50 overflow-hidden border-2 border-orange-400"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         animate={{ 
           boxShadow: isOpen 
-            ? '0 0 40px rgba(255, 100, 0, 0.9), 0 0 60px rgba(255, 140, 0, 0.6)' 
-            : '0 0 20px rgba(255, 100, 0, 0.6), 0 0 40px rgba(255, 140, 0, 0.3)' 
+            ? '0 0 20px rgba(255, 140, 0, 0.5)' 
+            : '0 0 15px rgba(255, 140, 0, 0.3)' 
         }}
       >
-        {/* Efeito de circuitos de fundo */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-2 border border-orange-300 rounded-full animate-spin-slow"></div>
-          <div className="absolute inset-4 border border-yellow-300 rounded-full animate-spin-reverse"></div>
-        </div>
-        
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.3 }}
@@ -154,19 +148,21 @@ export function AIChatbot({ isOpen, onToggle }: ChatbotProps) {
           )}
         </motion.div>
         
-        {/* Pulso de energia */}
+        {/* Pulso suave */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-orange-400 via-red-400 to-yellow-400 rounded-full"
+          className="absolute inset-0 bg-gradient-to-r from-orange-400/20 via-red-400/20 to-yellow-400/20 rounded-full"
           animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.3, 0.1, 0.3],
+            scale: [1, 1.1, 1],
+            opacity: [0.2, 0.1, 0.2],
           }}
           transition={{
-            duration: 2,
+            duration: 3,
             repeat: Infinity,
             ease: "easeInOut"
           }}
         />
+      </motion.button>
+
       {/* Chat Popup */}
       <AnimatePresence>
         {isOpen && (
@@ -273,7 +269,7 @@ export function AIChatbot({ isOpen, onToggle }: ChatbotProps) {
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                   placeholder="Pergunte sobre suas finanças..."
                   className="flex-1 bg-gray-700/70 text-white px-4 py-3 rounded-xl border border-gray-600/50 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-sm placeholder-gray-400 transition-all"
                 />
