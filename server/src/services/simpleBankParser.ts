@@ -227,7 +227,7 @@ class BankStatementParser {
         // Extrair valores monetários
         const values = trimmedLine.match(/[\d.,]+/g) || [];
         
-        if (values.length > 0) {
+        if (values.length > 0 && dateStr) {
           // Extrair descrição
           const afterDate = trimmedLine.substring(trimmedLine.indexOf(dateStr) + dateStr.length).trim();
           const firstNumberIndex = afterDate.search(/[\d.,]/);
@@ -257,12 +257,12 @@ class BankStatementParser {
       
       // Buscar qualquer padrão de data
       const dateMatch = trimmedLine.match(/(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/);
-      if (dateMatch) {
+      if (dateMatch && dateMatch[1]) {
         const dateStr = dateMatch[1];
         
         // Extrair valores monetários
         const valueMatch = trimmedLine.match(/([\d.,]+)/);
-        if (valueMatch) {
+        if (valueMatch && valueMatch[1]) {
           const value = valueMatch[1];
           
           // Extrair descrição (texto entre data e valor)

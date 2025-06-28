@@ -52,9 +52,69 @@ const defaultSettings: UserSettings = {
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const [settings, setSettings] = useState<UserSettings>(defaultSettings);
+  const [settings, setSettings] = useState<UserSettings>(() => {
+    const saved = localStorage.getItem('userSettings');
+    return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Apply theme to document
+  useEffect(() => {
+    const applyTheme = () => {
+      const html = document.documentElement;
+      let themeToApply = settings.theme;
+
+      if (settings.theme === 'auto') {
+        themeToApply = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+
+      // Remove todas as classes de tema
+      html.classList.remove('light', 'dark');
+      html.classList.add(themeToApply);
+      
+      // Aplicar também no body para garantia
+      document.body.classList.remove('light', 'dark');
+      document.body.classList.add(themeToApply);
+      
+      // Update meta theme-color
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (metaThemeColor) {
+        metaThemeColor.setAttribute('content', themeToApply === 'dark' ? '#0A0A0A' : '#FFFFFF');
+      }
+
+      // Aplicar CSS custom properties
+      if (themeToApply === 'dark') {
+        html.style.setProperty('--background', '#0A0A0A');
+        html.style.setProperty('--foreground', '#FFFFFF');
+        html.style.setProperty('--card', '#1A1A1A');
+        html.style.setProperty('--card-foreground', '#FFFFFF');
+        html.style.setProperty('--primary', '#00FFFF');
+        html.style.setProperty('--secondary', '#1A1A1A');
+      } else {
+        html.style.setProperty('--background', '#FFFFFF');
+        html.style.setProperty('--foreground', '#0A0A0A');
+        html.style.setProperty('--card', '#F8F9FA');
+        html.style.setProperty('--card-foreground', '#0A0A0A');
+        html.style.setProperty('--primary', '#0066CC');
+        html.style.setProperty('--secondary', '#F8F9FA');
+      }
+    };
+
+    applyTheme();
+
+    // Listen for system theme changes when using auto
+    if (settings.theme === 'auto') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      mediaQuery.addEventListener('change', applyTheme);
+      return () => mediaQuery.removeEventListener('change', applyTheme);
+    }
+  }, [settings.theme]);
+
+  // Persist settings to localStorage
+  useEffect(() => {
+    localStorage.setItem('userSettings', JSON.stringify(settings));
+  }, [settings]);
 
   // Carregar configurações do usuário
   useEffect(() => {
@@ -62,8 +122,21 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
+        
+        // Carregar configurações locais primeiro
+        const localSettings = localStorage.getItem('userSettings');
+        if (localSettings) {
+          try {
+            const parsed = JSON.parse(localSettings);
+            setSettings({ ...defaultSettings, ...parsed });
+          } catch (e) {
+            console.warn('Erro ao carregar configurações locais:', e);
+          }
+        }
+
         if (!token) return;
 
+        // Carregar do servidor e sincronizar
         const response = await fetch('/api/settings', {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -72,7 +145,24 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 
         if (response.ok) {
           const data = await response.json();
-          setSettings({ ...defaultSettings, ...data.data });
+          const serverSettings = { ...defaultSettings, ...data.data };
+          
+          // Detectar se veio do Google Auth e preencher automaticamente
+          if (data.data.googleAuth && !data.data.name && data.data.googleProfile) {
+            serverSettings.name = data.data.googleProfile.name || '';
+            serverSettings.email = data.data.googleProfile.email || '';
+            serverSettings.profilePicture = data.data.googleProfile.picture || '';
+            // Auto-salvar dados do Google
+            updateProfile({
+              name: serverSettings.name,
+              email: serverSettings.email,
+              profilePicture: serverSettings.profilePicture
+            }).catch(console.error);
+          }
+          
+          setSettings(serverSettings);
+          // Persistir localmente
+          localStorage.setItem('userSettings', JSON.stringify(serverSettings));
         }
       } catch (err) {
         console.error('Erro ao carregar configurações:', err);
@@ -114,6 +204,13 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Token não encontrado');
 
+      // Primeiro aplicar localmente para feedback imediato
+      const newSettings = { ...settings, ...updates };
+      setSettings(newSettings);
+      
+      // Persistir localmente
+      localStorage.setItem('userSettings', JSON.stringify(newSettings));
+
       const response = await fetch('/api/settings', {
         method: 'PUT',
         headers: {
@@ -124,11 +221,24 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao atualizar configurações');
+        // Reverter mudanças locais se falhar
+        setSettings(settings);
+        localStorage.setItem('userSettings', JSON.stringify(settings));
+        
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao atualizar configurações');
       }
 
-      setSettings(prev => ({ ...prev, ...updates }));
+      const data = await response.json();
+      console.log('✅ Configurações salvas:', data);
+      
+      // Atualizar com dados do servidor
+      const finalSettings = { ...newSettings, ...data.data };
+      setSettings(finalSettings);
+      localStorage.setItem('userSettings', JSON.stringify(finalSettings));
+      
     } catch (err) {
+      console.error('❌ Erro ao salvar configurações:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
       throw err;
     } finally {
@@ -144,6 +254,11 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Token não encontrado');
 
+      // Aplicar localmente primeiro
+      const newSettings = { ...settings, ...profile };
+      setSettings(newSettings);
+      localStorage.setItem('userSettings', JSON.stringify(newSettings));
+
       const response = await fetch('/api/user/profile', {
         method: 'PUT',
         headers: {
@@ -154,10 +269,24 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao atualizar perfil');
+        // Reverter se falhar
+        setSettings(settings);
+        localStorage.setItem('userSettings', JSON.stringify(settings));
+        
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao atualizar perfil');
       }
 
-      setSettings(prev => ({ ...prev, ...profile }));
+      const data = await response.json();
+      console.log('✅ Perfil atualizado:', data);
+      
+      // Confirmar com dados do servidor
+      if (data.data) {
+        const finalSettings = { ...newSettings, ...data.data };
+        setSettings(finalSettings);
+        localStorage.setItem('userSettings', JSON.stringify(finalSettings));
+      }
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
       throw err;

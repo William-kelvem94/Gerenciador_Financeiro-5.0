@@ -127,13 +127,21 @@ export function AIChatbot({ isOpen, onToggle }: ChatbotProps) {
       {/* Botão Flutuante da Fênix */}
       <motion.button
         onClick={onToggle}
-        className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-orange-500 to-red-600 rounded-full shadow-lg flex items-center justify-center text-white hover:from-orange-600 hover:to-red-700 transition-all duration-300 z-50 overflow-hidden"
+        className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-orange-500 via-red-500 to-yellow-500 rounded-full shadow-2xl flex items-center justify-center text-white hover:from-orange-600 hover:via-red-600 hover:to-yellow-600 transition-all duration-300 z-50 overflow-hidden border-2 border-orange-400"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         animate={{ 
-          boxShadow: isOpen ? '0 0 30px rgba(255, 100, 0, 0.8)' : '0 0 15px rgba(255, 100, 0, 0.5)' 
+          boxShadow: isOpen 
+            ? '0 0 40px rgba(255, 100, 0, 0.9), 0 0 60px rgba(255, 140, 0, 0.6)' 
+            : '0 0 20px rgba(255, 100, 0, 0.6), 0 0 40px rgba(255, 140, 0, 0.3)' 
         }}
       >
+        {/* Efeito de circuitos de fundo */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-2 border border-orange-300 rounded-full animate-spin-slow"></div>
+          <div className="absolute inset-4 border border-yellow-300 rounded-full animate-spin-reverse"></div>
+        </div>
+        
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.3 }}
@@ -146,12 +154,12 @@ export function AIChatbot({ isOpen, onToggle }: ChatbotProps) {
           )}
         </motion.div>
         
-        {/* Efeito de "pulsação" da Fênix */}
+        {/* Pulso de energia */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-600 rounded-full"
+          className="absolute inset-0 bg-gradient-to-r from-orange-400 via-red-400 to-yellow-400 rounded-full"
           animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.7, 0.3, 0.7]
+            scale: [1, 1.3, 1],
+            opacity: [0.3, 0.1, 0.3],
           }}
           transition={{
             duration: 2,
@@ -159,8 +167,6 @@ export function AIChatbot({ isOpen, onToggle }: ChatbotProps) {
             ease: "easeInOut"
           }}
         />
-      </motion.button>
-
       {/* Chat Popup */}
       <AnimatePresence>
         {isOpen && (
@@ -168,27 +174,30 @@ export function AIChatbot({ isOpen, onToggle }: ChatbotProps) {
             initial={{ opacity: 0, y: 20, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.8 }}
-            className="fixed bottom-24 right-6 w-96 h-96 bg-gray-900/95 backdrop-blur-md border border-orange-500/30 rounded-lg shadow-xl z-40"
+            className="fixed bottom-24 right-6 w-96 h-[500px] bg-gradient-to-br from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-xl border border-orange-500/40 rounded-xl shadow-2xl z-40 overflow-hidden"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-orange-500/20">
+            {/* Header com Fênix */}
+            <div className="flex items-center justify-between p-4 border-b border-orange-500/30 bg-gradient-to-r from-orange-500/10 to-red-500/10">
               <div className="flex items-center space-x-3">
-                <PhoenixLogo size="sm" animate={true} />
+                <div className="relative">
+                  <PhoenixLogo size="md" animate={true} />
+                  <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 to-red-400 rounded-full opacity-20 blur animate-pulse"></div>
+                </div>
                 <div>
-                  <h3 className="text-white font-semibold">Fênix IA</h3>
-                  <p className="text-orange-400 text-xs">Assistente Financeira</p>
+                  <h3 className="text-white font-bold text-lg">Fênix IA</h3>
+                  <p className="text-orange-400 text-sm">Assistente Financeira Inteligente</p>
                 </div>
               </div>
               <button
                 onClick={onToggle}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-gray-400 hover:text-white transition-colors p-1 hover:bg-gray-700/50 rounded"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 p-4 overflow-y-auto h-64 space-y-3">
+            {/* Messages Area */}
+            <div className="flex-1 p-4 overflow-y-auto h-80 space-y-4 scrollbar-thin scrollbar-thumb-orange-500/30 scrollbar-track-gray-800/30">
               {messages.map((message) => (
                 <motion.div
                   key={message.id}
@@ -196,17 +205,24 @@ export function AIChatbot({ isOpen, onToggle }: ChatbotProps) {
                   animate={{ opacity: 1, y: 0 }}
                   className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div
-                    className={`max-w-xs px-3 py-2 rounded-lg ${
-                      message.type === 'user'
-                        ? 'bg-orange-500 text-white'
-                        : 'bg-gray-700 text-gray-100'
-                    }`}
-                  >
-                    <p className="text-sm">{message.content}</p>
-                    <p className="text-xs opacity-70 mt-1">
-                      {message.timestamp.toLocaleTimeString()}
-                    </p>
+                  <div className="flex items-start space-x-2 max-w-xs">
+                    {message.type === 'bot' && (
+                      <div className="flex-shrink-0 mt-1">
+                        <PhoenixLogo size="sm" />
+                      </div>
+                    )}
+                    <div
+                      className={`px-4 py-3 rounded-2xl ${
+                        message.type === 'user'
+                          ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+                          : 'bg-gray-700/80 text-gray-100 border border-gray-600/50'
+                      }`}
+                    >
+                      <p className="text-sm leading-relaxed">{message.content}</p>
+                      <p className="text-xs opacity-70 mt-2">
+                        {message.timestamp.toLocaleTimeString('pt-BR')}
+                      </p>
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -217,11 +233,17 @@ export function AIChatbot({ isOpen, onToggle }: ChatbotProps) {
                   animate={{ opacity: 1 }}
                   className="flex justify-start"
                 >
-                  <div className="bg-gray-700 text-gray-100 px-3 py-2 rounded-lg">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce delay-100"></div>
-                      <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce delay-200"></div>
+                  <div className="flex items-start space-x-2">
+                    <PhoenixLogo size="sm" />
+                    <div className="bg-gray-700/80 text-gray-100 px-4 py-3 rounded-2xl border border-gray-600/50">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm">Fênix está pensando</span>
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce delay-100"></div>
+                          <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce delay-200"></div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -229,13 +251,13 @@ export function AIChatbot({ isOpen, onToggle }: ChatbotProps) {
             </div>
 
             {/* Quick Actions */}
-            <div className="px-4 py-2 border-t border-orange-500/20">
+            <div className="px-4 py-2 border-t border-orange-500/20 bg-gray-800/30">
               <div className="flex space-x-2 mb-2">
                 {quickActions.map((action) => (
                   <button
                     key={action.text}
                     onClick={action.action}
-                    className="flex items-center space-x-1 px-2 py-1 bg-orange-500/20 hover:bg-orange-500/30 rounded text-orange-400 text-xs transition-colors"
+                    className="flex items-center space-x-1 px-3 py-1.5 bg-orange-500/20 hover:bg-orange-500/30 rounded-lg text-orange-400 text-xs transition-all duration-200 hover:scale-105"
                   >
                     <action.icon className="h-3 w-3" />
                     <span>{action.text}</span>
@@ -244,21 +266,21 @@ export function AIChatbot({ isOpen, onToggle }: ChatbotProps) {
               </div>
             </div>
 
-            {/* Input */}
-            <div className="p-4 border-t border-orange-500/20">
-              <div className="flex space-x-2">
+            {/* Input Area */}
+            <div className="p-4 border-t border-orange-500/20 bg-gray-800/30">
+              <div className="flex space-x-3">
                 <input
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Digite sua pergunta..."
-                  className="flex-1 bg-gray-800 text-white px-3 py-2 rounded-lg border border-gray-600 focus:border-orange-500 focus:outline-none text-sm"
+                  placeholder="Pergunte sobre suas finanças..."
+                  className="flex-1 bg-gray-700/70 text-white px-4 py-3 rounded-xl border border-gray-600/50 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-sm placeholder-gray-400 transition-all"
                 />
                 <button
                   onClick={handleSendMessage}
-                  disabled={!inputValue.trim()}
-                  className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-600 text-white px-3 py-2 rounded-lg transition-colors"
+                  disabled={!inputValue.trim() || isTyping}
+                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:from-gray-600 disabled:to-gray-600 text-white px-4 py-3 rounded-xl transition-all duration-200 hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed shadow-lg"
                 >
                   <Send className="h-4 w-4" />
                 </button>

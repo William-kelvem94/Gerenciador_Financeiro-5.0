@@ -26,23 +26,56 @@ class ApiService {
     };
 
     try {
+      console.log(`🌐 API Request: ${options.method || 'GET'} ${url}`);
+      
       const response = await fetch(url, config);
       
+      console.log(`📊 API Response: ${response.status} ${response.statusText}`);
+      
       if (!response.ok) {
+        // Tentar ler o erro como JSON primeiro
+        let errorMessage = `Erro HTTP: ${response.status}`;
+        
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (jsonError) {
+          // Se não conseguir parsear como JSON, tentar como texto
+          try {
+            const errorText = await response.text();
+            console.error('🚨 API Error Response:', errorText);
+            
+            // Se for HTML (página de erro), mostrar mensagem mais amigável
+            if (errorText.includes('<!doctype') || errorText.includes('<html')) {
+              errorMessage = 'Servidor indisponível. Verifique se o backend está rodando.';
+            } else {
+              errorMessage = errorText || errorMessage;
+            }
+          } catch (textError) {
+            console.error('❌ Error reading response:', textError);
+          }
+        }
+        
         if (response.status === 401) {
           // Token expirado ou inválido
           useAuthStore.getState().logout();
           throw new Error('Sessão expirada. Faça login novamente.');
         }
         
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message ?? `Erro HTTP: ${response.status}`);
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
+      console.log('✅ API Success:', data);
       return data;
     } catch (error) {
-      console.error('API Error:', error);
+      console.error('❌ API Error:', error);
+      
+      // Se for erro de rede, mostrar mensagem específica
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Erro de conexão. Verifique se o servidor está rodando.');
+      }
+      
       throw error;
     }
   }

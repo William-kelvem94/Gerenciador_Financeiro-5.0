@@ -68,8 +68,41 @@ export function ImportExportPage() {
     setIsUploading(true);
     setUploadStatus('uploading');
     
+    // Validações básicas
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      setPreviewResult({
+        success: false,
+        errors: ['Arquivo muito grande. Máximo permitido: 10MB']
+      });
+      setUploadStatus('error');
+      setIsUploading(false);
+      return;
+    }
+
+    const allowedTypes = [
+      'text/csv',
+      'application/pdf',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/plain'
+    ];
+    
+    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(csv|pdf|xls|xlsx|txt|ofx)$/i)) {
+      setPreviewResult({
+        success: false,
+        errors: ['Formato de arquivo não suportado. Use: CSV, PDF, XLS, XLSX, TXT ou OFX']
+      });
+      setUploadStatus('error');
+      setIsUploading(false);
+      return;
+    }
+    
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('fileName', file.name);
+    formData.append('fileSize', file.size.toString());
+    formData.append('fileType', file.type);
 
     try {
       const response = await fetch('/api/import-export/preview', {
@@ -80,6 +113,10 @@ export function ImportExportPage() {
         body: formData
       });
 
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+
       const result = await response.json();
       setPreviewResult(result);
       
@@ -89,9 +126,10 @@ export function ImportExportPage() {
         setUploadStatus('error');
       }
     } catch (error) {
+      console.error('Erro no preview:', error);
       setPreviewResult({
         success: false,
-        errors: ['Erro ao processar o arquivo. Tente novamente.']
+        errors: [`Erro ao processar o arquivo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`]
       });
       setUploadStatus('error');
     } finally {
@@ -214,7 +252,37 @@ export function ImportExportPage() {
             <div>
               <h2 className="text-xl font-semibold text-cyan-100">Importar Extrato Bancário</h2>
               <p className="text-gray-400 text-sm">
-                Suporte para: Nubank, Banco do Brasil, Bradesco, Itaú, Santander, Inter, C6 Bank e mais
+                Sistema inteligente de parsing com suporte para múltiplos bancos e formatos
+              </p>
+            </div>
+          </div>
+
+          {/* Bancos Suportados */}
+          <div className="bg-gray-700/30 rounded-lg p-4 mb-6">
+            <h3 className="text-lg font-semibold text-cyan-100 mb-3">Bancos e Formatos Suportados</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { name: 'Bradesco', formats: ['PDF', 'CSV'], color: 'text-red-400' },
+                { name: 'Banco do Brasil', formats: ['CSV', 'TXT'], color: 'text-yellow-400' },
+                { name: 'Nubank', formats: ['CSV'], color: 'text-purple-400' },
+                { name: 'Itaú', formats: ['CSV', 'XLS'], color: 'text-orange-400' },
+                { name: 'Santander', formats: ['CSV', 'TXT'], color: 'text-red-400' },
+                { name: 'Inter', formats: ['CSV', 'PDF'], color: 'text-orange-400' },
+                { name: 'C6 Bank', formats: ['CSV'], color: 'text-gray-400' },
+                { name: 'Outros', formats: ['OFX', 'CSV'], color: 'text-green-400' }
+              ].map((bank) => (
+                <div key={bank.name} className="bg-gray-800/50 rounded-lg p-3">
+                  <div className={`font-semibold ${bank.color} text-sm`}>{bank.name}</div>
+                  <div className="text-xs text-gray-400 mt-1">
+                    {bank.formats.join(', ')}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+              <p className="text-blue-400 text-sm">
+                💡 <strong>Dica:</strong> O sistema detecta automaticamente o banco e formato. 
+                Para melhores resultados, use extratos no período de até 3 meses.
               </p>
             </div>
           </div>

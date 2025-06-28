@@ -41,7 +41,7 @@
   }
 
   /* Firefox scrollbar */
-  * {
+  html {
     scrollbar-width: thin;
     scrollbar-color: #00FFFF #1A1A1A;
   }
@@ -275,19 +275,150 @@
     animation: flicker 0.15s infinite linear;
   }
 
-  /* Phoenix glow animation */
-  @keyframes pulse-glow {
+  /* Phoenix animations */
+  @keyframes phoenix-pulse {
     0%, 100% {
-      filter: drop-shadow(0 0 5px rgba(255, 69, 0, 0.5)) drop-shadow(0 0 10px rgba(255, 140, 0, 0.3));
+      filter: drop-shadow(0 0 8px rgba(255, 69, 0, 0.6)) 
+              drop-shadow(0 0 16px rgba(255, 140, 0, 0.4))
+              drop-shadow(0 0 24px rgba(255, 215, 0, 0.2));
+      transform: scale(1);
     }
     50% {
-      filter: drop-shadow(0 0 10px rgba(255, 69, 0, 0.8)) drop-shadow(0 0 20px rgba(255, 140, 0, 0.6));
+      filter: drop-shadow(0 0 16px rgba(255, 69, 0, 0.9)) 
+              drop-shadow(0 0 32px rgba(255, 140, 0, 0.7))
+              drop-shadow(0 0 48px rgba(255, 215, 0, 0.5));
+      transform: scale(1.05);
     }
   }
 
-  .animate-pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
+  @keyframes phoenix-glow {
+    0%, 100% {
+      filter: drop-shadow(0 0 10px rgba(255, 140, 0, 0.8)) 
+              drop-shadow(0 0 20px rgba(255, 69, 0, 0.6));
+      transform: scale(1);
+    }
+    50% {
+      filter: drop-shadow(0 0 20px rgba(255, 140, 0, 1)) 
+              drop-shadow(0 0 40px rgba(255, 69, 0, 0.8))
+              drop-shadow(0 0 60px rgba(255, 215, 0, 0.6));
+      transform: scale(1.05);
+    }
   }
+
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.1); }
+  }
+
+  @keyframes ping-slow {
+    0% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.2); }
+    100% { opacity: 0.4; transform: scale(1); }
+  }
+
+  @keyframes bounce-slow {
+    0%, 100% { opacity: 0.3; transform: scale(1) translateY(0); }
+    50% { opacity: 0.5; transform: scale(1.1) translateY(-5px); }
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%) rotate(35deg); }
+    100% { transform: translateX(200%) rotate(35deg); }
+  }
+
+  @keyframes float-1 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.7; }
+    33% { transform: translate(10px, -10px) rotate(120deg); opacity: 1; }
+    66% { transform: translate(-5px, -20px) rotate(240deg); opacity: 0.5; }
+  }
+
+  @keyframes float-2 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.6; }
+    33% { transform: translate(-8px, -15px) rotate(-120deg); opacity: 0.9; }
+    66% { transform: translate(12px, -8px) rotate(-240deg); opacity: 0.4; }
+  }
+
+  @keyframes float-3 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.8; }
+    33% { transform: translate(6px, -12px) rotate(90deg); opacity: 0.5; }
+    66% { transform: translate(-10px, -6px) rotate(180deg); opacity: 1; }
+  }
+
+  @keyframes float-4 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.5; }
+    33% { transform: translate(-12px, -8px) rotate(-90deg); opacity: 0.8; }
+    66% { transform: translate(8px, -16px) rotate(-180deg); opacity: 0.6; }
+  }
+
+  @keyframes float-5 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.7; }
+    33% { transform: translate(15px, -5px) rotate(60deg); opacity: 0.4; }
+    66% { transform: translate(-6px, -18px) rotate(300deg); opacity: 0.9; }
+  }
+
+  @keyframes float-6 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.6; }
+    33% { transform: translate(-14px, -12px) rotate(-60deg); opacity: 1; }
+    66% { transform: translate(9px, -4px) rotate(-300deg); opacity: 0.3; }
+  }
+
+  /* Circuit flow animations - expandidas */
+  @keyframes circuit-flow-1 {
+    0% { transform: translateX(-100%) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.4; }
+    90% { opacity: 0.4; }
+    100% { transform: translateX(100%) rotate(360deg); opacity: 0; }
+  }
+
+  @keyframes circuit-flow-2 {
+    0% { transform: translateY(-100%) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.4; }
+    90% { opacity: 0.4; }
+    100% { transform: translateY(100%) rotate(360deg); opacity: 0; }
+  }
+
+  @keyframes circuit-flow-3 {
+    0% { transform: translateX(100%) rotate(180deg); opacity: 0; }
+    10% { opacity: 0.35; }
+    90% { opacity: 0.35; }
+    100% { transform: translateX(-100%) rotate(540deg); opacity: 0; }
+  }
+
+  @keyframes circuit-flow-4 {
+    0% { transform: translateY(100%) rotate(180deg); opacity: 0; }
+    10% { opacity: 0.35; }
+    90% { opacity: 0.35; }
+    100% { transform: translateY(-100%) rotate(540deg); opacity: 0; }
+  }
+
+  .animate-circuit-flow-1 { animation: circuit-flow-1 4s linear infinite; }
+  .animate-circuit-flow-2 { animation: circuit-flow-2 5s linear infinite 2s; }
+  .animate-circuit-flow-3 { animation: circuit-flow-3 4.5s linear infinite 1s; }
+  .animate-circuit-flow-4 { animation: circuit-flow-4 5.5s linear infinite 3s; }
+
+  .animate-flame-particle-1 { animation: flame-particle-1 3s ease-in-out infinite; }
+  .animate-flame-particle-2 { animation: flame-particle-2 2.5s ease-in-out infinite 0.5s; }
+  .animate-flame-particle-3 { animation: flame-particle-3 2.8s ease-in-out infinite 1s; }
+  .animate-flame-particle-4 { animation: flame-particle-4 3.2s ease-in-out infinite 1.5s; }
+  .animate-flame-particle-5 { animation: flame-particle-5 2.2s ease-in-out infinite 0.8s; }
+  .animate-flame-particle-6 { animation: flame-particle-6 3.5s ease-in-out infinite 2s; }
+  .animate-flame-particle-7 { animation: flame-particle-7 2.7s ease-in-out infinite 0.3s; }
+  .animate-flame-particle-8 { animation: flame-particle-8 3.1s ease-in-out infinite 1.2s; }
+  .animate-flame-particle-9 { animation: flame-particle-9 2.9s ease-in-out infinite 1.8s; }
+
+  /* Animações para IA */
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes spin-reverse {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+  }
+
+  .animate-spin-slow { animation: spin-slow 8s linear infinite; }
+  .animate-spin-reverse { animation: spin-reverse 6s linear infinite; }
 
   /* Utility for hiding scrollbar */
   .scrollbar-hide {
@@ -328,4 +459,90 @@
   .delay-500 { animation-delay: 500ms; }
   .delay-700 { animation-delay: 700ms; }
   .delay-1000 { animation-delay: 1000ms; }
+
+  /* PhoenixLogo Animations */
+  .animate-phoenix-glow {
+    animation: phoenix-glow 3s ease-in-out infinite;
+  }
+
+  .animate-float-1 {
+    animation: float-1 3s ease-in-out infinite;
+  }
+
+  .animate-float-2 {
+    animation: float-2 4s ease-in-out infinite;
+  }
+
+  .animate-float-3 {
+    animation: float-3 5s ease-in-out infinite;
+  }
+
+  .animate-float-4 {
+    animation: float-4 3.5s ease-in-out infinite;
+  }
+
+  .animate-float-5 {
+    animation: float-5 4.5s ease-in-out infinite;
+  }
+
+  .animate-float-6 {
+    animation: float-6 5.5s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s ease-in-out infinite;
+  }
+}
+
+/* Keyframes para as animações */
+@keyframes phoenix-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px rgba(255, 140, 0, 0.8)) drop-shadow(0 0 20px rgba(255, 69, 0, 0.6));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(255, 140, 0, 1)) drop-shadow(0 0 40px rgba(255, 69, 0, 0.8)) drop-shadow(0 0 60px rgba(255, 215, 0, 0.6));
+    transform: scale(1.05);
+  }
+}
+
+@keyframes float-1 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.7; }
+  33% { transform: translate(10px, -10px) rotate(120deg); opacity: 1; }
+  66% { transform: translate(-5px, -20px) rotate(240deg); opacity: 0.5; }
+}
+
+@keyframes float-2 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.6; }
+  33% { transform: translate(-8px, -15px) rotate(-120deg); opacity: 0.9; }
+  66% { transform: translate(12px, -8px) rotate(-240deg); opacity: 0.4; }
+}
+
+@keyframes float-3 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.8; }
+  33% { transform: translate(6px, -12px) rotate(90deg); opacity: 0.5; }
+  66% { transform: translate(-10px, -6px) rotate(180deg); opacity: 1; }
+}
+
+@keyframes float-4 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.5; }
+  33% { transform: translate(-12px, -8px) rotate(-90deg); opacity: 0.8; }
+  66% { transform: translate(8px, -16px) rotate(-180deg); opacity: 0.6; }
+}
+
+@keyframes float-5 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.7; }
+  33% { transform: translate(15px, -5px) rotate(60deg); opacity: 0.4; }
+  66% { transform: translate(-6px, -18px) rotate(300deg); opacity: 0.9; }
+}
+
+@keyframes float-6 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.6; }
+  33% { transform: translate(-14px, -12px) rotate(-60deg); opacity: 1; }
+  66% { transform: translate(9px, -4px) rotate(-300deg); opacity: 0.3; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%) rotate(35deg); }
+  100% { transform: translateX(200%) rotate(35deg); }
 }

@@ -11,9 +11,11 @@ import {
   Target,
   Wallet,
   Calendar,
-  Filter
+  Filter,
+  X
 } from 'lucide-react';
 import { useAnalytics } from '../hooks/useApi';
+import { useSettings } from '../contexts/SettingsContext';
 
 interface AnalyticsData {
   totalIncome: number;
@@ -45,10 +47,23 @@ const emptyAnalyticsData: AnalyticsData = {
 };
 
 export function AnalyticsPage() {
+  const { settings } = useSettings();
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d' | '1y' | 'custom'>('30d');
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
   const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
+  const [customPeriodValid, setCustomPeriodValid] = useState(false);
+
+  // Validar período personalizado
+  useEffect(() => {
+    if (customStartDate && customEndDate) {
+      const start = new Date(customStartDate);
+      const end = new Date(customEndDate);
+      setCustomPeriodValid(start <= end && start <= new Date());
+    } else {
+      setCustomPeriodValid(false);
+    }
+  }, [customStartDate, customEndDate]);
 
   // Calcular datas baseadas no período selecionado
   const getDateRange = () => {
@@ -111,9 +126,29 @@ export function AnalyticsPage() {
     setSelectedPeriod(period);
     if (period === 'custom') {
       setShowCustomDatePicker(true);
+      // Definir datas padrão para o período personalizado
+      if (!customStartDate || !customEndDate) {
+        const end = new Date();
+        const start = new Date();
+        start.setDate(end.getDate() - 30);
+        
+        setCustomEndDate(end.toISOString().split('T')[0]);
+        setCustomStartDate(start.toISOString().split('T')[0]);
+      }
     } else {
       setShowCustomDatePicker(false);
     }
+  };
+
+  const handleApplyCustomPeriod = () => {
+    if (customPeriodValid) {
+      refresh();
+    }
+  };
+
+  const handleCancelCustomPeriod = () => {
+    setShowCustomDatePicker(false);
+    setSelectedPeriod('30d');
   };
 
   const formatCurrency = (amount: number) => {
@@ -161,35 +196,102 @@ export function AnalyticsPage() {
           <h1 className="text-3xl font-bold text-cyan-100">Analytics</h1>
           <p className="text-gray-400">Visualize suas finanças em detalhes</p>
         </div>
-        <div className="flex items-center space-x-2">
-          <select
-            value={selectedPeriod}
-            onChange={(e) => handlePeriodChange(e.target.value as typeof selectedPeriod)}
-            className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-          >
-            <option value="7d">Últimos 7 dias</option>
-            <option value="30d">Últimos 30 dias</option>
-            <option value="90d">Últimos 90 dias</option>
-            <option value="1y">Último ano</option>
-            <option value="custom">Personalizado</option>
-          </select>
+        <div className="flex items-center space-x-4">
+          {/* Period Selector */}
+          <div className="relative">
+            <select
+              value={selectedPeriod}
+              onChange={(e) => handlePeriodChange(e.target.value as typeof selectedPeriod)}
+              className={`bg-gray-800/70 border border-gray-600 rounded-lg px-4 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 appearance-none pr-8 ${
+                settings.theme === 'light' ? 'bg-white/70 text-gray-900 border-gray-300' : ''
+              }`}
+            >
+              <option value="7d">Últimos 7 dias</option>
+              <option value="30d">Últimos 30 dias</option>
+              <option value="90d">Últimos 90 dias</option>
+              <option value="1y">Último ano</option>
+              <option value="custom">Personalizado</option>
+            </select>
+            <Filter className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+          </div>
           
+          {/* Custom Date Picker Modal */}
           {showCustomDatePicker && (
-            <div className="flex items-center space-x-2 ml-4">
-              <Calendar className="h-4 w-4 text-gray-400" />
-              <input
-                type="date"
-                value={customStartDate}
-                onChange={(e) => setCustomStartDate(e.target.value)}
-                className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              />
-              <span className="text-gray-400">até</span>
-              <input
-                type="date"
-                value={customEndDate}
-                onChange={(e) => setCustomEndDate(e.target.value)}
-                className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              />
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+              <div className={`bg-gray-800 border border-gray-700 rounded-xl p-6 max-w-md w-full mx-4 ${
+                settings.theme === 'light' ? 'bg-white border-gray-300' : ''
+              }`}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-cyan-100">Período Personalizado</h3>
+                  <button
+                    onClick={handleCancelCustomPeriod}
+                    className="text-gray-400 hover:text-gray-300"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Data de Início
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="date"
+                        value={customStartDate}
+                        onChange={(e) => setCustomStartDate(e.target.value)}
+                        max={new Date().toISOString().split('T')[0]}
+                        className={`w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 ${
+                          settings.theme === 'light' ? 'bg-gray-100 text-gray-900 border-gray-300' : ''
+                        }`}
+                      />
+                      <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Data de Fim
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="date"
+                        value={customEndDate}
+                        onChange={(e) => setCustomEndDate(e.target.value)}
+                        max={new Date().toISOString().split('T')[0]}
+                        min={customStartDate}
+                        className={`w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 ${
+                          settings.theme === 'light' ? 'bg-gray-100 text-gray-900 border-gray-300' : ''
+                        }`}
+                      />
+                      <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                    </div>
+                  </div>
+                  
+                  {!customPeriodValid && customStartDate && customEndDate && (
+                    <p className="text-red-400 text-sm">
+                      Data de início deve ser anterior ou igual à data de fim
+                    </p>
+                  )}
+                  
+                  <div className="flex space-x-3 pt-4">
+                    <button
+                      onClick={handleCancelCustomPeriod}
+                      className="flex-1 px-4 py-2 bg-gray-600 text-gray-100 rounded-lg hover:bg-gray-700 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleApplyCustomPeriod}
+                      disabled={!customPeriodValid}
+                      className="flex-1 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Aplicar
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>

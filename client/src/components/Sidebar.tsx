@@ -12,6 +12,7 @@ import {
   FileText
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { PhoenixLogo } from './PhoenixLogo'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -39,12 +40,13 @@ export function Sidebar() {
       className="w-64 bg-black/20 backdrop-blur-md border-r border-green-500/20 flex flex-col"
     >
       {/* Logo */}
-      <div className="p-6 border-b border-green-500/20">
+      <div className="p-6 border-b border-orange-500/20">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-cyan-400 rounded-lg flex items-center justify-center">
-            <span className="text-black font-bold text-lg">₣</span>
+          <PhoenixLogo size="md" animate={true} />
+          <div>
+            <h1 className="text-xl font-bold text-white">Will Finance</h1>
+            <p className="text-xs text-orange-400">Powered by Fênix IA</p>
           </div>
-          <h1 className="text-xl font-bold text-white">Will Finance</h1>
         </div>
       </div>
 
