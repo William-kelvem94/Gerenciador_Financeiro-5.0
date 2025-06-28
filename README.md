@@ -1,28 +1,51 @@
-# 🚀 Will Finance - Gerenciador Financeiro 5.0
+# 🚀 Will Finance 5.0 - Sistema Cyberpunk de Gerenciamento Financeiro
 
-Sistema de gerenciamento financeiro completo com interface cyberpunk, usando React + TypeScript + Vite no frontend e Node.js + Express + Prisma no backend.
+> Sistema de gerenciamento financeiro completo com interface cyberpunk, usando React + TypeScript + Vite no frontend e NestJS + Prisma no backend.
 
-## 🎯 Características
+![Will Finance 5.0](./imagem_gerada%20(2).png)
 
-- **Interface Cyberpunk**: Design futurista com cores neon e tema dark
-- **Frontend Moderno**: React 18 + TypeScript + Vite + Tailwind CSS
-- **Backend Robusto**: Node.js + Express + Prisma + SQLite/PostgreSQL
-- **Real-time**: WebSocket para atualizações em tempo real
-- **PWA Ready**: Progressive Web App com suporte offline
-- **Multiplataforma**: Pronto para Electron e React Native
+## 🎯 Características Principais
 
-## 🚀 Inicialização Rápida
+- **🎨 Interface Cyberpunk**: Design futurista com cores neon, tema dark e animações Matrix Rain
+- **⚡ Frontend Moderno**: React 18 + TypeScript + Vite + Tailwind CSS
+- **🛡️ Backend Robusto**: NestJS + Express + Prisma + PostgreSQL
+- **🔄 Real-time**: WebSocket para atualizações em tempo real
+- **📱 PWA Ready**: Progressive Web App com suporte offline
+- **🤖 IA Integrada**: Módulo de inteligência artificial para insights financeiros
+- **🐳 Dockerizado**: Ambiente de desenvolvimento e produção com Docker
+- **📊 Multiplataforma**: Pronto para Electron (desktop) e React Native (mobile)
 
+## 🚀 Início Rápido
+
+### Opção 1: Setup Automático (Recomendado)
+```bash
+# Clone o repositório
+git clone [url-do-repositorio]
+cd will-finance-5.0
+
+# Setup completo automático
+npm run setup
+```
+
+### Opção 2: Setup Manual
 ```bash
 # Instalar dependências
 npm run install:all
 
 # Configurar banco de dados
-npm run db:migrate
-npm run db:seed
+npm run db:setup
 
 # Iniciar desenvolvimento
 npm run dev
+```
+
+### Opção 3: Docker (Produção)
+```bash
+# Iniciar todos os serviços
+npm run docker:up
+
+# Ou com IA integrada
+npm run dev:ai
 ```
 
 ## 📁 Estrutura Organizada do Projeto
@@ -78,28 +101,35 @@ Will Finance/
 └── 📋 package.json         # Dependências raiz
 ```
 
-## 🌐 URLs
+## 🌐 URLs de Desenvolvimento
 
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:8080
-- **Prisma Studio**: http://localhost:5555
-- **Banco de Dados**: SQLite local
+- **🎨 Frontend**: http://localhost:5173 (Vite Dev Server)
+- **🛡️ Backend API**: http://localhost:8080 (NestJS)
+- **📊 Prisma Studio**: http://localhost:5555 (Database Admin)
+- **🗄️ PostgreSQL**: localhost:5432 (Database)
+- **⚡ Redis Cache**: localhost:6379 (Cache)
 
-## 📊 Funcionalidades
+## 📊 Funcionalidades Completas
 
-- ✅ Dashboard em tempo real
-- ✅ Gerenciamento de transações
-- ✅ Orçamentos e metas
-- ✅ Relatórios avançados
-- ✅ IA integrada para insights
-- ✅ Notificações push
-- ✅ **Sistema de Importação/Exportação**
-  - 🏦 Suporte a 10+ bancos brasileiros
-  - 📄 Múltiplos formatos (CSV, TXT, PDF*, XLSX*, OFX*)
-  - 📤 Exportação em JSON/CSV
-- ✅ Export de dados
+### ✅ **Implementadas**
+- **📈 Dashboard**: Gráficos em tempo real (barras, pizza, linha, dispersão)
+- **💰 Transações**: CRUD completo com validação e categorização
+- **📋 Orçamentos**: Criação e monitoramento de metas financeiras
+- **📊 Relatórios**: Análises avançadas com filtros dinâmicos
+- **🤖 IA Chat**: Assistente financeiro inteligente
+- **📱 PWA**: Instalação como app nativo
+- **🔐 Autenticação**: JWT + Google OAuth + Firebase
+- **📤 Import/Export**: Suporte a 10+ bancos brasileiros (CSV, PDF)
+- **🔄 Real-time**: Atualizações instantâneas via WebSocket
+- **🌙 Tema Dark**: Interface cyberpunk completa
 
-> *Em desenvolvimento
+### 🔄 **Em Desenvolvimento**
+- **📱 App Mobile**: React Native (Android/iOS)
+- **💻 App Desktop**: Electron (Windows/Mac/Linux)
+- **🤖 IA Avançada**: Machine Learning para previsões
+- **🔗 Open Banking**: Integração com APIs bancárias
+- **📊 Analytics**: Métricas avançadas de uso
+- **🔔 Notificações**: Push notifications
 
 ## 🛠️ Scripts Disponíveis
 

@@ -7,6 +7,7 @@ import { asyncHandler, createError } from '@/middleware/errorHandler';
 import { validateRequest } from '@/middleware/validation';
 import { logger } from '@/utils/logger';
 import { verifyFirebaseToken } from '@/config/firebase';
+import { generateTokens } from '../auth/strategies/jwt.strategy';
 
 const router = Router();
 
@@ -46,23 +47,6 @@ const firebaseVerifySchema = z.object({
     authorization: z.string().min(1, 'Authorization header is required'),
   }),
 });
-
-// Helper functions
-const generateTokens = (userId: string, username: string) => {
-  const accessToken = jwt.sign(
-    { userId, username },
-    process.env.JWT_SECRET!,
-    { expiresIn: '15m' }
-  );
-
-  const refreshToken = jwt.sign(
-    { userId, username },
-    process.env.JWT_SECRET!,
-    { expiresIn: '7d' }
-  );
-
-  return { accessToken, refreshToken };
-};
 
 // Register endpoint
 router.post('/register', validateRequest(registerSchema), asyncHandler(async (req: any, res: any) => {
@@ -126,19 +110,34 @@ router.post('/register', validateRequest(registerSchema), asyncHandler(async (re
 router.post('/login', validateRequest(loginSchema), asyncHandler(async (req: any, res: any) => {
   const { email, password } = req.body;
 
+  logger.info('Login attempt:', { email });
+
   // Find user
   const user = await prisma.user.findUnique({
     where: { email },
   });
 
-  if (!user || !await bcrypt.compare(password, user.password)) {
+  logger.info('User found:', { 
+    userExists: !!user, 
+    userId: user?.id,
+    hasPassword: !!user?.password 
+  });
+
+  if (!user) {
+    logger.warn('Login failed: User not found', { email });
+    throw createError('Invalid email or password', 401);
+  }
+
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  logger.info('Password comparison:', { passwordMatch });
+
+  if (!passwordMatch) {
+    logger.warn('Login failed: Invalid password', { email });
     throw createError('Invalid email or password', 401);
   }
 
   // Generate tokens
   const { accessToken, refreshToken } = generateTokens(user.id, user.username);
-
-  // Note: Session management would be implemented with a proper session store
 
   // Update last login
   await prisma.user.update({
@@ -281,9 +280,9 @@ router.post('/firebase/login', validateRequest(firebaseLoginSchema), asyncHandle
 
     if (!user) {
       // Criar novo usuário a partir do Firebase
-      const username = firebaseUser.name?.toLowerCase().replace(/\s+/g, '_') || email.split('@')[0];
-      const [firstName, ...lastNameParts] = (firebaseUser.name || email.split('@')[0]).split(' ');
-      const lastName = lastNameParts.join(' ') || '';
+      const username = firebaseUser.name?.toLowerCase().replace(/\s+/g, '_') ?? email.split('@')[0];
+      const [firstName, ...lastNameParts] = (firebaseUser.name ?? email.split('@')[0]).split(' ');
+      const lastName = lastNameParts.join(' ') ?? '';
 
       user = await prisma.user.create({
         data: {

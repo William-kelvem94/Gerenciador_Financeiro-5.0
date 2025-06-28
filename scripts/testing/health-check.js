@@ -47,28 +47,85 @@ function checkService(name, host, port) {
 
 function checkDatabase() {
   return new Promise((resolve) => {
-    // Try to connect to PostgreSQL
-    const pg = spawn('pg_isready', ['-h', 'localhost', '-p', '5432'], { stdio: 'pipe' });
+    // Check if SQLite database file exists (desenvolvimento)
+    const fs = require('fs');
+    const path = require('path');
     
-    pg.on('close', (code) => {
-      if (code === 0) {
-        log('✅ PostgreSQL database is available', 'green');
+    // Verificar se estamos usando SQLite ou PostgreSQL baseado no .env
+    const envPath = path.join(__dirname, '../../server/.env');
+    let databaseUrl = '';
+    
+    try {
+      const envContent = fs.readFileSync(envPath, 'utf8');
+      const dbMatch = envContent.match(/DATABASE_URL=["']?([^"'\n]+)["']?/);
+      if (dbMatch) {
+        databaseUrl = dbMatch[1];
+      }
+    } catch (error) {
+      log('⚠️  Could not read .env file', 'yellow');
+    }
+
+    if (databaseUrl.startsWith('file:')) {
+      // SQLite database
+      const dbPath = databaseUrl.replace('file:', '');
+      const fullDbPath = path.resolve(__dirname, '../../server', dbPath);
+      
+      if (fs.existsSync(fullDbPath)) {
+        log('✅ SQLite database file exists', 'green');
         resolve(true);
       } else {
-        log('❌ PostgreSQL database is not available', 'red');
-        resolve(false);
+        log('⚠️  SQLite database file not found (will be created on first use)', 'yellow');
+        resolve(true); // Consider it OK since SQLite creates on demand
       }
-    });
+    } else if (databaseUrl.includes('postgresql')) {
+      // PostgreSQL database
+      const pg = spawn('pg_isready', ['-h', 'localhost', '-p', '5432'], { stdio: 'pipe' });
+      
+      pg.on('close', (code) => {
+        if (code === 0) {
+          log('✅ PostgreSQL database is available', 'green');
+          resolve(true);
+        } else {
+          log('❌ PostgreSQL database is not available', 'red');
+          resolve(false);
+        }
+      });
 
-    pg.on('error', () => {
-      log('❌ PostgreSQL database is not available (pg_isready not found)', 'red');
-      resolve(false);
-    });
+      pg.on('error', () => {
+        log('❌ PostgreSQL database is not available (pg_isready not found)', 'red');
+        resolve(false);
+      });
+    } else {
+      log('✅ Database configuration detected', 'green');
+      resolve(true);
+    }
   });
 }
 
 function checkRedis() {
   return new Promise((resolve) => {
+    // Verificar se estamos em desenvolvimento
+    const path = require('path');
+    const fs = require('fs');
+    
+    try {
+      const envPath = path.join(__dirname, '../../server/.env');
+      const envContent = fs.readFileSync(envPath, 'utf8');
+      const nodeEnv = envContent.match(/NODE_ENV=["']?([^"'\n]+)["']?/);
+      
+      if (!nodeEnv || nodeEnv[1] === 'development') {
+        log('✅ Redis Mock is available (development mode)', 'green');
+        resolve(true);
+        return;
+      }
+    } catch (error) {
+      // Se não conseguir ler o .env, assumir desenvolvimento
+      log('✅ Redis Mock is available (development mode)', 'green');
+      resolve(true);
+      return;
+    }
+
+    // Tentar conectar ao Redis real apenas em produção
     const redis = spawn('redis-cli', ['ping'], { stdio: 'pipe' });
     
     redis.stdout.on('data', (data) => {

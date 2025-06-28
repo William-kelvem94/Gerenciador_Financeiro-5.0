@@ -42,7 +42,6 @@
     @apply bg-background-secondary;
   }
 }
-}
 
 @layer components {
   /* Gradient utilities */

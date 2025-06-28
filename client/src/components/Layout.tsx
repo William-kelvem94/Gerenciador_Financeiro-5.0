@@ -10,6 +10,8 @@ export function Layout() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const { isLoading } = useAuthStore();
 
+  console.log('Layout - isLoading:', isLoading);
+
   if (isLoading) {
     return (
       <div className="flex h-screen bg-gray-900/95 backdrop-blur-sm items-center justify-center">

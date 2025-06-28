@@ -1,119 +1,131 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react'
-import { useAuthStore } from '@/store/authStore'
-import { Layout } from '@/components/Layout'
-import { AuthGuard } from '@/components/AuthGuard'
-import { MatrixRain } from '@/components/MatrixRain'
-import { socketService } from '@/services/socket'
+import { Toaster } from 'react-hot-toast'
+import { AuthProvider } from './contexts/AuthContext'
+import { FinanceProvider } from './contexts/FinanceContext'
+import { Layout } from './components/Layout'
+import { AuthGuard } from './components/AuthGuard'
+import { MatrixRain } from './components/MatrixRain'
+import { NotificationCenter } from './components/NotificationCenter'
 
-// Pages
-import { LoginPage } from '@/pages/auth/LoginPage'
-import { RegisterPage } from '@/pages/auth/RegisterPage'
-import GoogleCallbackPage from '@/pages/auth/GoogleCallbackPage'
-import { DashboardPage } from '@/pages/DashboardPage'
-import { AccountsPage } from '@/pages/AccountsPage'
-import { TransactionsPage } from '@/pages/TransactionsPage'
-import { BudgetsPage } from '@/pages/BudgetsPage'
-import { GoalsPage } from '@/pages/GoalsPage'
-import { AnalyticsPage } from '@/pages/AnalyticsPage'
-import { SettingsPage } from '@/pages/SettingsPage'
-import { ImportExportPage } from '@/pages/ImportExportPage'
-import { NotFoundPage } from '@/pages/NotFoundPage'
+// Auth Pages
+import { LoginPage } from './pages/auth/LoginPage'
+import { RegisterPage } from './pages/auth/RegisterPage'
+import GoogleCallbackPage from './pages/auth/GoogleCallbackPage'
+
+// Main Pages
+import DashboardPage from './pages/DashboardPage'
+import { AccountsPage } from './pages/AccountsPage'
+import { TransactionsPage } from './pages/TransactionsPage'
+import { BudgetsPage } from './pages/BudgetsPage'
+import { GoalsPage } from './pages/GoalsPage'
+import { AnalyticsPage } from './pages/AnalyticsPage'
+import { ImportExportPage } from './pages/ImportExportPage'
+import { SettingsPage } from './pages/SettingsPage'
+import { NotFoundPage } from './pages/NotFoundPage'
 
 function App() {
-  const { isAuthenticated } = useAuthStore()
-
-  // Connect to Socket.IO when user is authenticated
   useEffect(() => {
-    if (isAuthenticated) {
-      socketService.connect()
-    } else {
-      socketService.disconnect()
-    }
+    console.log('🚀 Will Finance 5.0 - Interface Principal Carregada!')
+  }, [])
 
-    // Cleanup on unmount
-    return () => {
-      socketService.disconnect()
-    }
-  }, [isAuthenticated])
-
-  return (
-    <div className="min-h-screen bg-gray-900 text-foreground relative overflow-hidden">
-      {/* Matrix Rain Background */}
-      <MatrixRain intensity="high" className="opacity-70" />
-      
-      {/* Overlay sutil para legibilidade */}
-      <div className="fixed inset-0 bg-gradient-to-br from-gray-900/20 via-transparent to-gray-900/30 pointer-events-none z-10" />
-      
-      {/* Conteúdo Principal */}
-      <div className="relative z-20">
-        <Routes>
-        {/* Public Routes */}
-        <Route 
-          path="/login" 
-          element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" replace />} 
-        />
-        <Route 
-          path="/register" 
-          element={!isAuthenticated ? <RegisterPage /> : <Navigate to="/dashboard" replace />} 
-        />
-        <Route 
-          path="/auth/google/callback" 
-          element={<GoogleCallbackPage />} 
-        />
+  try {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black relative overflow-hidden">
+        {/* Matrix Rain Background Effect */}
+        <MatrixRain />
         
-        {/* Protected Routes */}
-        <Route 
-          path="/" 
-          element={
-            <AuthGuard>
-              <Layout />
-            </AuthGuard>
-          }
-        >
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="accounts" element={<AccountsPage />} />
-          <Route path="transactions" element={<TransactionsPage />} />
-          <Route path="budgets" element={<BudgetsPage />} />
-          <Route path="goals" element={<GoalsPage />} />
-          <Route path="analytics" element={<AnalyticsPage />} />
-          <Route path="import-export" element={<ImportExportPage />} />
-          <Route path="settings" element={<SettingsPage />} />
-        </Route>
+        <AuthProvider>
+          <FinanceProvider>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+              
+              {/* Protected Routes */}
+              <Route path="/" element={
+                <AuthGuard>
+                  <Layout />
+                </AuthGuard>
+              }>
+                {/* Dashboard - Default Route */}
+                <Route index element={<DashboardPage />} />
+                
+                {/* Financial Management */}
+                <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="accounts" element={<AccountsPage />} />
+                <Route path="transactions" element={<TransactionsPage />} />
+                <Route path="budgets" element={<BudgetsPage />} />
+                <Route path="goals" element={<GoalsPage />} />
+                
+                {/* Analytics & Reports */}
+                <Route path="analytics" element={<AnalyticsPage />} />
+                
+                {/* Tools */}
+                <Route path="import-export" element={<ImportExportPage />} />
+                
+                {/* Settings */}
+                <Route path="settings" element={<SettingsPage />} />
+              </Route>
+              
+              {/* Fallback Routes */}
+              <Route path="/404" element={<NotFoundPage />} />
+              <Route path="*" element={<Navigate to="/404" replace />} />
+            </Routes>
 
-        {/* 404 Route */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-
-      {/* Global Toast Notifications */}
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#1A1A1A',
-            color: '#FFFFFF',
-            border: '1px solid #333333',
-          },
-          success: {
-            iconTheme: {
-              primary: '#39FF14',
-              secondary: '#1A1A1A',
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: '#FF0040',
-              secondary: '#1A1A1A',
-            },
-          },
-        }}
-      />
+            {/* Global Components */}
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#1f2937',
+                  color: '#f3f4f6',
+                  border: '1px solid #10b981',
+                },
+                success: {
+                  iconTheme: {
+                    primary: '#10b981',
+                    secondary: '#1f2937',
+                  },
+                },
+                error: {
+                  iconTheme: {
+                    primary: '#ef4444',
+                    secondary: '#1f2937',
+                  },
+                },
+              }}
+            />
+            
+            <NotificationCenter />
+          </FinanceProvider>
+        </AuthProvider>
       </div>
-    </div>
-  )
+    )
+  } catch (error) {
+    console.error('Erro na aplicação principal:', error)
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-bold text-red-400 mb-4">Erro na Aplicação</h1>
+          <p className="text-gray-300 mb-4">Houve um problema ao carregar o Will Finance</p>
+          <div className="bg-gray-800 p-4 rounded-lg mb-4">
+            <pre className="text-xs text-left overflow-auto">
+              {error?.toString()}
+            </pre>
+          </div>
+          <button 
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+            onClick={() => window.location.reload()}
+          >
+            Recarregar Aplicação
+          </button>
+        </div>
+      </div>
+    )
+  }
 }
 
 export default App
