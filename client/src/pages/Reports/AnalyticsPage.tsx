@@ -14,8 +14,8 @@ import {
   Filter,
   X
 } from 'lucide-react';
-import { useAnalytics } from '../hooks/useApi';
-import { useSettings } from '../contexts/SettingsContext';
+import { useAnalytics } from '../../hooks/useApi';
+import { useSettings } from '../../contexts/SettingsContext';
 
 interface AnalyticsData {
   totalIncome: number;

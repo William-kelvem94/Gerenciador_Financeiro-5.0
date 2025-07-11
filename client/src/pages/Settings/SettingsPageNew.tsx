@@ -19,8 +19,8 @@ import {
   Calendar,
   Settings as SettingsIcon
 } from 'lucide-react';
-import { useSettings } from '../contexts/SettingsContext';
-import { useActiveSessions, ActiveSession } from '../hooks/useActiveSessions';
+import { useSettings } from '../../contexts/SettingsContext';
+import { useActiveSessions, ActiveSession } from '../../hooks/useActiveSessions';
 
 export function SettingsPage() {
   const { settings, updateSettings, updateProfile, changePassword, loading, error } = useSettings();
