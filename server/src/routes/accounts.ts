@@ -58,7 +58,7 @@ router.get('/', asyncHandler(async (req: any, res: any) => {
   });
 
   // Calculate total balance by account type
-  const summary = accounts.reduce((acc, account) => {
+  const summary = accounts.reduce((acc: any, account: any) => {
     const balance = parseFloat(account.balance.toString());
     acc.totalBalance += balance;
     acc.byType[account.type] = (acc.byType[account.type] ?? 0) + balance;

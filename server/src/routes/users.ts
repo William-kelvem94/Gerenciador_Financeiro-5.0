@@ -219,7 +219,7 @@ router.get('/statistics', asyncHandler(async (req: any, res: any) => {
     select: { balance: true, type: true },
   });
 
-  const totalBalance = accounts.reduce((sum, account) => {
+  const totalBalance = accounts.reduce((sum: any, account: any) => {
     return sum + parseFloat(account.balance.toString());
   }, 0);
 

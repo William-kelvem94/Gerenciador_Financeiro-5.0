@@ -43,7 +43,7 @@ export class AuthModule {
 }
 
 // Exportações convenientes
-export { JwtAuthGuard } from './guards/jwt-auth.guard';
+export { jwtAuthGuard, optionalJwtAuth } from './guards/jwt-auth.guard';
 export { Public } from './decorators/public.decorator';
 export * from './strategies/jwt.strategy';
 export { authenticateToken, optionalAuth } from '../middleware/auth';

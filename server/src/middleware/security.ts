@@ -3,13 +3,13 @@ import { logger } from '@/utils/logger';
 import { AuthenticatedRequest } from '../auth/strategies/jwt.strategy';
 
 export interface AuditLogData {
-  userId?: string;
+  userId?: string | undefined;
   action: string;
   resource: string;
-  resourceId?: string;
+  resourceId?: string | undefined;
   method: string;
   url: string;
-  userAgent?: string;
+  userAgent?: string | undefined;
   ip: string;
   timestamp: Date;
   metadata?: Record<string, any>;
@@ -26,13 +26,13 @@ export const auditLogger = (action: string, resource: string) => {
       // Log apenas em caso de sucesso (2xx)
       if (res.statusCode >= 200 && res.statusCode < 300) {
         const auditData: AuditLogData = {
-          userId: req.user?.userId ?? undefined,
+          userId: req.user?.userId,
           action,
           resource,
-          resourceId: req.params.id ?? undefined,
+          resourceId: req.params.id,
           method: req.method,
           url: req.originalUrl,
-          userAgent: req.get('User-Agent') ?? undefined,
+          userAgent: req.get('User-Agent'),
           ip: req.ip ?? req.socket.remoteAddress ?? 'unknown',
           timestamp: new Date(),
           metadata: {

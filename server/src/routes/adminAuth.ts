@@ -283,7 +283,7 @@ router.get('/users', authenticateToken, asyncHandler(async (req: any, res: any) 
   res.json({
     success: true,
     data: {
-      users: users.map(user => ({
+      users: users.map((user: any) => ({
         ...user,
         role: user.email === ADMIN_CREDENTIALS.email ? 'ADMIN' : 'USER'
       }))
@@ -331,7 +331,7 @@ router.get('/system-stats', authenticateToken, asyncHandler(async (req: any, res
       totalTransactions,
       totalAccounts,
       totalCategories,
-      transactionsByUser: transactionsByUser.map(user => ({
+      transactionsByUser: transactionsByUser.map((user: any) => ({
         userId: user.id,
         name: `${user.firstName} ${user.lastName}`,
         email: user.email,
