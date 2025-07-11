@@ -4,187 +4,112 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:./dev.db"
 }
 
 model User {
-  id                 String         @id @default(cuid())
-  email              String         @unique
-  username           String         @unique
-  firstName          String
-  lastName           String
-  password           String
-  avatar             String?
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
-  currency           String         @default("BRL")
-  dateFormat         String         @default("DD/MM/YYYY")
-  language           String         @default("pt-BR")
-  timezone           String         @default("America/Sao_Paulo")
-  theme              String         @default("dark")
-  isEmailPublic      Boolean        @default(false)
-  isProfilePublic    Boolean        @default(false)
-  emailNotifications Boolean        @default(true)
-  pushNotifications  Boolean        @default(true)
-  budgetAlerts       Boolean        @default(true)
-  goalReminders      Boolean        @default(true)
-  twoFactorEnabled   Boolean        @default(false)
-  twoFactorSecret    String?
-  lastLoginAt        DateTime?
-  emailVerified      Boolean        @default(false)
-  emailVerifiedAt    DateTime?
-  monthlyBudget      Float?
-  savingsGoal        Float?
-  firebaseUid        String?        @unique
-  accounts           Account[]
-  aiInsights         AiInsight[]
-  budgets            Budget[]
-  categories         Category[]
-  goals              Goal[]
-  notifications      Notification[]
-  transactions       Transaction[]
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String
+  password    String
+  avatar      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  accounts     Account[]
+  transactions Transaction[]
+  budgets      Budget[]
+  goals        Goal[]
 
   @@map("users")
 }
 
 model Account {
-  id            String        @id @default(cuid())
-  name          String
-  description   String?
-  type          String
-  balance       Float         @default(0)
-  isActive      Boolean       @default(true)
-  color         String        @default("#3B82F6")
-  icon          String        @default("wallet")
-  bankName      String?
-  accountNumber String?
-  creditLimit   Float?
-  interestRate  Float?
-  dueDay        Int?
-  closingDay    Int?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  userId        String
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions  Transaction[]
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // checking, savings, credit, etc
+  balance     Float    @default(0)
+  currency    String   @default("BRL")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
 
   @@map("accounts")
 }
 
 model Category {
-  id           String        @id @default(cuid())
-  name         String
-  description  String?
-  color        String        @default("#6B7280")
-  icon         String        @default("tag")
-  type         String
-  isSystem     Boolean       @default(false)
-  isActive     Boolean       @default(true)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  userId       String?
-  budgets      Budget[]
-  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  name      String
+  icon      String
+  color     String
+  type      String   // income, expense
+  createdAt DateTime @default(now())
+
+  // Relations
   transactions Transaction[]
 
-  @@unique([name, userId])
   @@map("categories")
 }
 
 model Transaction {
-  id            String   @id @default(cuid())
-  amount        Float
-  description   String
-  date          DateTime @default(now())
-  type          String
-  status        String   @default("COMPLETED")
-  notes         String?
-  reference     String?
-  location      String?
-  latitude      Float?
-  longitude     Float?
-  isRecurring   Boolean  @default(false)
-  recurringRule String?
-  parentId      String?
-  aiAnalyzed    Boolean  @default(false)
-  aiCategories  String?
-  aiTags        String?
-  aiConfidence  Float?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  userId        String
-  accountId     String
-  categoryId    String
-  category      Category @relation(fields: [categoryId], references: [id])
-  account       Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  amount      Float
+  description String
+  type        String   // income, expense, transfer
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId  String
+  account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
 
   @@map("transactions")
 }
 
 model Budget {
-  id              String   @id @default(cuid())
-  name            String
-  amount          Float
-  spent           Float    @default(0)
-  period          String
-  startDate       DateTime
-  endDate         DateTime
-  isActive        Boolean  @default(true)
-  alertPercentage Float    @default(80)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  userId          String
-  categoryId      String
-  category        Category @relation(fields: [categoryId], references: [id])
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  name      String
+  amount    Float
+  spent     Float    @default(0)
+  period    String   // monthly, yearly
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("budgets")
 }
 
 model Goal {
-  id            String    @id @default(cuid())
-  name          String
-  description   String?
-  targetAmount  Float
-  currentAmount Float     @default(0)
-  targetDate    DateTime?
-  isCompleted   Boolean   @default(false)
-  color         String    @default("#10B981")
-  icon          String    @default("target")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  userId        String
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  targetAmount Float
+  currentAmount Float   @default(0)
+  deadline    DateTime
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("goals")
-}
-
-model Notification {
-  id        String   @id @default(cuid())
-  title     String
-  message   String
-  type      String
-  isRead    Boolean  @default(false)
-  data      String?
-  createdAt DateTime @default(now())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("notifications")
-}
-
-model AiInsight {
-  id          String   @id @default(cuid())
-  type        String
-  title       String
-  description String
-  data        String
-  confidence  Float
-  isRead      Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("ai_insights")
 }
