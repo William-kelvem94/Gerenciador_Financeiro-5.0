@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 import { errorHandler } from './middleware/errorHandler';
-import { GlobalExceptionFilter } from './filters/global-exception.filter';
+import { globalExceptionHandler } from './filters/global-exception.filter';
 import { logger } from './utils/logger';
 import { connectDatabase } from './config/database';
 import { connectRedis } from './config/redis';
@@ -133,6 +133,7 @@ app.get('*', (req, res) => {
 
 // Error handling middleware
 app.use(errorHandler);
+app.use(globalExceptionHandler);
 
 // Database and Redis connections
 async function startServer() {

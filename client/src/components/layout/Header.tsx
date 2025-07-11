@@ -2,7 +2,7 @@ import { useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Search, User } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
-import { NotificationCenter } from './NotificationCenter'
+import { NotificationCenter } from '../NotificationCenter'
 
 // Mapeamento de rotas para títulos
 const routeTitles: Record<string, string> = {

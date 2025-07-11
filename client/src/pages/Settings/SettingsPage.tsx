@@ -24,10 +24,10 @@ import {
   Activity,
   Play
 } from 'lucide-react';
-import { useSettings } from '../contexts/SettingsContext';
-import { useActiveSessions } from '../hooks/useActiveSessions';
-import { BetaTester } from '../components/testing/BetaTester';
-import { OAuthFixer } from '../components/testing/OAuthFixer';
+import { useSettings } from '../../contexts/SettingsContext';
+import { useActiveSessions } from '../../hooks/useActiveSessions';
+import { BetaTester } from '../../components/testing/BetaTester';
+import { OAuthFixer } from '../../components/testing/OAuthFixer';
 
 export function SettingsPage() {
   const { settings, updateSettings, updateProfile, changePassword, loading, error } = useSettings();

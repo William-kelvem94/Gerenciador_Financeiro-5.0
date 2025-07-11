@@ -321,7 +321,7 @@ router.get('/export', asyncHandler(async (req: any, res: any) => {
     if (format === 'csv') {
       // Exportar apenas transações em CSV
       const csvHeaders = 'Data,Descrição,Valor,Tipo,Categoria,Conta\n';
-      const csvRows = transactions.map(t => 
+      const csvRows = transactions.map((t: any) => 
         `${t.date.toISOString().split('T')[0]},${t.description},${t.amount},${t.type},${t.category?.name || ''},${t.account?.name || ''}`
       ).join('\n');
       

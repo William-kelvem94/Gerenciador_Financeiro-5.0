@@ -217,7 +217,7 @@ router.post('/', validateRequest(createTransactionSchema), asyncHandler(async (r
   }
 
   // Create transaction in a database transaction
-  const result = await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx: any) => {
     // Create the transaction
     const transaction = await tx.transaction.create({
       data: {
@@ -353,7 +353,7 @@ router.delete('/:id', asyncHandler(async (req: any, res: any) => {
   }
 
   // Delete transaction and revert balance changes
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: any) => {
     // Delete the transaction
     await tx.transaction.delete({
       where: { id }

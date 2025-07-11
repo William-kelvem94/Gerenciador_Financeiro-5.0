@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
-import { AIChatbot } from './AIChatbot'
+import { AIChatbot } from '../AIChatbot'
 import { useAuthStore } from '@/store/authStore'
 import { motion } from 'framer-motion'
 

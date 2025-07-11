@@ -12,7 +12,7 @@ import {
   FileText
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
-import { PhoenixLogo } from './PhoenixLogo'
+import { PhoenixLogo } from '../PhoenixLogo'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
