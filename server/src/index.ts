@@ -64,6 +64,7 @@ app.use(cors({
   origin: [
     'http://localhost:5173', // Porta padrão do Vite
     'http://localhost:5174', // Porta alternativa do Vite
+    'http://localhost:5175', // Porta alternativa do Vite
     'http://localhost:3000',
     'http://localhost:8080',
     process.env.CLIENT_URL ?? 'http://localhost:5173'

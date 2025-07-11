@@ -47,7 +47,7 @@ export default function GoogleCallbackPage() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Erro ao processar callback');
+          throw new Error(errorData.message ?? 'Erro ao processar callback');
         }
 
         const userData = await response.json();
