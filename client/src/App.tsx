@@ -13,7 +13,7 @@ import { BudgetsPage } from './pages/Budgets/BudgetsPage';
 import { ReportsPage } from './pages/Reports/ReportsPage';
 import { SettingsPage } from './pages/Settings/SettingsPage';
 import { AuthCallback } from './components/auth/AuthCallback';
-import { LoadingScreen } from './components/ui/LoadingScreen';
+// import { LoadingScreen } from './components/ui/LoadingScreen';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 
 function App() {

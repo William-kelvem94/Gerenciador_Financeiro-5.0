@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, TrendingUp, Calendar, Download, Filter } from 'lucide-react';
+import { BarChart3, TrendingUp, Calendar, Download } from 'lucide-react';
 import { LoadingScreen } from '../../components/ui/LoadingScreen';
 
 export const ReportsPage: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');
-  const [dateRange, setDateRange] = useState({
+  const [_dateRange, _setDateRange] = useState({
     startDate: '',
     endDate: '',
   });

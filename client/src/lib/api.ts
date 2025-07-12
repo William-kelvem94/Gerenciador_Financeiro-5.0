@@ -49,11 +49,12 @@ api.interceptors.response.use(
           toast.error('The requested resource was not found.');
           break;
         
-        case 422:
+        case 422: {
           // Validation errors
           const message = (response.data as any)?.message || 'Validation error';
           toast.error(message);
           break;
+        }
         
         case 429:
           toast.error('Too many requests. Please try again later.');
