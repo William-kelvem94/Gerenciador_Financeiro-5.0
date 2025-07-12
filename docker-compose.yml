@@ -118,6 +118,46 @@ services:
         reservations:
           memory: 512M
 
+  # AI Service
+  ai-service:
+    build:
+      context: ./IA
+      dockerfile: Dockerfile
+    container_name: will-finance-ai
+    environment:
+      AI_API_PORT: 8001
+      AI_MODEL_PATH: /app/models
+      AI_LOG_LEVEL: ${AI_LOG_LEVEL:-INFO}
+      DATABASE_URL: postgresql://will_finance:cyberpunk2077@postgres:5432/will_finance_db
+      REDIS_URL: redis://:cyberpunk2077@redis:6379
+      ENVIRONMENT: production
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - will-finance-network
+    restart: unless-stopped
+    volumes:
+      - ai_models:/app/models
+      - ai_data:/app/data
+      - ./IA/logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+
   # Frontend Client
   client:
     build:
@@ -215,6 +255,10 @@ volumes:
   redis_data:
     driver: local
   nginx_logs:
+    driver: local
+  ai_models:
+    driver: local
+  ai_data:
     driver: local
 
 networks:

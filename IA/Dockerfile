@@ -1,32 +1,45 @@
-# Dockerfile para ambiente de IA (treinamento e inferência)
-FROM python:3.8-slim
+FROM python:3.11-slim
 
-# Instala dependências básicas
-RUN apt-get update && apt-get install -y git gcc libglib2.0-0 libsm6 libxrender1 libxext6 && rm -rf /var/lib/apt/lists/*
+# Set working directory
+WORKDIR /app
 
-# Atualiza pip
-RUN pip install --upgrade pip
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    tesseract-ocr \
+    tesseract-ocr-por \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instala numpy 1.19.5 antes do Invoicenet
-RUN pip install numpy==1.19.5
+# Copy requirements first for better caching
+COPY requirements.txt .
 
-# Instala torch stack antigo antes do Invoicenet
-RUN pip install torch==1.7.1 torchvision==0.8.2 torchaudio==0.7.2
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Instala Invoicenet diretamente do GitHub (não disponível no PyPI)
-RUN pip install git+https://github.com/naiveHobo/Invoicenet.git
+# Copy application code
+COPY . .
 
-# Instala libs modernas (usar numpy antigo para evitar conflitos)
-RUN pip install datasets notebook python-doctr paddleocr transformers
+# Create directories for models and data
+RUN mkdir -p /app/models /app/data /app/logs
 
-# Cria diretórios de trabalho
-WORKDIR /workspace
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV AI_API_PORT=8001
+ENV AI_MODEL_PATH=/app/models
+ENV ENVIRONMENT=production
 
-# Copia tudo do projeto para dentro do container
-COPY . /workspace
+# Expose port
+EXPOSE 8001
 
-# Instala dependências extras do projeto (se houver requirements.txt)
-RUN if [ -f IA/requirements.txt ]; then pip install -r IA/requirements.txt; fi
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8001/health || exit 1
 
-# Comando padrão: bash (pode ser alterado para rodar o treinamento direto)
-CMD ["bash"]
+# Command to run the application
+CMD ["python", "api/main.py"]
