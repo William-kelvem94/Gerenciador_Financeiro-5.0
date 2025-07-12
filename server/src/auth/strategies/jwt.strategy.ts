@@ -7,7 +7,7 @@ import { AuthService } from '../auth.service';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private authService: AuthService,
+    private readonly authService: AuthService,
     configService: ConfigService,
   ) {
     super({
@@ -17,7 +17,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: { userId: string; [key: string]: unknown }) {
+    // Add payload validation for security
+    if (!payload || !payload.userId) {
+      throw new Error('Invalid JWT payload');
+    }
     return this.authService.validateUser(payload.userId);
   }
 }
