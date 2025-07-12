@@ -1,29 +1,28 @@
 import express from 'express';
-import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+import { prisma } from '../db/client';
 import { authenticateToken } from './auth';
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // All routes require authentication
 router.use(authenticateToken);
 
 // Validation schemas
 const createBudgetSchema = z.object({
-  name: z.string().min(1),
-  amount: z.number().positive(),
+  name: z.string().min(1, 'Budget name is required'),
+  amount: z.number().positive('Amount must be positive'),
   period: z.enum(['monthly', 'yearly']),
-  startDate: z.string(),
-  endDate: z.string(),
+  startDate: z.string().datetime('Invalid start date format'),
+  endDate: z.string().datetime('Invalid end date format'),
 });
 
 const updateBudgetSchema = z.object({
-  name: z.string().min(1).optional(),
-  amount: z.number().positive().optional(),
+  name: z.string().min(1, 'Budget name is required').optional(),
+  amount: z.number().positive('Amount must be positive').optional(),
   period: z.enum(['monthly', 'yearly']).optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
+  startDate: z.string().datetime('Invalid start date format').optional(),
+  endDate: z.string().datetime('Invalid end date format').optional(),
   isActive: z.boolean().optional(),
 });
 

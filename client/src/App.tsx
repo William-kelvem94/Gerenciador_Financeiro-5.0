@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { Layout } from './components/layout/Layout';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/Login/LoginPage';
 import { DashboardPage } from './pages/Dashboard/DashboardPage';
 import { TransactionsPage } from './pages/Transactions/TransactionsPage';
@@ -23,8 +24,12 @@ function App() {
               element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />} 
             />
             <Route 
-              path="/" 
-              element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}
+              path="/*" 
+              element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }
             >
               <Route index element={<Navigate to="/dashboard" />} />
               <Route path="dashboard" element={<DashboardPage />} />
@@ -40,6 +45,19 @@ function App() {
                 background: '#1f2937',
                 color: '#f3f4f6',
                 border: '1px solid #00ffff',
+              },
+              duration: 4000,
+              success: {
+                iconTheme: {
+                  primary: '#00ffff',
+                  secondary: '#1f2937',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#1f2937',
+                },
               },
             }}
           />
