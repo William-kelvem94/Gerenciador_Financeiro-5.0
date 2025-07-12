@@ -16,8 +16,11 @@
     "db:setup": "npm run db:generate --workspace=server && npm run db:migrate --workspace=server && npm run db:seed --workspace=server",
     "db:studio": "npm run db:studio --workspace=server",
     "start": "npm run start --workspace=server",
-    "lint": "npm run lint --workspace=client",
-    "clean": "rm -rf node_modules client/node_modules server/node_modules client/dist server/dist"
+    "lint": "npm run lint --workspace=client && npm run lint --workspace=server",
+    "lint:fix": "npm run lint:fix --workspace=server",
+    "clean": "rm -rf node_modules client/node_modules server/node_modules client/dist server/dist",
+    "prepare": "husky install",
+    "pre-commit": "lint-staged"
   },
   "keywords": [
     "finance",
@@ -57,13 +60,24 @@
   "devDependencies": {
     "@types/yup": "^0.29.14",
     "concurrently": "^8.2.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
     "typescript": "^5.8.3"
   },
   "dependencies": {
     "axios": "^1.10.0",
+    "fast-csv": "^5.0.2",
     "form-data": "^4.0.3",
-    "yup": "^1.6.1",
-    "fast-csv": "^5.0.2"
+    "yup": "^1.6.1"
+  },
+  "lint-staged": {
+    "server/src/**/*.{ts,js}": [
+      "npm run lint:fix --workspace=server",
+      "npm run format --workspace=server"
+    ],
+    "client/src/**/*.{ts,tsx,js,jsx}": [
+      "npm run lint --workspace=client"
+    ]
   },
   "workspaces": [
     "client",
