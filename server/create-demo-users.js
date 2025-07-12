@@ -20,9 +20,7 @@ async function createDemoUsers() {
       update: {},
       create: {
         email: 'admin@willfinance.com',
-        username: 'admin',
-        firstName: 'Will',
-        lastName: 'Finance Admin',
+        name: 'Will Finance Admin',
         password: adminPassword,
       },
     });
@@ -40,9 +38,7 @@ async function createDemoUsers() {
       update: {},
       create: {
         email: 'demo@willfinance.com',
-        username: 'demo',
-        firstName: 'Demo',
-        lastName: 'User',
+        name: 'Demo User',
         password: demoPassword,
       },
     });
@@ -60,9 +56,7 @@ async function createDemoUsers() {
       update: {},
       create: {
         email: 'williamkelvem64@gmail.com',
-        username: 'william',
-        firstName: 'William',
-        lastName: 'Kelvem',
+        name: 'William Kelvem',
         password: testPassword,
       },
     });
