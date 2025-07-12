@@ -4,7 +4,7 @@ import { CreateBudgetDto, UpdateBudgetDto } from './dto/budget.dto';
 
 @Injectable()
 export class BudgetsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(userId: string, createBudgetDto: CreateBudgetDto) {
     const { name, amount, period, startDate, endDate } = createBudgetDto;

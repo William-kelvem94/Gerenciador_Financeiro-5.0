@@ -4,7 +4,7 @@ import { ReportQueryDto, ReportPeriod } from './dto/report.dto';
 
 @Injectable()
 export class ReportsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async getFinancialOverview(userId: string, query: ReportQueryDto) {
     const { startDate, endDate, period = ReportPeriod.MONTHLY } = query;
