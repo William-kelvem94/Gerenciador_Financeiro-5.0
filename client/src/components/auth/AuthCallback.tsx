@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { LoadingScreen } from '../ui/LoadingScreen';
+// import { LoadingScreen } from '../ui/LoadingScreen';
 import { useAuthStore } from '../../stores/authStore';
 
 export const AuthCallback: React.FC = () => {

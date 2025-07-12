@@ -42,6 +42,30 @@ export const useAuthStore = create<AuthState>()(
           try {
             set({ isLoading: true, error: null });
             
+            // Demo mode for testing - remove in production
+            if (email === 'demo@willfinance.com' && password === 'demo123') {
+              const demoUser = {
+                id: 'demo-user-1',
+                email: 'demo@willfinance.com',
+                name: 'Demo User',
+                avatar: '',
+                createdAt: new Date().toISOString()
+              };
+              
+              const demoToken = 'demo-token-123';
+              
+              set({
+                user: demoUser,
+                token: demoToken,
+                isAuthenticated: true,
+                isLoading: false,
+                error: null,
+              });
+
+              toast.success(`Welcome back, ${demoUser.name}!`);
+              return;
+            }
+            
             const response = await api.post('/auth/login', {
               email,
               password,
