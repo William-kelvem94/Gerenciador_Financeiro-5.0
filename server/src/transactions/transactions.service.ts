@@ -140,14 +140,15 @@ export class TransactionsService {
       }
 
       // Apply new transaction effect
+      const targetAccountId = accountId ?? existingTransaction.accountId;
       if (newType === 'income') {
         await this.prisma.account.update({
-          where: { id: existingTransaction.accountId },
+          where: { id: targetAccountId },
           data: { balance: { increment: newAmount } },
         });
       } else if (newType === 'expense') {
         await this.prisma.account.update({
-          where: { id: existingTransaction.accountId },
+          where: { id: targetAccountId },
           data: { balance: { decrement: newAmount } },
         });
       }
