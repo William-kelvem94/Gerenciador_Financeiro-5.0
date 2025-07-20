@@ -45,7 +45,7 @@ model Account {
 
 model Category {
   id        String   @id @default(cuid())
-  name      String
+  name      String   @unique
   icon      String
   color     String
   type      String   // income, expense

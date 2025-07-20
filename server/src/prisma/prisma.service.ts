@@ -4,19 +4,11 @@ import { PrismaClient } from '@prisma/client';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PrismaService.name);
-  private static instance: PrismaService;
 
   constructor() {
     super({
       log: ['query', 'info', 'warn', 'error'],
     });
-  }
-
-  static getInstance(): PrismaService {
-    if (!PrismaService.instance) {
-      PrismaService.instance = new PrismaService();
-    }
-    return PrismaService.instance;
   }
 
   async onModuleInit() {
@@ -36,12 +28,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     } catch (error) {
       this.logger.error('❌ Failed to disconnect from database:', error);
     }
-  }
-
-  async enableShutdownHooks(app: { close: () => Promise<void> }) {
-    this.$on('beforeExit', async () => {
-      await app.close();
-    });
   }
 
   // Transaction helper method for better error handling

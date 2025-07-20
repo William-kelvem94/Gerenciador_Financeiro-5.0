@@ -4,7 +4,6 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import compression from 'compression';
 import { AppModule } from './app.module';
-import { PrismaService } from './prisma/prisma.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -40,10 +39,6 @@ async function bootstrap() {
 
   // Global prefix
   app.setGlobalPrefix('api');
-
-  // Enable shutdown hooks
-  const prismaService = app.get(PrismaService);
-  await prismaService.enableShutdownHooks(app);
 
   const port = process.env.PORT || 8080;
   await app.listen(port);
