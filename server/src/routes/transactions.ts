@@ -269,16 +269,16 @@ router.put('/:id', async (req: any, res) => {
         }
       }
 
-      // Calculate balance changes
-      const oldBalanceChange = existingTransaction.type === 'income' 
-        ? existingTransaction.amount 
-        : -existingTransaction.amount;
+      // Utility function to calculate balance changes
+      function calculateBalanceChange(type: string, amount: number): number {
+        return type === 'income' ? amount : -amount;
+      }
 
+      const oldBalanceChange = calculateBalanceChange(existingTransaction.type, existingTransaction.amount);
       const newAmount = data.amount ?? existingTransaction.amount;
       const newType = data.type ?? existingTransaction.type;
       const newAccountId = data.accountId ?? existingTransaction.accountId;
-      
-      const newBalanceChange = newType === 'income' ? newAmount : -newAmount;
+      const newBalanceChange = calculateBalanceChange(newType, newAmount);
 
       // Reverse old balance change from old account
       await tx.account.update({
