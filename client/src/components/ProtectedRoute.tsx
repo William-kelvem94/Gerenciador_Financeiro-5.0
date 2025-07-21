@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../stores/authStore';
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:8080/api';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
