@@ -10,7 +10,7 @@ const swaggerOptions = {
       description: 'Professional Financial Management System API',
       contact: {
         name: 'Will Finance Team',
-        email: 'william@willfinance.com',
+        email: 'support@willfinance.com',
       },
     },
     servers: [
