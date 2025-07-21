@@ -3,7 +3,7 @@ import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../stores/authStore';
 import { useTransactionStore, Transaction, TransactionFilters } from '../stores/transactionStore';
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:8080/api';
 
 interface CreateTransactionData {
   accountId: string;
