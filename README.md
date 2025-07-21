@@ -1,229 +1,327 @@
-# 🚀 Will Finance 5.0 - Sistema Cyberpunk de Gerenciamento Financeiro
+# 🚀 Will Finance 6.0 - Complete Cyberpunk Financial Management System
 
-> Sistema de gerenciamento financeiro completo com interface cyberpunk, usando React + TypeScript + Vite no frontend e NestJS + Prisma no backend.
+> **Enterprise-grade financial management system** with cutting-edge cyberpunk design, AI-powered insights, and full-stack modern architecture.
 
-![Will Finance 5.0](./imagem_gerada%20(2).png)
+![Will Finance 6.0](./imagem_gerada%20(2).png)
 
-## 🎯 Características Principais
+## 🎯 What's New in Version 6.0
 
-- **🎨 Interface Cyberpunk**: Design futurista com cores neon, tema dark e animações Matrix Rain
-- **⚡ Frontend Moderno**: React 18 + TypeScript + Vite + Tailwind CSS
-- **🛡️ Backend Robusto**: NestJS + Express + Prisma + PostgreSQL
-- **🔄 Real-time**: WebSocket para atualizações em tempo real
-- **📱 PWA Ready**: Progressive Web App com suporte offline
-- **🤖 IA Integrada**: Módulo de inteligência artificial para insights financeiros
-- **🐳 Dockerizado**: Ambiente de desenvolvimento e produção com Docker
-- **📊 Multiplataforma**: Pronto para Electron (desktop) e React Native (mobile)
+### ✨ **Complete Technology Stack Upgrade**
+- **🛡️ Backend**: Migrated from Express to **NestJS** with modular architecture
+- **⚡ Frontend**: Enhanced **React 18 + Vite + TypeScript + Zustand**
+- **🤖 AI Module**: Dedicated **FastAPI** service with ML capabilities
+- **🐳 Infrastructure**: Production-ready **Docker** configuration
+- **📱 PWA**: Progressive Web App with offline capabilities
 
-## 🚀 Início Rápido
+### 🎨 **Enhanced Cyberpunk Interface**
+- **Matrix Rain Effects**: Animated background visuals
+- **Neon Glow Components**: Interactive UI elements with cyberpunk aesthetics
+- **Advanced Animations**: Framer Motion powered micro-interactions
+- **Responsive Design**: Mobile-first approach with PWA support
+- **Dark Theme Optimization**: Enhanced contrast and visual hierarchy
 
-### Opção 1: Setup Automático (Recomendado)
+### 🤖 **Integrated AI Capabilities**
+- **Smart Transaction Classification**: Automatic expense categorization
+- **Savings Suggestions**: Personalized financial optimization tips
+- **Budget Predictions**: ML-powered expense forecasting
+- **OCR Processing**: Extract data from bank statements (PDF/images)
+- **Pattern Recognition**: Detect spending anomalies and trends
+
+## 🏗️ Architecture Overview
+
+```
+Will Finance 6.0/
+├── 📱 client/              # React 18 + Vite + TypeScript Frontend
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── pages/         # Application pages/routes
+│   │   ├── stores/        # Zustand state management
+│   │   ├── lib/           # API client and utilities
+│   │   └── types/         # TypeScript definitions
+│   ├── public/            # Static assets and PWA config
+│   └── package.json       # Frontend dependencies
+│
+├── 🛡️ server/              # NestJS Backend API
+│   ├── src/
+│   │   ├── auth/          # Authentication module
+│   │   ├── transactions/  # Transaction management
+│   │   ├── budgets/       # Budget management
+│   │   ├── reports/       # Financial reports
+│   │   └── prisma/        # Database service
+│   ├── prisma/            # Database schema and migrations
+│   └── package.json       # Backend dependencies
+│
+├── 🤖 IA/                  # AI/ML FastAPI Service
+│   ├── api/               # FastAPI REST endpoints
+│   ├── models/            # ML models and training
+│   ├── services/          # AI business logic
+│   └── requirements.txt   # Python dependencies
+│
+├── 🗄️ data/                # Sample data and migrations
+├── 📄 docs/                # Comprehensive documentation
+├── 🔧 scripts/             # Development and deployment utilities
+├── 🐳 docker-compose.yml   # Multi-service orchestration
+└── 📋 package.json         # Monorepo configuration
+```
+
+## 🚀 Quick Start
+
+### Option 1: One-Command Setup (Recommended)
 ```bash
-# Clone o repositório
-git clone [url-do-repositorio]
-cd will-finance-5.0
-
-# Setup completo automático
+git clone https://github.com/William-kelvem94/Gerenciador_Financeiro-5.0.git
+cd Gerenciador_Financeiro-5.0
 npm run setup
 ```
 
-### Opção 2: Setup Manual
+### Option 2: Manual Development Setup
 ```bash
-# Instalar dependências
+# Install all dependencies
 npm run install:all
 
-# Configurar banco de dados
+# Setup database with sample data
 npm run db:setup
 
-# Iniciar desenvolvimento
+# Start all services in development mode
 npm run dev
+
+# Or with AI service included
+npm run dev:ai
 ```
 
-### Opção 3: Docker (Produção)
+### Option 3: Docker Production Environment
 ```bash
-# Iniciar todos os serviços
+# Start all services with Docker
 npm run docker:up
 
-# Ou com IA integrada
-npm run dev:ai
+# With AI service
+npm run docker:ai
+
+# View logs
+npm run docker:logs
 ```
 
-## 📁 Estrutura Organizada do Projeto
+## 🌐 Service URLs
 
-```
-Will Finance/
-├── 📱 client/              # Frontend React + TypeScript
-│   ├── src/
-│   │   ├── components/     # Componentes reutilizáveis
-│   │   ├── pages/         # Páginas da aplicação
-│   │   ├── contexts/      # Contextos React
-│   │   ├── hooks/         # Hooks customizados
-│   │   ├── types/         # Definições TypeScript
-│   │   └── utils/         # Utilitários
-│   ├── public/            # Arquivos estáticos
-│   └── package.json
-│
-├── 🖥️ server/              # Backend Node.js + Express
-│   ├── src/
-│   │   ├── controllers/   # Controladores da API
-│   │   ├── routes/        # Rotas da API
-│   │   ├── middleware/    # Middlewares
-│   │   ├── services/      # Lógica de negócio
-│   │   └── utils/         # Utilitários do servidor
-│   ├── prisma/            # Schema e migrações do banco
-│   └── package.json
-│
-├── 🗄️ database/            # Configurações do banco
-├── 🤖 IA/                  # Módulo de Inteligência Artificial
-├── 📄 docs/                # Documentação
-│   ├── README.md          # Documentação principal
-│   ├── DEVELOPMENT.md     # Guia de desenvolvimento
-│   ├── CONTRIBUTING.md    # Guia de contribuição
-│   └── *.md              # Outras documentações
-│
-├── 🔧 scripts/             # Scripts utilitários
-│   ├── development/       # Scripts de desenvolvimento
-│   │   ├── *.ps1         # Scripts PowerShell
-│   │   ├── *.bat         # Scripts Windows
-│   │   └── *.sh          # Scripts Unix/Linux
-│   └── testing/           # Scripts de teste
-│       ├── test-*.js     # Testes automatizados
-│       └── clean*.js     # Scripts de limpeza
-│
-├── 📊 data/                # Dados de exemplo e assets
-│   ├── *.csv             # Extratos de exemplo
-│   ├── *.png             # Imagens
-│   └── samples/          # Dados de exemplo
-│
-├── 📦 EXTRATO/             # Extratos importados
-├── 🗃️ backup_old_files/    # Backup de arquivos antigos
-├── 🐳 docker-compose.yml   # Configuração Docker
-└── 📋 package.json         # Dependências raiz
-```
+- **🎨 Frontend (Client)**: http://localhost:5173
+- **🛡️ Backend API**: http://localhost:8080
+- **🤖 AI Service**: http://localhost:8001
+- **📊 API Documentation**: http://localhost:8080/api/docs
+- **🤖 AI Documentation**: http://localhost:8001/docs
+- **📈 Prisma Studio**: http://localhost:5555
+- **🗄️ PostgreSQL**: localhost:5432
+- **⚡ Redis Cache**: localhost:6379
 
-## 🌐 URLs de Desenvolvimento
+## 📊 Complete Feature Set
 
-- **🎨 Frontend**: http://localhost:5173 (Vite Dev Server)
-- **🛡️ Backend API**: http://localhost:8080 (NestJS)
-- **📊 Prisma Studio**: http://localhost:5555 (Database Admin)
-- **🗄️ PostgreSQL**: localhost:5432 (Database)
-- **⚡ Redis Cache**: localhost:6379 (Cache)
+### ✅ **Core Financial Management**
+- **💰 Transaction Management**: CRUD operations with real-time updates
+- **📋 Budget Planning**: Create, monitor, and track financial goals
+- **📊 Advanced Reports**: Dynamic charts and financial analytics
+- **🏦 Multi-Account Support**: Manage multiple bank accounts
+- **🏷️ Smart Categories**: Auto-categorization with custom rules
+- **📱 Multi-Currency**: Support for multiple currencies
 
-## 📊 Funcionalidades Completas
+### ✅ **Smart Automation**
+- **🤖 AI Transaction Classification**: Automatic expense categorization
+- **💡 Savings Suggestions**: Personalized financial optimization
+- **🔮 Predictive Analytics**: Budget forecasting and trend analysis
+- **📄 OCR Processing**: Extract data from bank statements
+- **🔔 Smart Notifications**: Proactive financial alerts
+- **📈 Goal Tracking**: Automated progress monitoring
 
-### ✅ **Implementadas**
-- **📈 Dashboard**: Gráficos em tempo real (barras, pizza, linha, dispersão)
-- **💰 Transações**: CRUD completo com validação e categorização
-- **📋 Orçamentos**: Criação e monitoramento de metas financeiras
-- **📊 Relatórios**: Análises avançadas com filtros dinâmicos
-- **🤖 IA Chat**: Assistente financeiro inteligente
-- **📱 PWA**: Instalação como app nativo
-- **🔐 Autenticação**: JWT + Google OAuth + Firebase
-- **📤 Import/Export**: Suporte a 10+ bancos brasileiros (CSV, PDF)
-- **🔄 Real-time**: Atualizações instantâneas via WebSocket
-- **🌙 Tema Dark**: Interface cyberpunk completa
+### ✅ **Modern User Experience**
+- **🎨 Cyberpunk Design**: Immersive dark theme with neon accents
+- **📱 PWA Support**: Install as native mobile/desktop app
+- **⚡ Real-time Updates**: Live data synchronization
+- **🌙 Dark Mode**: Optimized for low-light usage
+- **🎭 Animations**: Smooth transitions and micro-interactions
+- **♿ Accessibility**: WCAG compliance and screen reader support
 
-### 🔄 **Em Desenvolvimento**
-- **📱 App Mobile**: React Native (Android/iOS)
-- **💻 App Desktop**: Electron (Windows/Mac/Linux)
-- **🤖 IA Avançada**: Machine Learning para previsões
-- **🔗 Open Banking**: Integração com APIs bancárias
-- **📊 Analytics**: Métricas avançadas de uso
-- **🔔 Notificações**: Push notifications
+### ✅ **Enterprise Security**
+- **🔐 JWT Authentication**: Secure token-based auth
+- **🌐 Google OAuth**: Social login integration
+- **🛡️ Data Encryption**: End-to-end security
+- **⚠️ Input Validation**: Comprehensive data sanitization
+- **🚫 Rate Limiting**: DDoS protection
+- **📝 Audit Logging**: Complete activity tracking
 
-## 🛠️ Scripts Disponíveis
+### ✅ **Developer Experience**
+- **📚 Comprehensive Documentation**: API docs and guides
+- **🧪 Testing Suite**: Unit, integration, and E2E tests
+- **🔧 Development Tools**: Hot reload, debugging, profiling
+- **🐳 Docker Support**: Containerized development and production
+- **📊 Monitoring**: Health checks and performance metrics
+- **🔄 CI/CD Ready**: Automated deployment pipelines
 
-### Desenvolvimento
+## 📋 Available Scripts
+
+### Development
 ```bash
-# Iniciar servidor de desenvolvimento
-npm run dev
-
-# Iniciar com IA
-npm run dev:ai
-
-# Iniciar em modo silencioso
-npm run dev:silent
+npm run dev              # Start frontend + backend
+npm run dev:ai           # Start all services including AI
+npm run dev:client       # Frontend only
+npm run dev:server       # Backend only
+npm run dev:silent       # Silent mode (no logs)
 ```
 
-### Banco de Dados
+### Database Management
 ```bash
-# Executar migrações
-npm run db:migrate
-
-# Visualizar banco (Prisma Studio)
-npm run db:studio
-
-# Resetar banco
-npm run db:reset
+npm run db:setup         # Complete database setup
+npm run db:migrate       # Run migrations
+npm run db:seed          # Seed sample data
+npm run db:studio        # Open Prisma Studio
+npm run db:reset         # Reset database
 ```
 
-### Testes
+### Building & Testing
 ```bash
-# Executar todos os testes
-npm run test
-
-# Testar importação/exportação
-npm run test:import
-
-# Testar sistema completo
-npm run test:system
+npm run build            # Build all services
+npm run test             # Run all tests
+npm run lint             # Lint all code
+npm run clean            # Clean build artifacts
 ```
 
-## 🔧 Configuração
-
-1. **Clone o repositório**
+### Docker Operations
 ```bash
-git clone [url-do-repositorio]
+npm run docker:up        # Start all containers
+npm run docker:down      # Stop all containers
+npm run docker:build     # Rebuild containers
+npm run docker:logs      # View container logs
+npm run docker:ai        # Start with AI service
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+Copy `.env.example` to `.env` and configure:
+
+```bash
+# Database
+DATABASE_URL="postgresql://will_finance:cyberpunk2077@localhost:5432/will_finance_db"
+
+# Authentication
+JWT_SECRET="your-secure-jwt-secret"
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+
+# AI Service
+AI_API_URL="http://localhost:8001"
+AI_API_KEY="your-ai-api-key"
+
+# Optional: Email, Analytics, etc.
+```
+
+### Database Setup
+The system uses PostgreSQL with Prisma ORM:
+
+1. **Automatic Setup**: `npm run db:setup`
+2. **Manual Setup**:
+   ```bash
+   npm run db:generate  # Generate Prisma client
+   npm run db:migrate   # Apply database migrations
+   npm run db:seed      # Insert sample data
+   ```
+
+## 🚀 Deployment
+
+### Production Docker Deployment
+```bash
+# Clone and setup
+git clone <repository-url>
 cd Gerenciador_Financeiro-5.0
-```
 
-2. **Configure as variáveis de ambiente**
-```bash
+# Configure environment
 cp .env.example .env
-# Edite o arquivo .env com suas configurações
-```
+# Edit .env with production values
 
-3. **Instale as dependências**
-```bash
-npm run install:all
-```
-
-4. **Configure o banco de dados**
-```bash
-npm run db:setup
-```
-
-5. **Inicie o desenvolvimento**
-```bash
-npm run dev
-```
-
-## 🐳 Docker
-
-Para executar com Docker:
-
-```bash
-# Iniciar todos os serviços
+# Deploy with Docker
 docker-compose up -d
 
-# Iniciar com IA
-docker-compose -f docker-compose.yml -f docker-compose.ia.yml up -d
-
-# Parar serviços
-docker-compose down
+# Check status
+docker-compose ps
+docker-compose logs -f
 ```
 
-## 🤝 Contribuindo
+### Manual Production Deployment
+```bash
+# Build all services
+npm run build
 
-Consulte o arquivo [CONTRIBUTING.md](./docs/CONTRIBUTING.md) para detalhes sobre como contribuir com o projeto.
+# Setup production database
+npm run db:migrate
 
-## 📝 Licença
+# Start production server
+npm run start
+```
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](./LICENSE) para mais detalhes.
+## 🎨 Demo Credentials
 
-## 🆘 Suporte
+For testing the complete system:
 
-- 📖 [Documentação Completa](./docs/)
-- 🐛 [Reportar Bug](./issues)
-- 💡 [Solicitar Feature](./issues)
-- 💬 [Discussões](./discussions)
+```
+Email: demo@willfinance.com
+Password: demo123
+```
+
+**Demo includes:**
+- Pre-configured accounts and categories
+- Sample transactions across multiple months
+- Budget examples and goals
+- AI classification examples
+
+## 🔮 Roadmap
+
+### 🔄 **Currently in Development**
+- **📱 Mobile App**: React Native application
+- **💻 Desktop App**: Electron wrapper
+- **🔗 Open Banking**: Brazilian bank API integration
+- **📊 Advanced Analytics**: Machine learning insights
+- **🌍 Multi-language**: i18n support
+
+### 📈 **Future Enhancements**
+- **👥 Multi-user**: Family/business account management
+- **🔔 Push Notifications**: Real-time alerts
+- **📱 Widget Support**: Home screen widgets
+- **🎯 Investment Tracking**: Portfolio management
+- **💳 Credit Score**: Integration with credit bureaus
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](./docs/CONTRIBUTING.md) for details.
+
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new features
+5. Ensure all tests pass
+6. Submit a pull request
+
+## 📞 Support
+
+- 📖 **Documentation**: [Complete Docs](./docs/)
+- 🐛 **Bug Reports**: [GitHub Issues](./issues)
+- 💡 **Feature Requests**: [GitHub Discussions](./discussions)
+- 💬 **Community**: [Discord Server](#)
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+
+## 🌟 Acknowledgments
+
+- **Design Inspiration**: Cyberpunk 2077, Matrix, Blade Runner
+- **Open Source Libraries**: React, NestJS, Prisma, FastAPI
+- **Community**: Amazing developers who contribute to open source
+
+---
+
+<div align="center">
+
+**Built with ❤️ by the Will Finance Team**
+
+🚀 **Experience the Future of Financial Management** 🚀
+
+[⭐ Star this repo](../../stargazers) | [🍴 Fork it](../../fork) | [📊 View Demo](#) | [📖 Read Docs](./docs/)
+
+</div>

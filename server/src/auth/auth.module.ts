@@ -1,51 +1,25 @@
-import { Router } from 'express';
-import { authenticateToken, optionalAuth } from '../middleware/auth';
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { ConfigService } from '@nestjs/config';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { GoogleStrategy } from './strategies/google.strategy';
 
-/**
- * Módulo de Autenticação
- * 
- * Este módulo centraliza as configurações de autenticação JWT para o projeto.
- * Fornece guards, decorators e middlewares para proteger rotas.
- */
-
-export class AuthModule {
-  /**
-   * Aplica autenticação obrigatória em uma rota
-   */
-  static requireAuth() {
-    return authenticateToken;
-  }
-
-  /**
-   * Aplica autenticação opcional em uma rota
-   */
-  static optionalAuth() {
-    return optionalAuth;
-  }
-
-  /**
-   * Cria um router protegido por autenticação
-   */
-  static createProtectedRouter(): Router {
-    const router = Router();
-    router.use(authenticateToken);
-    return router;
-  }
-
-  /**
-   * Cria um router com autenticação opcional
-   */
-  static createOptionalAuthRouter(): Router {
-    const router = Router();
-    router.use(optionalAuth);
-    return router;
-  }
-}
-
-// Exportações convenientes
-export { JwtAuthGuard } from './guards/jwt-auth.guard';
-export { Public } from './decorators/public.decorator';
-export * from './strategies/jwt.strategy';
-export { authenticateToken, optionalAuth } from '../middleware/auth';
-
-export default AuthModule;
+@Module({
+  imports: [
+    PassportModule,
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get('JWT_SECRET') || 'will-finance-secret-key',
+        signOptions: { expiresIn: '24h' },
+      }),
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy, GoogleStrategy],
+  exports: [AuthService],
+})
+export class AuthModule {}

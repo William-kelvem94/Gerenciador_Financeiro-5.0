@@ -1,440 +1,220 @@
-import { Router } from 'express';
+import express from 'express';
+import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
-import { prisma } from '@/config/database';
-import { authenticateToken } from '@/middleware/auth';
-import { asyncHandler, createError } from '@/middleware/errorHandler';
-import { validateRequest } from '@/middleware/validation';
-import { logger } from '@/utils/logger';
+import { authenticateToken } from './auth';
 
-const router = Router();
+const router = express.Router();
+const prisma = new PrismaClient();
 
 // All routes require authentication
 router.use(authenticateToken);
 
 // Validation schemas
 const createTransactionSchema = z.object({
-  body: z.object({
-    accountId: z.string().uuid('Invalid account ID'),
-    categoryId: z.string().uuid('Invalid category ID'),
-    amount: z.number().positive('Amount must be positive'),
-    description: z.string().min(1, 'Description is required').max(500, 'Description too long'),
-    type: z.enum(['income', 'expense', 'transfer'], {
-      errorMap: () => ({ message: 'Type must be income, expense, or transfer' })
-    }),
-    date: z.string().datetime('Invalid date format'),
-    tags: z.array(z.string()).optional(),
-    location: z.string().optional(),
-    receipt: z.string().url().optional(),
-  })
+  accountId: z.string(),
+  categoryId: z.string(),
+  amount: z.number(),
+  description: z.string(),
+  type: z.enum(['income', 'expense', 'transfer']),
+  date: z.string(),
 });
 
 const updateTransactionSchema = z.object({
-  body: z.object({
-    accountId: z.string().uuid().optional(),
-    categoryId: z.string().uuid().optional(),
-    amount: z.number().positive().optional(),
-    description: z.string().min(1).max(500).optional(),
-    type: z.enum(['income', 'expense', 'transfer']).optional(),
-    date: z.string().datetime().optional(),
-    tags: z.array(z.string()).optional(),
-    location: z.string().optional(),
-    receipt: z.string().url().optional(),
-  })
+  accountId: z.string().optional(),
+  categoryId: z.string().optional(),
+  amount: z.number().optional(),
+  description: z.string().optional(),
+  type: z.enum(['income', 'expense', 'transfer']).optional(),
+  date: z.string().optional(),
 });
 
-const queryTransactionsSchema = z.object({
-  query: z.object({
-    page: z.string().regex(/^\d+$/).transform(Number).default('1'),
-    limit: z.string().regex(/^\d+$/).transform(Number).default('20'),
-    accountId: z.string().uuid().optional(),
-    categoryId: z.string().uuid().optional(),
-    type: z.enum(['income', 'expense', 'transfer']).optional(),
-    startDate: z.string().datetime().optional(),
-    endDate: z.string().datetime().optional(),
-    search: z.string().optional(),
-    sortBy: z.enum(['date', 'amount', 'description']).default('date'),
-    sortOrder: z.enum(['asc', 'desc']).default('desc'),
-  })
-});
+// Get all transactions
+router.get('/', async (req: any, res) => {
+  try {
+    const { page = 1, limit = 10, type, accountId, categoryId } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
 
-// Get transactions with pagination and filters
-router.get('/', validateRequest(queryTransactionsSchema), asyncHandler(async (req: any, res: any) => {
-  const userId = req.user.userId;
-  const {
-    page,
-    limit,
-    accountId,
-    categoryId,
-    type,
-    startDate,
-    endDate,
-    search,
-    sortBy,
-    sortOrder
-  } = req.query;
+    const where: any = {
+      userId: req.user.userId,
+    };
 
-  // Build where clause
-  const where: any = {
-    userId,
-    ...(accountId && { accountId }),
-    ...(categoryId && { categoryId }),
-    ...(type && { type }),
-    ...(startDate && endDate && {
-      date: {
-        gte: new Date(startDate),
-        lte: new Date(endDate)
-      }
-    }),
-    ...(search && {
-      description: {
-        contains: search,
-        mode: 'insensitive'
-      }
-    })
-  };
+    if (type) where.type = type;
+    if (accountId) where.accountId = accountId;
+    if (categoryId) where.categoryId = categoryId;
 
-  // Calculate pagination
-  const skip = (page - 1) * limit;
-
-  // Get transactions
-  const [transactions, total] = await Promise.all([
-    prisma.transaction.findMany({
+    const transactions = await prisma.transaction.findMany({
       where,
       include: {
-        account: {
-          select: {
-            id: true,
-            name: true,
-            type: true,
-            color: true,
-            icon: true
-          }
-        },
-        category: {
-          select: {
-            id: true,
-            name: true,
-            type: true,
-            color: true,
-            icon: true
-          }
-        }
+        account: true,
+        category: true,
       },
-      orderBy: {
-        [sortBy]: sortOrder
-      },
+      orderBy: { date: 'desc' },
       skip,
-      take: limit
-    }),
-    prisma.transaction.count({ where })
-  ]);
+      take: Number(limit),
+    });
 
-  const totalPages = Math.ceil(total / limit);
+    const total = await prisma.transaction.count({ where });
 
-  logger.info(`Retrieved ${transactions.length} transactions for user: ${req.user.username}`);
-
-  res.json({
-    status: 'success',
-    data: {
+    res.json({
       transactions,
       pagination: {
-        page,
-        limit,
+        page: Number(page),
+        limit: Number(limit),
         total,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
-      }
-    }
-  });
-}));
+        pages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (error) {
+    console.error('Get transactions error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 // Get transaction by ID
-router.get('/:id', asyncHandler(async (req: any, res: any) => {
-  const userId = req.user.userId;
-  const { id } = req.params;
-
-  const transaction = await prisma.transaction.findFirst({
-    where: {
-      id,
-      userId
-    },
-    include: {
-      account: true,
-      category: true
-    }
-  });
-
-  if (!transaction) {
-    throw createError('Transaction not found', 404);
-  }
-
-  res.json({
-    status: 'success',
-    data: { transaction }
-  });
-}));
-
-// Create new transaction
-router.post('/', validateRequest(createTransactionSchema), asyncHandler(async (req: any, res: any) => {
-  const userId = req.user.userId;
-  const {
-    accountId,
-    categoryId,
-    amount,
-    description,
-    type,
-    date,
-    tags,
-    location
-  } = req.body;
-
-  // Verify account belongs to user
-  const account = await prisma.account.findFirst({
-    where: {
-      id: accountId,
-      userId,
-      isActive: true
-    }
-  });
-
-  if (!account) {
-    throw createError('Account not found or inactive', 400);
-  }
-
-  // Verify category belongs to user and matches transaction type
-  const category = await prisma.category.findFirst({
-    where: {
-      id: categoryId,
-      userId,
-      type,
-      isActive: true
-    }
-  });
-
-  if (!category) {
-    throw createError('Category not found, inactive, or type mismatch', 400);
-  }
-
-  // Create transaction in a database transaction
-  const result = await prisma.$transaction(async (tx) => {
-    // Create the transaction
-    const transaction = await tx.transaction.create({
-      data: {
-        userId,
-        accountId,
-        categoryId,
-        amount,
-        description,
-        type,
-        date: new Date(date),
-        location,
-        notes: tags ? JSON.stringify(tags) : null
+router.get('/:id', async (req: any, res) => {
+  try {
+    const transaction = await prisma.transaction.findFirst({
+      where: {
+        id: req.params.id,
+        userId: req.user.userId,
       },
       include: {
         account: true,
-        category: true
-      }
+        category: true,
+      },
     });
 
-    // Update account balance
-    const balanceChange = type === 'income' ? amount : -amount;
-    
-    await tx.account.update({
-      where: { id: accountId },
-      data: {
-        balance: {
-          increment: balanceChange
-        }
-      }
-    });
-
-    return transaction;
-  });
-
-  logger.info(`Transaction created: ${result.id} by user: ${req.user.username}`);
-
-  res.status(201).json({
-    status: 'success',
-    message: 'Transaction created successfully',
-    data: { transaction: result }
-  });
-}));
-
-// Update transaction
-router.put('/:id', validateRequest(updateTransactionSchema), asyncHandler(async (req: any, res: any) => {
-  const userId = req.user.userId;
-  const { id } = req.params;
-  const updateData = req.body;
-
-  // Get current transaction
-  const currentTransaction = await prisma.transaction.findFirst({
-    where: {
-      id,
-      userId
+    if (!transaction) {
+      return res.status(404).json({ error: 'Transaction not found' });
     }
-  });
 
-  if (!currentTransaction) {
-    throw createError('Transaction not found', 404);
+    res.json(transaction);
+  } catch (error) {
+    console.error('Get transaction error:', error);
+    res.status(500).json({ error: 'Server error' });
   }
+});
 
-  // Validate new account if provided
-  if (updateData.accountId && updateData.accountId !== currentTransaction.accountId) {
+// Create transaction
+router.post('/', async (req: any, res) => {
+  try {
+    const data = createTransactionSchema.parse(req.body);
+
+    // Verify account belongs to user
     const account = await prisma.account.findFirst({
       where: {
-        id: updateData.accountId,
-        userId,
-        isActive: true
-      }
+        id: data.accountId,
+        userId: req.user.userId,
+      },
     });
 
     if (!account) {
-      throw createError('Account not found or inactive', 400);
+      return res.status(400).json({ error: 'Invalid account' });
     }
-  }
 
-  // Validate new category if provided
-  if (updateData.categoryId && updateData.categoryId !== currentTransaction.categoryId) {
-    const type = updateData.type ?? currentTransaction.type;
-    
-    const category = await prisma.category.findFirst({
-      where: {
-        id: updateData.categoryId,
-        userId,
-        type,
-        isActive: true
-      }
+    // Create transaction
+    const transaction = await prisma.transaction.create({
+      data: {
+        ...data,
+        userId: req.user.userId,
+        date: new Date(data.date),
+      },
+      include: {
+        account: true,
+        category: true,
+      },
     });
 
-    if (!category) {
-      throw createError('Category not found, inactive, or type mismatch', 400);
-    }
+    // Update account balance
+    const balanceChange = data.type === 'income' ? data.amount : -data.amount;
+    await prisma.account.update({
+      where: { id: data.accountId },
+      data: {
+        balance: {
+          increment: balanceChange,
+        },
+      },
+    });
+
+    res.status(201).json(transaction);
+  } catch (error) {
+    console.error('Create transaction error:', error);
+    res.status(400).json({ error: 'Invalid data' });
   }
+});
 
-  // Update transaction
-  const updatedTransaction = await prisma.transaction.update({
-    where: { id },
-    data: {
-      ...updateData,
-      ...(updateData.date && { date: new Date(updateData.date) }),
-      ...(updateData.tags && { tags: JSON.stringify(updateData.tags) })
-    },
-    include: {
-      account: true,
-      category: true
+// Update transaction
+router.put('/:id', async (req: any, res) => {
+  try {
+    const data = updateTransactionSchema.parse(req.body);
+
+    // Find existing transaction
+    const existingTransaction = await prisma.transaction.findFirst({
+      where: {
+        id: req.params.id,
+        userId: req.user.userId,
+      },
+    });
+
+    if (!existingTransaction) {
+      return res.status(404).json({ error: 'Transaction not found' });
     }
-  });
 
-  logger.info(`Transaction updated: ${id} by user: ${req.user.username}`);
+    // Update transaction
+    const transaction = await prisma.transaction.update({
+      where: { id: req.params.id },
+      data: {
+        ...data,
+        date: data.date ? new Date(data.date) : undefined,
+      },
+      include: {
+        account: true,
+        category: true,
+      },
+    });
 
-  res.json({
-    status: 'success',
-    message: 'Transaction updated successfully',
-    data: { transaction: updatedTransaction }
-  });
-}));
+    res.json(transaction);
+  } catch (error) {
+    console.error('Update transaction error:', error);
+    res.status(400).json({ error: 'Invalid data' });
+  }
+});
 
 // Delete transaction
-router.delete('/:id', asyncHandler(async (req: any, res: any) => {
-  const userId = req.user.userId;
-  const { id } = req.params;
-
-  // Get transaction to verify ownership and get details for balance reversion
-  const transaction = await prisma.transaction.findFirst({
-    where: {
-      id,
-      userId
-    }
-  });
-
-  if (!transaction) {
-    throw createError('Transaction not found', 404);
-  }
-
-  // Delete transaction and revert balance changes
-  await prisma.$transaction(async (tx) => {
-    // Delete the transaction
-    await tx.transaction.delete({
-      where: { id }
+router.delete('/:id', async (req: any, res) => {
+  try {
+    const transaction = await prisma.transaction.findFirst({
+      where: {
+        id: req.params.id,
+        userId: req.user.userId,
+      },
     });
 
-    // Revert account balance
+    if (!transaction) {
+      return res.status(404).json({ error: 'Transaction not found' });
+    }
+
+    // Update account balance (reverse the transaction)
     const balanceChange = transaction.type === 'income' ? -transaction.amount : transaction.amount;
-    
-    await tx.account.update({
+    await prisma.account.update({
       where: { id: transaction.accountId },
       data: {
         balance: {
-          increment: balanceChange
-        }
-      }
+          increment: balanceChange,
+        },
+      },
     });
-  });
 
-  logger.info(`Transaction deleted: ${id} by user: ${req.user.username}`);
+    // Delete transaction
+    await prisma.transaction.delete({
+      where: { id: req.params.id },
+    });
 
-  res.json({
-    status: 'success',
-    message: 'Transaction deleted successfully'
-  });
-}));
+    res.json({ message: 'Transaction deleted successfully' });
+  } catch (error) {
+    console.error('Delete transaction error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
-// Get transaction statistics
-router.get('/stats/summary', asyncHandler(async (req: any, res: any) => {
-  const userId = req.user.userId;
-  const { startDate, endDate } = req.query;
-
-  const dateFilter = startDate && endDate ? {
-    date: {
-      gte: new Date(startDate),
-      lte: new Date(endDate)
-    }
-  } : {};
-
-  const [income, expenses, totalTransactions] = await Promise.all([
-    prisma.transaction.aggregate({
-      where: {
-        userId,
-        type: 'income',
-        ...dateFilter
-      },
-      _sum: {
-        amount: true
-      }
-    }),
-    prisma.transaction.aggregate({
-      where: {
-        userId,
-        type: 'expense',
-        ...dateFilter
-      },
-      _sum: {
-        amount: true
-      }
-    }),
-    prisma.transaction.count({
-      where: {
-        userId,
-        ...dateFilter
-      }
-    })
-  ]);
-
-  const totalIncome = income._sum.amount ?? 0;
-  const totalExpenses = expenses._sum.amount ?? 0;
-  const netIncome = totalIncome - totalExpenses;
-
-  res.json({
-    status: 'success',
-    data: {
-      totalIncome,
-      totalExpenses,
-      netIncome,
-      totalTransactions,
-      period: startDate && endDate ? { startDate, endDate } : 'all-time'
-    }
-  });
-}));
-
-export default router;
+export { router as transactionRoutes };
