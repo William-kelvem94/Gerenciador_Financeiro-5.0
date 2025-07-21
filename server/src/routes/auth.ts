@@ -10,10 +10,15 @@ const router = express.Router();
 // Rate limiting for sensitive auth routes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 requests per windowMs for auth
+  max: 10, // limit each IP to 10 requests per windowMs for auth
   message: { error: 'Too many authentication attempts, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (req, res, next, options) => {
+    const retryAfter = Math.min(60, Math.pow(2, options.current - options.max)); // Progressive delay
+    res.set('Retry-After', retryAfter.toString());
+    res.status(options.statusCode).json({ error: `Too many attempts. Please try again in ${retryAfter} seconds.` });
+  },
 });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-here';
