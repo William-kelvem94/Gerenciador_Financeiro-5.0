@@ -3,6 +3,14 @@ import { devtools } from 'zustand/middleware';
 import { api } from '../lib/api';
 import toast from 'react-hot-toast';
 
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
+
 export interface Transaction {
   id: string;
   amount: number;
@@ -103,8 +111,8 @@ export const useTransactionStore = create<TransactionState>()(
             pagination,
             isLoading: false,
           });
-        } catch (error: any) {
-          const message = error.response?.data?.message || 'Failed to fetch transactions';
+        } catch (error: unknown) {
+          const message = (error as ApiError).response?.data?.message || 'Failed to fetch transactions';
           set({
             error: message,
             isLoading: false,
@@ -117,8 +125,8 @@ export const useTransactionStore = create<TransactionState>()(
         try {
           const response = await api.get('/transactions/statistics');
           set({ statistics: response.data });
-        } catch (error: any) {
-          console.error('Failed to fetch statistics:', error);
+        } catch {
+          // Ignore statistics fetch errors
         }
       },
 
@@ -138,8 +146,8 @@ export const useTransactionStore = create<TransactionState>()(
           get().fetchStatistics();
           
           toast.success('Transaction created successfully');
-        } catch (error: any) {
-          const message = error.response?.data?.message || 'Failed to create transaction';
+        } catch (error: unknown) {
+          const message = (error as ApiError).response?.data?.message || 'Failed to create transaction';
           set({
             error: message,
             isLoading: false,
@@ -167,8 +175,8 @@ export const useTransactionStore = create<TransactionState>()(
           get().fetchStatistics();
           
           toast.success('Transaction updated successfully');
-        } catch (error: any) {
-          const message = error.response?.data?.message || 'Failed to update transaction';
+        } catch (error: unknown) {
+          const message = (error as ApiError).response?.data?.message || 'Failed to update transaction';
           set({
             error: message,
             isLoading: false,
@@ -193,8 +201,8 @@ export const useTransactionStore = create<TransactionState>()(
           get().fetchStatistics();
           
           toast.success('Transaction deleted successfully');
-        } catch (error: any) {
-          const message = error.response?.data?.message || 'Failed to delete transaction';
+        } catch (error: unknown) {
+          const message = (error as ApiError).response?.data?.message || 'Failed to delete transaction';
           set({
             error: message,
             isLoading: false,

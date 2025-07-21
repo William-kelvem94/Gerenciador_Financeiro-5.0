@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-export type Theme = 'dark' | 'light' | 'cyberpunk';
+export type Theme = 'dark' | 'light' | 'cyberpunk' | 'sunset' | 'ocean' | 'forest' | 'rose' | 'purple';
 
 export interface UIState {
   theme: Theme;
@@ -11,7 +11,7 @@ export interface UIState {
   modal: {
     isOpen: boolean;
     type: string | null;
-    data: any;
+    data: unknown;
   };
 
   // Actions
@@ -21,7 +21,7 @@ export interface UIState {
   setLoading: (loading: boolean) => void;
   addNotification: (notification: Omit<Notification, 'id'>) => void;
   removeNotification: (id: string) => void;
-  openModal: (type: string, data?: any) => void;
+  openModal: (type: string, data?: unknown) => void;
   closeModal: () => void;
 }
 

@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { useAuthStore } from './stores/authStore';
-import { useUIStore } from './stores/uiStore';
+import { useThemeStore } from './stores/themeStore';
 import { Layout } from './components/layout/Layout';
 import { LoginPage } from './pages/Login/LoginPage';
 import { RegisterPage } from './pages/Register/RegisterPage';
@@ -12,39 +12,47 @@ import { TransactionsPage } from './pages/Transactions/TransactionsPage';
 import { BudgetsPage } from './pages/Budgets/BudgetsPage';
 import { ReportsPage } from './pages/Reports/ReportsPage';
 import { SettingsPage } from './pages/Settings/SettingsPage';
+import { ThemeShowcase } from './pages/ThemeShowcase/ThemeShowcase';
 import { AuthCallback } from './components/auth/AuthCallback';
-// import { LoadingScreen } from './components/ui/LoadingScreen';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 
 function App() {
-  const { isAuthenticated, refreshUser, user } = useAuthStore();
-  const { theme, setTheme } = useUIStore();
+  const { isAuthenticated, refreshUser, user, initializeAuth } = useAuthStore();
+  const { theme } = useThemeStore();
 
   useEffect(() => {
-    // Initialize theme
-    setTheme(theme);
+    // Apply theme to document
+    const root = document.documentElement;
+    root.className = `theme-${theme}`;
+    
+    // Initialize Firebase Auth listener
+    initializeAuth();
     
     // Refresh user data if authenticated
     if (isAuthenticated && user) {
       refreshUser();
     }
-  }, []);
+  }, [theme, initializeAuth, isAuthenticated, user, refreshUser]);
 
   return (
     <ErrorBoundary>
       <Router>
-        <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
-          <Routes>
-            {/* Public routes */}
-            <Route 
-              path="/login" 
-              element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} 
-            />
-            <Route 
-              path="/register" 
-              element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />} 
-            />
-            <Route 
+        <div className={`min-h-screen transition-all duration-300 theme-${theme}`}>
+          <div className="gradient-bg min-h-screen">
+            <Routes>
+              {/* Public routes */}
+              <Route 
+                path="/login" 
+                element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} 
+              />
+              <Route path="/register" 
+                element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />} 
+              />
+              <Route 
+                path="/themes" 
+                element={<ThemeShowcase />} 
+              />
+              <Route 
               path="/auth/callback" 
               element={<AuthCallback />} 
             />
@@ -69,14 +77,18 @@ function App() {
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="min-h-screen flex items-center justify-center bg-background"
+                  className="min-h-screen flex items-center justify-center"
                 >
                   <div className="text-center">
-                    <h1 className="text-6xl font-cyber text-cyber-primary mb-4">404</h1>
-                    <p className="text-foreground-secondary mb-8">Page not found</p>
+                    <h1 className="text-6xl font-bold mb-4" style={{ color: 'rgb(var(--primary))' }}>404</h1>
+                    <p className="mb-8" style={{ color: 'rgb(var(--muted-foreground))' }}>Page not found</p>
                     <button 
                       onClick={() => window.history.back()}
-                      className="px-6 py-3 bg-cyber-primary text-cyber-dark rounded-lg hover:bg-cyber-secondary transition-colors"
+                      className="px-6 py-3 rounded-lg transition-all hover-glow"
+                      style={{ 
+                        backgroundColor: 'rgb(var(--primary))', 
+                        color: 'rgb(var(--primary-foreground))'
+                      }}
                     >
                       Go Back
                     </button>
@@ -92,28 +104,29 @@ function App() {
             toastOptions={{
               duration: 4000,
               style: {
-                background: theme === 'cyberpunk' ? '#1A1A1A' : '#1f2937',
-                color: theme === 'cyberpunk' ? '#00FFFF' : '#f3f4f6',
-                border: theme === 'cyberpunk' ? '1px solid #00FFFF' : '1px solid #374151',
+                background: 'rgb(var(--card))',
+                color: 'rgb(var(--card-foreground))',
+                border: '1px solid rgb(var(--border))',
                 borderRadius: '8px',
-                boxShadow: theme === 'cyberpunk' ? '0 0 10px #00FFFF' : '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                boxShadow: 'var(--shadow-lg)',
               },
               success: {
                 iconTheme: {
-                  primary: '#39FF14',
-                  secondary: '#0A0A0A',
+                  primary: 'rgb(var(--primary))',
+                  secondary: 'rgb(var(--primary-foreground))',
                 },
               },
               error: {
                 iconTheme: {
-                  primary: '#FF0040',
-                  secondary: '#0A0A0A',
+                  primary: 'rgb(var(--destructive))',
+                  secondary: 'rgb(var(--destructive-foreground))',
                 },
               },
             }}
           />
 
           {/* PWA install prompt component could go here */}
+          </div>
         </div>
       </Router>
     </ErrorBoundary>

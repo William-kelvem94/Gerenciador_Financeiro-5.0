@@ -1,6 +1,11 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { devtools } from 'zustand/middleware';
+import { persist, devtools } from 'zustand/middleware';
+import { 
+  signInWithPopup, 
+  signOut, 
+  onAuthStateChanged
+} from 'firebase/auth';
+import { auth, googleProvider } from '../lib/firebase';
 import { api } from '../lib/api';
 import toast from 'react-hot-toast';
 
@@ -21,11 +26,13 @@ interface AuthState {
   
   // Actions
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   setUser: (user: User, token: string) => void;
   clearError: () => void;
   refreshUser: () => Promise<void>;
+  initializeAuth: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -41,30 +48,6 @@ export const useAuthStore = create<AuthState>()(
         login: async (email: string, password: string) => {
           try {
             set({ isLoading: true, error: null });
-            
-            // Demo mode for testing - remove in production
-            if (email === 'demo@willfinance.com' && password === 'demo123') {
-              const demoUser = {
-                id: 'demo-user-1',
-                email: 'demo@willfinance.com',
-                name: 'Demo User',
-                avatar: '',
-                createdAt: new Date().toISOString()
-              };
-              
-              const demoToken = 'demo-token-123';
-              
-              set({
-                user: demoUser,
-                token: demoToken,
-                isAuthenticated: true,
-                isLoading: false,
-                error: null,
-              });
-
-              toast.success(`Welcome back, ${demoUser.name}!`);
-              return;
-            }
             
             const response = await api.post('/auth/login', {
               email,
@@ -85,8 +68,54 @@ export const useAuthStore = create<AuthState>()(
             });
 
             toast.success(`Welcome back, ${user.name}!`);
-          } catch (error: any) {
-            const message = error.response?.data?.message || 'Login failed';
+          } catch (error: unknown) {
+            const message = error instanceof Error 
+              ? error.message 
+              : (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Login failed';
+            set({
+              error: message,
+              isLoading: false,
+              isAuthenticated: false,
+            });
+            toast.error(message);
+            throw error;
+          }
+        },
+
+        loginWithGoogle: async () => {
+          try {
+            set({ isLoading: true, error: null });
+            
+            const result = await signInWithPopup(auth, googleProvider);
+            const firebaseUser = result.user;
+            
+            // Get Firebase ID token
+            const firebaseToken = await firebaseUser.getIdToken();
+            
+            // Send to backend to create/get user and get JWT
+            const response = await api.post('/auth/google', {
+              firebaseToken,
+              email: firebaseUser.email,
+              name: firebaseUser.displayName,
+              avatar: firebaseUser.photoURL,
+            });
+
+            const { user, token } = response.data;
+            
+            // Set token in API defaults
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            
+            set({
+              user,
+              token,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
+
+            toast.success(`Welcome, ${user.name}!`);
+          } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Google login failed';
             set({
               error: message,
               isLoading: false,
@@ -121,8 +150,10 @@ export const useAuthStore = create<AuthState>()(
             });
 
             toast.success(`Welcome to Will Finance, ${user.name}!`);
-          } catch (error: any) {
-            const message = error.response?.data?.message || 'Registration failed';
+          } catch (error: unknown) {
+            const message = error instanceof Error 
+              ? error.message 
+              : (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Registration failed';
             set({
               error: message,
               isLoading: false,
@@ -134,6 +165,11 @@ export const useAuthStore = create<AuthState>()(
         },
 
         logout: () => {
+          // Sign out from Firebase
+          signOut(auth).catch(() => {
+            // Silent fail - we're logging out anyway
+          });
+          
           // Clear API token
           delete api.defaults.headers.common['Authorization'];
           
@@ -172,10 +208,50 @@ export const useAuthStore = create<AuthState>()(
             const user = response.data;
 
             set({ user });
-          } catch (error) {
+          } catch {
             // If refresh fails, logout
+            toast.error('Session expired. Please login again.');
             get().logout();
           }
+        },
+
+        initializeAuth: () => {
+          // Listen to Firebase auth state changes
+          onAuthStateChanged(auth, async (firebaseUser) => {
+            if (firebaseUser) {
+              // User is signed in with Firebase
+              try {
+                const firebaseToken = await firebaseUser.getIdToken();
+                
+                // Sync with backend
+                const response = await api.post('/auth/firebase-sync', {
+                  firebaseToken,
+                  email: firebaseUser.email,
+                  name: firebaseUser.displayName,
+                  avatar: firebaseUser.photoURL,
+                });
+
+                const { user, token } = response.data;
+                
+                api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                
+                set({
+                  user,
+                  token,
+                  isAuthenticated: true,
+                });
+              } catch {
+                // Failed to sync with backend - notify user
+                toast.error('Failed to sync with server. Please try logging in again.');
+              }
+            } else {
+              // User is signed out
+              const currentState = get();
+              if (currentState.isAuthenticated) {
+                currentState.logout();
+              }
+            }
+          });
         },
       }),
       {

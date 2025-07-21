@@ -1,0 +1,337 @@
+/* Will Finance 5.0 - Advanced Theme System */
+
+/* ================================
+   BASE LIGHT THEME
+   ================================ */
+.theme-light {
+  --background: 255 255 255;
+  --foreground: 15 23 42;
+  --card: 255 255 255;
+  --card-foreground: 15 23 42;
+  --popover: 255 255 255;
+  --popover-foreground: 15 23 42;
+  --primary: 59 130 246;
+  --primary-foreground: 255 255 255;
+  --secondary: 241 245 249;
+  --secondary-foreground: 15 23 42;
+  --muted: 241 245 249;
+  --muted-foreground: 100 116 139;
+  --accent: 241 245 249;
+  --accent-foreground: 15 23 42;
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --border: 226 232 240;
+  --input: 226 232 240;
+  --ring: 59 130 246;
+  --radius: 0.5rem;
+  
+  /* Custom gradients */
+  --gradient-primary: linear-gradient(135deg, rgb(59 130 246), rgb(147 51 234));
+  --gradient-secondary: linear-gradient(135deg, rgb(241 245 249), rgb(226 232 240));
+  --gradient-background: linear-gradient(135deg, rgb(248 250 252), rgb(241 245 249));
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* ================================
+   BASE DARK THEME
+   ================================ */
+.theme-dark {
+  --background: 2 6 23;
+  --foreground: 248 250 252;
+  --card: 15 23 42;
+  --card-foreground: 248 250 252;
+  --popover: 15 23 42;
+  --popover-foreground: 248 250 252;
+  --primary: 59 130 246;
+  --primary-foreground: 255 255 255;
+  --secondary: 30 41 59;
+  --secondary-foreground: 248 250 252;
+  --muted: 30 41 59;
+  --muted-foreground: 148 163 184;
+  --accent: 30 41 59;
+  --accent-foreground: 248 250 252;
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --border: 51 65 85;
+  --input: 51 65 85;
+  --ring: 59 130 246;
+  
+  /* Custom gradients */
+  --gradient-primary: linear-gradient(135deg, rgb(59 130 246), rgb(147 51 234));
+  --gradient-secondary: linear-gradient(135deg, rgb(30 41 59), rgb(51 65 85));
+  --gradient-background: linear-gradient(135deg, rgb(2 6 23), rgb(15 23 42));
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+}
+
+/* ================================
+   CYBERPUNK THEME
+   ================================ */
+.theme-cyberpunk {
+  --background: 0 0 0;
+  --foreground: 0 255 255;
+  --card: 10 10 20;
+  --card-foreground: 0 255 255;
+  --popover: 10 10 20;
+  --popover-foreground: 0 255 255;
+  --primary: 255 0 255;
+  --primary-foreground: 0 0 0;
+  --secondary: 20 20 40;
+  --secondary-foreground: 0 255 255;
+  --muted: 20 20 40;
+  --muted-foreground: 100 255 255;
+  --accent: 255 0 128;
+  --accent-foreground: 0 0 0;
+  --destructive: 255 20 147;
+  --destructive-foreground: 0 0 0;
+  --border: 255 0 255;
+  --input: 20 20 40;
+  --ring: 0 255 255;
+  
+  /* Custom gradients */
+  --gradient-primary: linear-gradient(135deg, rgb(255 0 255), rgb(0 255 255));
+  --gradient-secondary: linear-gradient(135deg, rgb(20 20 40), rgb(255 0 128));
+  --gradient-background: linear-gradient(135deg, rgb(0 0 0), rgb(10 10 20));
+  
+  /* Neon glow effects */
+  --glow-primary: 0 0 20px rgb(255 0 255), 0 0 40px rgb(255 0 255);
+  --glow-secondary: 0 0 20px rgb(0 255 255), 0 0 40px rgb(0 255 255);
+  --glow-accent: 0 0 20px rgb(255 0 128), 0 0 40px rgb(255 0 128);
+}
+
+/* ================================
+   SUNSET THEME
+   ================================ */
+.theme-sunset {
+  --background: 255 247 237;
+  --foreground: 124 45 18;
+  --card: 255 255 255;
+  --card-foreground: 124 45 18;
+  --popover: 255 255 255;
+  --popover-foreground: 124 45 18;
+  --primary: 251 146 60;
+  --primary-foreground: 255 255 255;
+  --secondary: 254 215 170;
+  --secondary-foreground: 124 45 18;
+  --muted: 254 215 170;
+  --muted-foreground: 154 52 18;
+  --accent: 251 113 133;
+  --accent-foreground: 255 255 255;
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --border: 253 186 116;
+  --input: 253 186 116;
+  --ring: 251 146 60;
+  
+  /* Sunset gradients */
+  --gradient-primary: linear-gradient(135deg, rgb(251 146 60), rgb(251 113 133));
+  --gradient-secondary: linear-gradient(135deg, rgb(254 215 170), rgb(253 186 116));
+  --gradient-background: linear-gradient(135deg, rgb(255 247 237), rgb(254 215 170));
+}
+
+/* ================================
+   OCEAN THEME
+   ================================ */
+.theme-ocean {
+  --background: 240 249 255;
+  --foreground: 12 74 110;
+  --card: 255 255 255;
+  --card-foreground: 12 74 110;
+  --popover: 255 255 255;
+  --popover-foreground: 12 74 110;
+  --primary: 14 165 233;
+  --primary-foreground: 255 255 255;
+  --secondary: 186 230 253;
+  --secondary-foreground: 12 74 110;
+  --muted: 186 230 253;
+  --muted-foreground: 14 116 144;
+  --accent: 6 182 212;
+  --accent-foreground: 255 255 255;
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --border: 125 211 252;
+  --input: 125 211 252;
+  --ring: 14 165 233;
+  
+  /* Ocean gradients */
+  --gradient-primary: linear-gradient(135deg, rgb(14 165 233), rgb(6 182 212));
+  --gradient-secondary: linear-gradient(135deg, rgb(186 230 253), rgb(125 211 252));
+  --gradient-background: linear-gradient(135deg, rgb(240 249 255), rgb(186 230 253));
+}
+
+/* ================================
+   FOREST THEME
+   ================================ */
+.theme-forest {
+  --background: 240 253 244;
+  --foreground: 20 83 45;
+  --card: 255 255 255;
+  --card-foreground: 20 83 45;
+  --popover: 255 255 255;
+  --popover-foreground: 20 83 45;
+  --primary: 34 197 94;
+  --primary-foreground: 255 255 255;
+  --secondary: 187 247 208;
+  --secondary-foreground: 20 83 45;
+  --muted: 187 247 208;
+  --muted-foreground: 22 101 52;
+  --accent: 16 185 129;
+  --accent-foreground: 255 255 255;
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --border: 134 239 172;
+  --input: 134 239 172;
+  --ring: 34 197 94;
+  
+  /* Forest gradients */
+  --gradient-primary: linear-gradient(135deg, rgb(34 197 94), rgb(16 185 129));
+  --gradient-secondary: linear-gradient(135deg, rgb(187 247 208), rgb(134 239 172));
+  --gradient-background: linear-gradient(135deg, rgb(240 253 244), rgb(187 247 208));
+}
+
+/* ================================
+   ROSE THEME
+   ================================ */
+.theme-rose {
+  --background: 255 241 242;
+  --foreground: 136 19 55;
+  --card: 255 255 255;
+  --card-foreground: 136 19 55;
+  --popover: 255 255 255;
+  --popover-foreground: 136 19 55;
+  --primary: 244 63 94;
+  --primary-foreground: 255 255 255;
+  --secondary: 253 164 175;
+  --secondary-foreground: 136 19 55;
+  --muted: 253 164 175;
+  --muted-foreground: 159 18 57;
+  --accent: 236 72 153;
+  --accent-foreground: 255 255 255;
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --border: 251 113 133;
+  --input: 251 113 133;
+  --ring: 244 63 94;
+  
+  /* Rose gradients */
+  --gradient-primary: linear-gradient(135deg, rgb(244 63 94), rgb(236 72 153));
+  --gradient-secondary: linear-gradient(135deg, rgb(253 164 175), rgb(251 113 133));
+  --gradient-background: linear-gradient(135deg, rgb(255 241 242), rgb(253 164 175));
+}
+
+/* ================================
+   PURPLE THEME
+   ================================ */
+.theme-purple {
+  --background: 250 245 255;
+  --foreground: 88 28 135;
+  --card: 255 255 255;
+  --card-foreground: 88 28 135;
+  --popover: 255 255 255;
+  --popover-foreground: 88 28 135;
+  --primary: 147 51 234;
+  --primary-foreground: 255 255 255;
+  --secondary: 221 214 254;
+  --secondary-foreground: 88 28 135;
+  --muted: 221 214 254;
+  --muted-foreground: 109 40 217;
+  --accent: 168 85 247;
+  --accent-foreground: 255 255 255;
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --border: 196 181 253;
+  --input: 196 181 253;
+  --ring: 147 51 234;
+  
+  /* Purple gradients */
+  --gradient-primary: linear-gradient(135deg, rgb(147 51 234), rgb(168 85 247));
+  --gradient-secondary: linear-gradient(135deg, rgb(221 214 254), rgb(196 181 253));
+  --gradient-background: linear-gradient(135deg, rgb(250 245 255), rgb(221 214 254));
+}
+
+/* ================================
+   GLOBAL STYLES
+   ================================ */
+* {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.gradient-bg {
+  background: var(--gradient-background);
+}
+
+.gradient-primary {
+  background: var(--gradient-primary);
+}
+
+.gradient-secondary {
+  background: var(--gradient-secondary);
+}
+
+/* Cyberpunk specific effects */
+.theme-cyberpunk .neon {
+  text-shadow: var(--glow-primary);
+  box-shadow: var(--glow-primary);
+}
+
+.theme-cyberpunk .neon-secondary {
+  text-shadow: var(--glow-secondary);
+  box-shadow: var(--glow-secondary);
+}
+
+.theme-cyberpunk .neon-accent {
+  text-shadow: var(--glow-accent);
+  box-shadow: var(--glow-accent);
+}
+
+/* Theme-specific card effects */
+.theme-cyberpunk .card {
+  border: 1px solid rgb(var(--border));
+  box-shadow: 0 0 10px rgb(var(--primary) / 0.3);
+}
+
+.theme-sunset .card,
+.theme-ocean .card,
+.theme-forest .card,
+.theme-rose .card,
+.theme-purple .card {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* Smooth animations for theme transitions */
+.theme-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Beautiful glassmorphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.theme-dark .glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Enhanced hover effects */
+.hover-glow:hover {
+  box-shadow: 0 8px 32px rgba(var(--primary) / 0.3);
+  transform: translateY(-2px);
+}
+
+.theme-cyberpunk .hover-glow:hover {
+  box-shadow: var(--glow-primary);
+  transform: translateY(-2px);
+}

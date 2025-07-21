@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 
 // Create axios instance
 export const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -16,8 +16,8 @@ api.interceptors.request.use(
     // You can add loading states here if needed
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
+  (error: unknown) => {
+    return Promise.reject(error instanceof Error ? error : new Error('Request failed'));
   }
 );
 
@@ -51,7 +51,7 @@ api.interceptors.response.use(
         
         case 422: {
           // Validation errors
-          const message = (response.data as any)?.message || 'Validation error';
+          const message = (response.data as { message?: string })?.message || 'Validation error';
           toast.error(message);
           break;
         }
@@ -81,19 +81,19 @@ api.interceptors.response.use(
 
 // Helper functions for different HTTP methods
 export const apiClient = {
-  get: <T = any>(url: string, config = {}) => 
+  get: <T = unknown>(url: string, config = {}) => 
     api.get<T>(url, config).then(res => res.data),
   
-  post: <T = any>(url: string, data = {}, config = {}) => 
+  post: <T = unknown>(url: string, data = {}, config = {}) => 
     api.post<T>(url, data, config).then(res => res.data),
   
-  put: <T = any>(url: string, data = {}, config = {}) => 
+  put: <T = unknown>(url: string, data = {}, config = {}) => 
     api.put<T>(url, data, config).then(res => res.data),
   
-  patch: <T = any>(url: string, data = {}, config = {}) => 
+  patch: <T = unknown>(url: string, data = {}, config = {}) => 
     api.patch<T>(url, data, config).then(res => res.data),
   
-  delete: <T = any>(url: string, config = {}) => 
+  delete: <T = unknown>(url: string, config = {}) => 
     api.delete<T>(url, config).then(res => res.data),
 };
 

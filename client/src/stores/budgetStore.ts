@@ -3,6 +3,14 @@ import { devtools } from 'zustand/middleware';
 import { api } from '../lib/api';
 import toast from 'react-hot-toast';
 
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
+
 export interface Budget {
   id: string;
   name: string;
@@ -61,8 +69,8 @@ export const useBudgetStore = create<BudgetState>()(
             budgets: response.data,
             isLoading: false,
           });
-        } catch (error: any) {
-          const message = error.response?.data?.message || 'Failed to fetch budgets';
+        } catch (error: unknown) {
+          const message = (error as ApiError).response?.data?.message || 'Failed to fetch budgets';
           set({
             error: message,
             isLoading: false,
@@ -75,8 +83,8 @@ export const useBudgetStore = create<BudgetState>()(
         try {
           const response = await api.get('/budgets/overview');
           set({ overview: response.data });
-        } catch (error: any) {
-          console.error('Failed to fetch budget overview:', error);
+        } catch {
+          // Ignore overview fetch errors
         }
       },
 
@@ -96,8 +104,8 @@ export const useBudgetStore = create<BudgetState>()(
           get().fetchOverview();
           
           toast.success('Budget created successfully');
-        } catch (error: any) {
-          const message = error.response?.data?.message || 'Failed to create budget';
+        } catch (error: unknown) {
+          const message = (error as ApiError).response?.data?.message || 'Failed to create budget';
           set({
             error: message,
             isLoading: false,
@@ -125,8 +133,8 @@ export const useBudgetStore = create<BudgetState>()(
           get().fetchOverview();
           
           toast.success('Budget updated successfully');
-        } catch (error: any) {
-          const message = error.response?.data?.message || 'Failed to update budget';
+        } catch (error: unknown) {
+          const message = (error as ApiError).response?.data?.message || 'Failed to update budget';
           set({
             error: message,
             isLoading: false,
@@ -151,8 +159,8 @@ export const useBudgetStore = create<BudgetState>()(
           get().fetchOverview();
           
           toast.success('Budget deleted successfully');
-        } catch (error: any) {
-          const message = error.response?.data?.message || 'Failed to delete budget';
+        } catch (error: unknown) {
+          const message = (error as ApiError).response?.data?.message || 'Failed to delete budget';
           set({
             error: message,
             isLoading: false,

@@ -22,9 +22,21 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
-  @Get('google')
+  @Post('google')
+  @ApiOperation({ summary: 'Google OAuth login with Firebase token' })
+  async googleLogin(@Body() body: { firebaseToken: string; email: string; name: string; avatar?: string }) {
+    return this.authService.googleLogin(body);
+  }
+
+  @Post('firebase-sync')
+  @ApiOperation({ summary: 'Sync Firebase user with backend' })
+  async firebaseSync(@Body() body: { firebaseToken: string; email: string; name: string; avatar?: string }) {
+    return this.authService.firebaseSync(body);
+  }
+
+  @Get('google/oauth')
   @UseGuards(GoogleAuthGuard)
-  @ApiOperation({ summary: 'Google OAuth login' })
+  @ApiOperation({ summary: 'Google OAuth login (legacy)' })
   async googleAuth() {
     // This route initiates Google OAuth
   }
@@ -32,8 +44,8 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Google OAuth callback' })
-  async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
-    const result = await this.authService.googleLogin(req);
+  async googleAuthRedirect(@Req() req: any, @Res() res: Response) {
+    const result = await this.authService.googleLoginLegacy(req);
     
     // Redirect to frontend with token
     const frontendUrl = process.env.CLIENT_URL || 'http://localhost:5173';
@@ -44,7 +56,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user' })
-  async getProfile(@Req() req: any) {
+  async getProfile(@Req() req: Request & { user: { userId: string; email: string } }) {
     return req.user;
   }
 }

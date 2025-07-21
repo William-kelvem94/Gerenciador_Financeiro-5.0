@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 
 /**
- * Script para criar usuários de demonstração
+ * Script para criar usuários de demon    console.log('✅ Usuário William criado:', {
+      email: 'williamkelvem64@gmail.com',
+      password: '123456789',
+      id: testUser.id
+    });ão
  */
 
 const { PrismaClient } = require('@prisma/client');
@@ -20,9 +24,7 @@ async function createDemoUsers() {
       update: {},
       create: {
         email: 'admin@willfinance.com',
-        username: 'admin',
-        firstName: 'Will',
-        lastName: 'Finance Admin',
+        name: 'Will Finance Admin',
         password: adminPassword,
       },
     });
@@ -40,9 +42,7 @@ async function createDemoUsers() {
       update: {},
       create: {
         email: 'demo@willfinance.com',
-        username: 'demo',
-        firstName: 'Demo',
-        lastName: 'User',
+        name: 'Demo User',
         password: demoPassword,
       },
     });
@@ -54,15 +54,13 @@ async function createDemoUsers() {
     });
 
     // Usuário teste com seu email
-    const testPassword = await bcrypt.hash('teste123', 12);
+    const testPassword = await bcrypt.hash('123456789', 12);
     const testUser = await prisma.user.upsert({
       where: { email: 'williamkelvem64@gmail.com' },
       update: {},
       create: {
         email: 'williamkelvem64@gmail.com',
-        username: 'william',
-        firstName: 'William',
-        lastName: 'Kelvem',
+        name: 'William Kelvem',
         password: testPassword,
       },
     });
@@ -71,6 +69,24 @@ async function createDemoUsers() {
       email: 'williamkelvem64@gmail.com',
       password: 'teste123',
       id: testUser.id
+    });
+
+    // Usuário user@willfinance.com
+    const userPassword = await bcrypt.hash('user123', 12);
+    const userUser = await prisma.user.upsert({
+      where: { email: 'user@willfinance.com' },
+      update: {},
+      create: {
+        email: 'user@willfinance.com',
+        name: 'Finance User',
+        password: userPassword,
+      },
+    });
+
+    console.log('✅ Usuário User criado:', {
+      email: 'user@willfinance.com',
+      password: 'user123',
+      id: userUser.id
     });
 
     console.log('\n🎉 Usuários de demonstração criados com sucesso!');

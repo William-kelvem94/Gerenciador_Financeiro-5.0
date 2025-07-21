@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-// import { LoadingScreen } from '../ui/LoadingScreen';
 import { useAuthStore } from '../../stores/authStore';
 
 export const AuthCallback: React.FC = () => {
@@ -24,8 +23,8 @@ export const AuthCallback: React.FC = () => {
         };
         
         setUser(user, token);
-      } catch (error) {
-        console.error('Failed to parse token:', error);
+      } catch {
+        // Ignore token parsing errors - redirect to dashboard anyway
       }
     }
   }, [setUser]);
