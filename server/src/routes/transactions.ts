@@ -202,7 +202,10 @@ router.post('/', async (req: any, res) => {
       });
     }
     
-    console.error('Create transaction error:', error);
+    console.error('Create transaction error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : null,
+    });
     
     if (error instanceof Error) {
       if (error.message.includes('Account not found')) {
