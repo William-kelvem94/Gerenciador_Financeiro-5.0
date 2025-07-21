@@ -20,7 +20,9 @@ const createTransactionSchema = z.object({
   }, { message: 'Invalid amount for the specified transaction type' }),
   description: z.string().min(1, 'Description is required'),
   type: z.enum(['income', 'expense', 'transfer']),
-  date: z.string().datetime('Invalid date format'),
+  date: z.string().refine((value) => !isNaN(Date.parse(value)), {
+    message: 'Invalid date format',
+  }),
 });
 
 const updateTransactionSchema = z.object({
