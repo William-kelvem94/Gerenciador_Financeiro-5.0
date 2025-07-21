@@ -12,7 +12,12 @@ router.use(authenticateToken);
 const createTransactionSchema = z.object({
   accountId: z.string().uuid('Invalid account ID format'),
   categoryId: z.string().uuid('Invalid category ID format'),
-  amount: z.number().positive('Amount must be positive'),
+  amount: z.number().refine((value, ctx) => {
+    const type = ctx.parent.type;
+    if (type === 'income' && value <= 0) return false;
+    if ((type === 'expense' || type === 'transfer') && value >= 0) return false;
+    return true;
+  }, { message: 'Invalid amount for the specified transaction type' }),
   description: z.string().min(1, 'Description is required'),
   type: z.enum(['income', 'expense', 'transfer']),
   date: z.string().datetime('Invalid date format'),
