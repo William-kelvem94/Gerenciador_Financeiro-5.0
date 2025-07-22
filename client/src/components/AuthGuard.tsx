@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom'
-import { useAuthStore } from '../store/authStore.js'
+import { useAuthStore } from '../store/authStore'
 
 interface AuthGuardProps {
   readonly children: React.ReactNode

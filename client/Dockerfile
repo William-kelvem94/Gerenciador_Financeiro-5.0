@@ -12,7 +12,7 @@ COPY postcss.config.js ./
 COPY eslint.config.js ./
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy source code and public assets
 COPY src/ ./src/

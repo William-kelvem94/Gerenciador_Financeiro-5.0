@@ -9,9 +9,7 @@ const prisma = new PrismaClient();
 // Validation schemas
 const createCategorySchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
-  type: z.enum(['income', 'expense'], {
-    errorMap: () => ({ message: 'Tipo deve ser income ou expense' })
-  }),
+    type: z.enum(['income', 'expense']),
   icon: z.string().optional(),
   color: z.string().optional(),
   description: z.string().optional(),
@@ -152,7 +150,7 @@ router.post('/', async (req: AuthenticatedRequest, res) => {
       return res.status(400).json({
         success: false,
         message: 'Dados inválidos',
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 
@@ -218,7 +216,7 @@ router.put('/:id', async (req: AuthenticatedRequest, res) => {
       return res.status(400).json({
         success: false,
         message: 'Dados inválidos',
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 

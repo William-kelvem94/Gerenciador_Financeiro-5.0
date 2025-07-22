@@ -16,6 +16,7 @@ const createBudgetSchema = z.object({
   period: z.enum(['monthly', 'yearly']),
   startDate: z.string(),
   endDate: z.string(),
+  categoryId: z.string(),
 });
 
 const updateBudgetSchema = z.object({
@@ -72,10 +73,13 @@ router.post('/', async (req: any, res) => {
 
     const budget = await prisma.budget.create({
       data: {
-        ...data,
-        userId: req.user.userId,
+        name: data.name,
+        amount: data.amount,
+        period: data.period,
         startDate: new Date(data.startDate),
         endDate: new Date(data.endDate),
+        user: { connect: { id: req.user.userId } },
+        category: { connect: { id: data.categoryId } },
       },
     });
 

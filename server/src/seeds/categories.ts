@@ -168,7 +168,7 @@ export async function seedCategories() {
         ...cat,
         userId: null, // categorias padrão do sistema
       })),
-      skipDuplicates: true,
+      // skipDuplicates não é suportado aqui, remova ou ajuste conforme a API do Prisma
     });
 
     console.log(`✅ Created ${createdCategories.count} default categories`);

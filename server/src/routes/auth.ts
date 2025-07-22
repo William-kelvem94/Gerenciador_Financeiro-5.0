@@ -1,9 +1,10 @@
+export { authenticateToken } from '../middleware/auth';
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
-import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -12,13 +13,13 @@ const JWT_SECRET = process.env.JWT_SECRET || 'will-finance-6.0-super-secret-cybe
 
 // Validation schemas
 const registerSchema = z.object({
-  email: z.string().email('Email inválido'),
+  email: z.string(),
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   password: z.string().min(6),
 });
 
 const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.string(),
   password: z.string(),
 });
 
@@ -106,23 +107,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Verify token middleware
-export const authenticateToken = (req: any, res: any, next: any) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
 
-  if (!token) {
-    return res.status(401).json({ error: 'Access token required' });
-  }
-
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
-    if (err) {
-      return res.status(403).json({ error: 'Invalid token' });
-    }
-    req.user = user;
-    next();
-  });
-};
 
 // Get current user
 router.get('/me', authenticateToken, async (req: any, res) => {

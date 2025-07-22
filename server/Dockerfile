@@ -9,7 +9,7 @@ COPY tsconfig*.json ./
 COPY nest-cli.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY src/ ./src/
@@ -28,7 +28,7 @@ WORKDIR /app
 
 # Install production dependencies only
 COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+RUN npm install --legacy-peer-deps --omit=dev && npm cache clean --force
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist

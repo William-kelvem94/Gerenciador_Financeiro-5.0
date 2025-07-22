@@ -7,7 +7,11 @@ export class BudgetsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(userId: string, createBudgetDto: CreateBudgetDto) {
-    const { name, amount, period, startDate, endDate } = createBudgetDto;
+    const { name, amount, period, startDate, endDate, categoryId } = createBudgetDto as any;
+
+    if (!categoryId) {
+      throw new Error('categoryId é obrigatório para criar um orçamento');
+    }
 
     const budget = await this.prisma.budget.create({
       data: {
@@ -17,6 +21,7 @@ export class BudgetsService {
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         userId,
+        categoryId,
       },
     });
 
@@ -65,7 +70,7 @@ export class BudgetsService {
   }
 
   async update(userId: string, id: string, updateBudgetDto: UpdateBudgetDto) {
-    const existingBudget = await this.findOne(userId, id);
+    await this.findOne(userId, id);
 
     const updatedBudget = await this.prisma.budget.update({
       where: { id },
@@ -90,7 +95,7 @@ export class BudgetsService {
   }
 
   async remove(userId: string, id: string) {
-    const budget = await this.findOne(userId, id);
+    await this.findOne(userId, id);
 
     await this.prisma.budget.delete({
       where: { id },

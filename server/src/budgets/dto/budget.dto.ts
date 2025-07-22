@@ -26,6 +26,10 @@ export class CreateBudgetDto {
   @ApiProperty({ example: '2024-12-31T23:59:59Z' })
   @IsDateString()
   endDate: string;
+
+  @ApiProperty({ example: 'category-id-123' })
+  @IsString()
+  categoryId: string;
 }
 
 export class UpdateBudgetDto {

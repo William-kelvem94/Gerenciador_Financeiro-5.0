@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 import { errorHandler } from './middleware/errorHandler';
-import { GlobalExceptionFilter } from './filters/global-exception.filter';
+// import removido pois não é utilizado
 import { logger } from './utils/logger';
 import { connectDatabase } from './config/database';
 import { connectRedis } from './config/redis';
@@ -23,7 +23,7 @@ import { userRoutes } from './routes/users';
 import { accountRoutes } from './routes/accounts';
 import { transactionRoutes } from './routes/transactions';
 import { categoryRoutes } from './routes/categories';
-import budgetRoutes from './routes/budgets';
+import { budgetRoutes } from './routes/budgets';
 import goalRoutes from './routes/goals';
 import analyticsRoutes from './routes/analytics';
 import aiRoutes from './routes/ai';

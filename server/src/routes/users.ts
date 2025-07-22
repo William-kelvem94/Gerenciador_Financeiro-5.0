@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 // Validation schemas
 const updateUserSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').optional(),
-  email: z.string().email('Email inválido').optional(),
+  email: z.string().optional(),
   password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres').optional(),
 });
 
@@ -114,7 +114,7 @@ router.put('/profile', async (req: AuthenticatedRequest, res) => {
       return res.status(400).json({
         success: false,
         message: 'Dados inválidos',
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 
@@ -168,7 +168,7 @@ router.post('/change-password', async (req: AuthenticatedRequest, res) => {
       return res.status(400).json({
         success: false,
         message: 'Dados inválidos',
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 

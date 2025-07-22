@@ -21,7 +21,9 @@
     "esModuleInterop": true,
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["node", "dotenv", "express-rate-limit"],
+    "typeRoots": ["./node_modules/@types"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

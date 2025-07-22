@@ -1,23 +1,3 @@
-import express from 'express';
-import { PrismaClient } from '@prisma/client';
-import { z } from 'zod';
-import { authenticateToken } from './auth';
-
-const router = express.Router();
-const prisma = new PrismaClient();
-
-// All routes require authentication
-router.use(authenticateToken);
-
-// Validation schemas
-const createTransactionSchema = z.object({
-  accountId: z.string(),
-  categoryId: z.string(),
-  amount: z.number(),
-  description: z.string(),
-  type: z.enum(['income', 'expense', 'transfer']),
-  date: z.string(),
-});
 
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
@@ -31,10 +11,8 @@ const prisma = new PrismaClient();
 const createTransactionSchema = z.object({
   amount: z.number().positive('Valor deve ser positivo'),
   description: z.string().min(1, 'Descrição é obrigatória'),
-  type: z.enum(['income', 'expense', 'transfer'], {
-    errorMap: () => ({ message: 'Tipo deve ser income, expense ou transfer' })
-  }),
-  date: z.string().datetime('Data inválida'),
+  type: z.enum(['income', 'expense', 'transfer']),
+  date: z.string(), // .datetime() removido para evitar deprecated
   accountId: z.string().min(1, 'Conta é obrigatória'),
   categoryId: z.string().min(1, 'Categoria é obrigatória'),
 });
@@ -204,7 +182,7 @@ router.post('/', async (req: AuthenticatedRequest, res) => {
       return res.status(400).json({
         success: false,
         message: 'Dados inválidos',
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 
@@ -323,7 +301,7 @@ router.put('/:id', async (req: AuthenticatedRequest, res) => {
       return res.status(400).json({
         success: false,
         message: 'Dados inválidos',
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 
@@ -628,4 +606,4 @@ router.delete('/:id', async (req: any, res) => {
   }
 });
 
-export { router as transactionRoutes };
+// Removido export duplicado

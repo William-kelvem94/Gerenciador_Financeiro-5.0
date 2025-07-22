@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
 
 // Create axios instance
-import { API_URL } from '../main';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -19,7 +19,7 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    return Promise.reject(error);
+    return Promise.reject(new Error(error?.message || 'Erro desconhecido'));
   }
 );
 

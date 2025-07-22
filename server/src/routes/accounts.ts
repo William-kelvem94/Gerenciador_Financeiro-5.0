@@ -9,9 +9,7 @@ const prisma = new PrismaClient();
 // Validation schemas
 const createAccountSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
-  type: z.enum(['checking', 'savings', 'credit', 'investment'], {
-    errorMap: () => ({ message: 'Tipo deve ser checking, savings, credit ou investment' })
-  }),
+  type: z.enum(['checking', 'savings', 'credit', 'investment']),
   balance: z.number().default(0),
   bank: z.string().optional(),
   description: z.string().optional(),
@@ -35,11 +33,7 @@ router.get('/', async (req: AuthenticatedRequest, res) => {
 
     const accounts = await prisma.account.findMany({
       where,
-      include: includeBalance === 'true' ? {
-        _count: {
-          select: { transactions: true }
-        }
-      } : false,
+      include: includeBalance === 'true' ? { _count: { select: { transactions: true } } } : undefined,
       orderBy: { name: 'asc' },
     });
 
@@ -135,7 +129,7 @@ router.post('/', async (req: AuthenticatedRequest, res) => {
       return res.status(400).json({
         success: false,
         message: 'Dados inválidos',
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 
@@ -199,7 +193,7 @@ router.put('/:id', async (req: AuthenticatedRequest, res) => {
       return res.status(400).json({
         success: false,
         message: 'Dados inválidos',
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 
