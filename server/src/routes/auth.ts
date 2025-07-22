@@ -3,16 +3,17 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-here';
+const JWT_SECRET = process.env.JWT_SECRET || 'will-finance-6.0-super-secret-cyberpunk-jwt-key-2024';
 
 // Validation schemas
 const registerSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(2),
+  email: z.string().email('Email inválido'),
+  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   password: z.string().min(6),
 });
 

@@ -16,13 +16,13 @@ import { setupSocketIO } from './config/socket';
 import { initializeFirebaseAdmin } from './config/firebase';
 
 // Routes
-import authRoutes from './routes/auth';
+import { authRoutes } from './routes/auth';
 import adminAuthRoutes from './routes/adminAuth';
 import googleAuthRoutes from './routes/googleAuth';
-import userRoutes from './routes/users';
-import accountRoutes from './routes/accounts';
-import transactionRoutes from './routes/transactions';
-import categoryRoutes from './routes/categories';
+import { userRoutes } from './routes/users';
+import { accountRoutes } from './routes/accounts';
+import { transactionRoutes } from './routes/transactions';
+import { categoryRoutes } from './routes/categories';
 import budgetRoutes from './routes/budgets';
 import goalRoutes from './routes/goals';
 import analyticsRoutes from './routes/analytics';
