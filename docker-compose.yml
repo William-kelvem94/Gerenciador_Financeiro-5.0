@@ -1,45 +1,54 @@
-version: '3.8'
+
+## Compose file sem atributo version (obsoleto)
 services:
   db:
     image: postgres:16
     restart: always
     environment:
-      POSTGRES_DB: financeiro
-      POSTGRES_USER: financeiro
-      POSTGRES_PASSWORD: financeiro
+      POSTGRES_DB: will_finance_db
+      POSTGRES_USER: will_finance
+      POSTGRES_PASSWORD: cyberpunk2077
     ports:
       - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
-  backend:
-    build: ./backend
-    command: npm run start:dev
+
+  server:
+    build: ./server
+    command: npm run start:prod
     ports:
       - '3001:3000'
     environment:
-      DATABASE_HOST: db
-      DATABASE_PORT: 5432
-      DATABASE_USER: financeiro
-      DATABASE_PASSWORD: financeiro
-      DATABASE_NAME: financeiro
+      DATABASE_URL: postgresql://will_finance:cyberpunk2077@db:5432/will_finance_db
+      NODE_ENV: production
+      PORT: 3000
+      CLIENT_URL: http://localhost:4000
+      AI_API_URL: http://ia:8001
     depends_on:
       - db
-  frontend-dev:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    working_dir: /app
+
+  client:
+    build: ./client
+    command: npm run preview
     ports:
       - '4000:4000'
+    environment:
+      VITE_API_URL: http://localhost:3001
     depends_on:
-      - backend
-  frontend-prod:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend.prod
+      - server
+
+  ia:
+    build: ./IA
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8001
     ports:
-      - '8080:80'
+      - '8001:8001'
+    environment:
+      AI_API_KEY: will-finance-ai-key
+    volumes:
+      - ./IA/models:/app/models
+      - ./IA/datasets:/app/datasets
     depends_on:
-      - backend
+      - server
+
 volumes:
   pgdata:

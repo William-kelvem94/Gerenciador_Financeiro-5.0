@@ -25,10 +25,9 @@ RUN npm run build
 # Production stage
 FROM nginx:alpine AS production
 
-# Copy custom nginx configuration
 COPY <<EOF /etc/nginx/conf.d/default.conf
 server {
-    listen 3000;
+    listen 4000;
     server_name localhost;
     root /usr/share/nginx/html;
     index index.html;
