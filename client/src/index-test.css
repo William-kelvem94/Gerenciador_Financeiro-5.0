@@ -1,0 +1,8 @@
+/* CSS MÍNIMO PARA TESTE */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #111827;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
