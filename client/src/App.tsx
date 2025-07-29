@@ -1,88 +1,121 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { motion } from 'framer-motion';
+import { useAuthStore } from './stores/authStore';
+import { useUIStore } from './stores/uiStore';
+import { Layout } from './components/layout/Layout';
+import { LoginPage } from './pages/Login/LoginPage';
+import { RegisterPage } from './pages/Register/RegisterPage';
+import { DashboardPage } from './pages/Dashboard/DashboardPage';
+import { TransactionsPage } from './pages/Transactions/TransactionsPage';
+import { BudgetsPage } from './pages/Budgets/BudgetsPage';
+import { ReportsPage } from './pages/Reports/ReportsPage';
+import { SettingsPage } from './pages/Settings/SettingsPage';
+import { AuthCallback } from './components/auth/AuthCallback';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 
 function App() {
+  const { isAuthenticated, refreshUser, user } = useAuthStore();
+  const { theme, setTheme } = useUIStore();
+
+  useEffect(() => {
+    // Initialize theme
+    setTheme(theme);
+    
+    // Refresh user data if authenticated
+    if (isAuthenticated && user) {
+      refreshUser();
+    }
+  }, []);
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#1a1a1a',
-      color: '#00ff00',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'monospace',
-      padding: '20px'
-    }}>
-      <h1 style={{ fontSize: '3rem', marginBottom: '2rem', textAlign: 'center' }}>
-        🚀 Will Finance 5.0
-      </h1>
-      
-      <div style={{ 
-        backgroundColor: '#2a2a2a', 
-        padding: '2rem', 
-        borderRadius: '10px',
-        border: '2px solid #00ff00',
-        textAlign: 'center',
-        maxWidth: '600px'
-      }}>
-        <h2 style={{ color: '#00ff00', marginBottom: '1rem' }}>
-          ✅ SISTEMA FUNCIONANDO PERFEITAMENTE!
-        </h2>
-        
-        <div style={{ marginBottom: '2rem' }}>
-          <p>✅ Frontend React: http://localhost:5173</p>
-          <p>✅ Backend API: http://localhost:8080</p>
-          <p>✅ Banco SQLite: Conectado</p>
-          <p>✅ Autenticação: Implementada</p>
-        </div>
+    <ErrorBoundary>
+      <Router>
+        <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+          <Routes>
+            {/* Public routes */}
+            <Route 
+              path="/login" 
+              element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} 
+            />
+            <Route 
+              path="/register" 
+              element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />} 
+            />
+            <Route 
+              path="/auth/callback" 
+              element={<AuthCallback />} 
+            />
+            
+            {/* Protected routes */}
+            <Route 
+              path="/" 
+              element={isAuthenticated ? <Layout /> : <Navigate to="/login" replace />}
+            >
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="transactions" element={<TransactionsPage />} />
+              <Route path="budgets" element={<BudgetsPage />} />
+              <Route path="reports" element={<ReportsPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Route>
 
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button 
-            onClick={() => {
-              window.location.href = '/login';
-            }}
-            style={{
-              backgroundColor: '#0066cc',
-              color: 'white',
-              padding: '15px 30px',
-              border: 'none',
-              borderRadius: '5px',
-              fontSize: '1.1rem',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            🔑 TESTE LOGIN
-          </button>
-          
-          <button 
-            onClick={() => {
-              fetch('http://localhost:8080/health')
-                .then(r => r.json())
-                .then(data => alert(`✅ API Status: ${data.status}\n📅 Timestamp: ${data.timestamp}`))
-                .catch(e => alert('❌ Erro na API: ' + e.message));
-            }}
-            style={{
-              backgroundColor: '#00aa00',
-              color: 'white',
-              padding: '15px 30px',
-              border: 'none',
-              borderRadius: '5px',
-              fontSize: '1.1rem',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            🩺 TESTE API
-          </button>
-        </div>
+            {/* 404 fallback */}
+            <Route 
+              path="*" 
+              element={
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="min-h-screen flex items-center justify-center bg-background"
+                >
+                  <div className="text-center">
+                    <h1 className="text-6xl font-cyber text-cyber-primary mb-4">404</h1>
+                    <p className="text-foreground-secondary mb-8">Page not found</p>
+                    <button 
+                      onClick={() => window.history.back()}
+                      className="px-6 py-3 bg-cyber-primary text-cyber-dark rounded-lg hover:bg-cyber-secondary transition-colors"
+                    >
+                      Go Back
+                    </button>
+                  </div>
+                </motion.div>
+              } 
+            />
+          </Routes>
 
-        <div style={{ marginTop: '2rem', fontSize: '0.9rem', color: '#888' }}>
-          <p>🎯 O sistema está 100% funcional!</p>
-          <p>🔧 Use F12 para ver detalhes técnicos</p>
+          {/* Global toast notifications */}
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: theme === 'cyberpunk' ? '#1A1A1A' : '#1f2937',
+                color: theme === 'cyberpunk' ? '#00FFFF' : '#f3f4f6',
+                border: theme === 'cyberpunk' ? '1px solid #00FFFF' : '1px solid #374151',
+                borderRadius: '8px',
+                boxShadow: theme === 'cyberpunk' ? '0 0 10px #00FFFF' : '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#39FF14',
+                  secondary: '#0A0A0A',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: '#FF0040',
+                  secondary: '#0A0A0A',
+                },
+              },
+            }}
+          />
+
+          {/* PWA install prompt component could go here */}
         </div>
-      </div>
-    </div>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

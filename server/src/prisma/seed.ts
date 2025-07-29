@@ -21,14 +21,11 @@ async function main() {
     { name: 'Gift', icon: 'gift', color: '#8b5cf6', type: 'income' },
   ];
 
-  // First, check if categories already exist
-  const existingCategories = await prisma.category.findMany();
-  
-  if (existingCategories.length === 0) {
-    await prisma.category.createMany({
-      data: categories,
-    });
-  }
+  // Create categories
+  await prisma.category.createMany({
+    data: categories,
+    skipDuplicates: true,
+  });
 
   console.log('✅ Default categories created');
 
