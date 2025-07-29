@@ -1,113 +1,170 @@
-# 🚀 Will Finance 5.0 - Sistema Cyberpunk de Gerenciamento Financeiro
+# � Will Finance 5.0 - Sistema Profissional de Gerenciamento Financeiro
 
-> Sistema de gerenciamento financeiro completo com interface cyberpunk, usando React + TypeScript + Vite no frontend e NestJS + Prisma no backend.
+<div align="center">
 
 ![Will Finance 5.0](./imagem_gerada%20(2).png)
 
+[![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue.svg)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-6+-purple.svg)](https://www.prisma.io/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
+Sistema completo e profissional de gerenciamento financeiro com frontend React moderno e backend robusto.
+
+[🚀 Demo](#demo) • [📖 Documentação](#documentação) • [⚡ Início Rápido](#início-rápido) • [🤝 Contribuir](#contribuindo)
+
+</div>
+
+---
+
 ## 🎯 Características Principais
 
-- **🎨 Interface Cyberpunk**: Design futurista com cores neon, tema dark e animações Matrix Rain
-- **⚡ Frontend Moderno**: React 18 + TypeScript + Vite + Tailwind CSS
-- **🛡️ Backend Robusto**: NestJS + Express + Prisma + PostgreSQL
-- **🔄 Real-time**: WebSocket para atualizações em tempo real
-- **📱 PWA Ready**: Progressive Web App com suporte offline
-- **🤖 IA Integrada**: Módulo de inteligência artificial para insights financeiros
-- **🐳 Dockerizado**: Ambiente de desenvolvimento e produção com Docker
-- **📊 Multiplataforma**: Pronto para Electron (desktop) e React Native (mobile)
+### 🛡️ **Segurança e Confiabilidade**
+- ✅ **0 vulnerabilidades críticas** em produção
+- 🔐 Autenticação JWT segura + Google OAuth
+- 🛡️ Headers de segurança (Helmet, CORS, CSP)
+- 🚦 Rate limiting e validação rigorosa
+- 🔒 Senhas criptografadas com bcrypt
 
-## 🚀 Início Rápido
+### ⚡ **Performance e Tecnologia**
+- ⚡ **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
+- 🚀 **Backend**: Express + Prisma ORM + SQLite/PostgreSQL
+- 📱 **PWA Ready**: Instalação como app nativo
+- 🐳 **Dockerizado**: Ambiente completo de produção
+- 🔄 **Real-time**: Atualizações instantâneas
 
-### Opção 1: Setup Automático (Recomendado)
+### 🎨 **Interface Moderna**
+- 🌙 Tema dark cyberpunk com cores neon
+- 📱 Design responsivo para todos os dispositivos
+- 🎭 Animações suaves e transições elegantes
+- 📊 Gráficos interativos (barras, pizza, linha)
+- 🎯 UX otimizada para produtividade
+
+## ⚡ Início Rápido
+
+### 🎯 **Opção 1: Setup Automático (Recomendado)**
 ```bash
 # Clone o repositório
-git clone [url-do-repositorio]
-cd will-finance-5.0
+git clone https://github.com/William-kelvem94/Gerenciador_Financeiro-5.0.git
+cd Gerenciador_Financeiro-5.0
 
-# Setup completo automático
-npm run setup
-```
+# Setup completo automático (Windows)
+.\setup-local.ps1
 
-### Opção 2: Setup Manual
-```bash
-# Instalar dependências
+# Ou manualmente
 npm run install:all
-
-# Configurar banco de dados
 npm run db:setup
-
-# Iniciar desenvolvimento
 npm run dev
 ```
 
-### Opção 3: Docker (Produção)
+### 🐳 **Opção 2: Docker (Produção)**
 ```bash
-# Iniciar todos os serviços
-npm run docker:up
+# Desenvolvimento com Docker
+docker-compose -f docker-compose.dev.yml up -d
 
-# Ou com IA integrada
-npm run dev:ai
+# Produção completa
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
-## 📁 Estrutura Organizada do Projeto
+### 🔧 **Opção 3: Setup Manual**
+```bash
+# 1. Instalar dependências
+npm ci
+cd server && npm ci
+cd ../client && npm ci
+
+# 2. Configurar ambiente
+cp .env.example .env
+cp client/.env.example client/.env
+
+# 3. Configurar banco de dados
+cd server
+npx prisma migrate dev --name init
+npx tsx prisma/seed.ts
+
+# 4. Iniciar servidores
+npm run dev        # Frontend + Backend
+```
+
+## 🌐 **URLs de Acesso**
+
+| Serviço | URL | Descrição |
+|---------|-----|-----------|
+| 🎨 **Frontend** | [http://localhost:5173](http://localhost:5173) | Interface principal |
+| 🛡️ **Backend API** | [http://localhost:8080](http://localhost:8080) | API REST |
+| 📊 **Health Check** | [http://localhost:8080/health](http://localhost:8080/health) | Status do sistema |
+| 🗄️ **Prisma Studio** | [http://localhost:5555](http://localhost:5555) | Admin do banco |
+
+## 👤 **Login Demo**
+- **Email**: `demo@willfinance.com`
+- **Senha**: `demo123`
+
+## 📁 Arquitetura do Projeto
 
 ```
-Will Finance/
-├── 📱 client/              # Frontend React + TypeScript
+Will Finance 5.0/
+├── 📱 client/                    # Frontend React + TypeScript
 │   ├── src/
-│   │   ├── components/     # Componentes reutilizáveis
-│   │   ├── pages/         # Páginas da aplicação
-│   │   ├── contexts/      # Contextos React
-│   │   ├── hooks/         # Hooks customizados
-│   │   ├── types/         # Definições TypeScript
-│   │   └── utils/         # Utilitários
-│   ├── public/            # Arquivos estáticos
-│   └── package.json
+│   │   ├── components/          # Componentes reutilizáveis
+│   │   ├── pages/              # Páginas da aplicação
+│   │   ├── contexts/           # Contextos React (Auth, Theme)
+│   │   ├── hooks/              # Hooks customizados
+│   │   ├── stores/             # Zustand stores
+│   │   ├── types/              # Definições TypeScript
+│   │   ├── lib/                # Configurações (axios, utils)
+│   │   └── utils/              # Utilitários
+│   ├── public/                 # Arquivos estáticos
+│   └── package.json            # Dependências do cliente
 │
-├── 🖥️ server/              # Backend Node.js + Express
+├── 🖥️ server/                    # Backend Node.js + Express
 │   ├── src/
-│   │   ├── controllers/   # Controladores da API
-│   │   ├── routes/        # Rotas da API
-│   │   ├── middleware/    # Middlewares
-│   │   ├── services/      # Lógica de negócio
-│   │   └── utils/         # Utilitários do servidor
-│   ├── prisma/            # Schema e migrações do banco
-│   └── package.json
+│   │   ├── controllers/        # Controladores da API
+│   │   ├── routes/             # Rotas da API
+│   │   ├── middleware/         # Middlewares (auth, cors, etc)
+│   │   ├── services/           # Lógica de negócio
+│   │   ├── utils/              # Utilitários do servidor
+│   │   └── types/              # Tipos TypeScript
+│   ├── prisma/                 # Schema e migrações
+│   │   ├── schema.prisma       # Definição do banco
+│   │   ├── migrations/         # Histórico de migrações
+│   │   └── seed.ts            # Dados de demonstração
+│   └── package.json            # Dependências do servidor
 │
-├── 🗄️ database/            # Configurações do banco
-├── 🤖 IA/                  # Módulo de Inteligência Artificial
-├── 📄 docs/                # Documentação
-│   ├── README.md          # Documentação principal
-│   ├── DEVELOPMENT.md     # Guia de desenvolvimento
-│   ├── CONTRIBUTING.md    # Guia de contribuição
-│   └── *.md              # Outras documentações
+├── � docker/                    # Configurações Docker
+│   ├── Dockerfile.server       # Dockerfile do backend
+│   ├── Dockerfile.client       # Dockerfile do frontend
+│   └── nginx.conf              # Configuração Nginx
 │
-├── 🔧 scripts/             # Scripts utilitários
-│   ├── development/       # Scripts de desenvolvimento
-│   │   ├── *.ps1         # Scripts PowerShell
-│   │   ├── *.bat         # Scripts Windows
-│   │   └── *.sh          # Scripts Unix/Linux
-│   └── testing/           # Scripts de teste
-│       ├── test-*.js     # Testes automatizados
-│       └── clean*.js     # Scripts de limpeza
+├── 🔄 .github/                   # CI/CD GitHub Actions
+│   └── workflows/
+│       ├── ci.yml              # Pipeline de CI
+│       └── deploy.yml          # Pipeline de Deploy
 │
-├── 📊 data/                # Dados de exemplo e assets
-│   ├── *.csv             # Extratos de exemplo
-│   ├── *.png             # Imagens
-│   └── samples/          # Dados de exemplo
+├── � docs/                      # Documentação completa
+│   ├── README.md               # Guia principal
+│   ├── DEVELOPMENT.md          # Guia de desenvolvimento
+│   ├── CONTRIBUTING.md         # Guia de contribuição
+│   └── API_README.md           # Documentação da API
 │
-├── 📦 EXTRATO/             # Extratos importados
-├── 🗃️ backup_old_files/    # Backup de arquivos antigos
-├── 🐳 docker-compose.yml   # Configuração Docker
-└── 📋 package.json         # Dependências raiz
+├── �️ database/                  # Scripts e backups
+│   ├── init.sql               # Inicialização
+│   └── backup/                # Backups automáticos
+│
+├── 🤖 IA/                        # Módulo de IA (opcional)
+│   ├── src/                    # Scripts Python
+│   ├── models/                 # Modelos treinados
+│   └── datasets/               # Datasets de treino
+│
+├── 🔧 scripts/                   # Scripts utilitários
+│   ├── development/            # Scripts de desenvolvimento
+│   └── testing/                # Scripts de teste
+│
+├── � data/                      # Dados de exemplo
+├── 🐳 docker-compose.*.yml       # Configurações Docker
+├── 📋 package.json               # Dependências raiz
+└── 🔐 .env.example              # Variáveis de ambiente
 ```
-
-## 🌐 URLs de Desenvolvimento
-
-- **🎨 Frontend**: http://localhost:5173 (Vite Dev Server)
-- **🛡️ Backend API**: http://localhost:8080 (NestJS)
-- **📊 Prisma Studio**: http://localhost:5555 (Database Admin)
-- **🗄️ PostgreSQL**: localhost:5432 (Database)
-- **⚡ Redis Cache**: localhost:6379 (Cache)
 
 ## 📊 Funcionalidades Completas
 

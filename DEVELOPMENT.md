@@ -1,23 +1,45 @@
-# 🚀 Guia Completo de Desenvolvimento - Will Finance 5.0
+# � Will Finance 5.0 - Guia de Desenvolvimento Atualizado
 
-## 🎯 Configuração Rápida para Desenvolvimento
+Este guia fornece informações detalhadas para desenvolvedores que desejam contribuir ou entender o projeto.
 
-### Opção 1: Setup Automático (⚡ Recomendado)
-```bash
-# Windows - Batch Script
-./setup.bat
+## 🏗️ Arquitetura do Sistema
 
-# Windows - PowerShell (com mais opções)
-./setup-local.ps1
-
-# Setup completo com parâmetros
-./setup-local.ps1 -Quick -DevOnly
-
-# Setup com Docker
-./setup-local.ps1 -Docker
+### **Visão Geral**
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   React Client  │◄──►│  Express API    │◄──►│  SQLite/Postgres│
+│  (Frontend)     │    │   (Backend)     │    │   (Database)    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+        │                       │                       │
+        │              ┌─────────────────┐               │
+        └──────────────►│   Prisma ORM   │◄──────────────┘
+                       │  (Data Layer)   │
+                       └─────────────────┘
 ```
 
-### Opção 2: Setup Manual Completo
+### **Stack Tecnológico Atual**
+
+#### **Frontend (Client)**
+- **React 18** - Biblioteca de UI
+- **TypeScript** - Tipagem estática
+- **Vite** - Build tool e dev server
+- **Tailwind CSS** - Framework CSS utilitário
+- **Zustand** - Gerenciamento de estado
+- **React Router** - Roteamento
+- **Axios** - Cliente HTTP
+- **React Hook Form** - Formulários
+- **Recharts** - Gráficos e visualizações
+
+#### **Backend (Server)**
+- **Node.js 20** - Runtime JavaScript
+- **Express** - Framework web
+- **TypeScript** - Tipagem estática
+- **Prisma 6.12.0** - ORM e gerador de cliente
+- **SQLite/PostgreSQL** - Banco de dados
+- **bcryptjs** - Hash de senhas
+- **jsonwebtoken** - Autenticação JWT
+- **Winston** - Sistema de logs
+- **Helmet** - Segurança HTTP
 
 #### 1. **Pré-requisitos Obrigatórios**
 - ✅ **Node.js 18+** (https://nodejs.org/)

@@ -1,0 +1,78 @@
+# Multi-stage build for Will Finance Server (Production)
+FROM node:20-alpine AS base
+
+# Install dependencies for native modules
+RUN apk add --no-cache \
+    openssl \
+    libc6-compat \
+    && rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+# Copy package files
+COPY server/package*.json ./
+COPY server/prisma ./prisma/
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Development stage
+FROM base AS development
+RUN npm ci
+COPY server/ ./
+EXPOSE 8080
+CMD ["npm", "run", "dev"]
+
+# Build stage
+FROM base AS builder
+RUN npm ci
+COPY server/ ./
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build the application
+RUN npm run build
+
+# Production stage
+FROM node:20-alpine AS production
+
+# Security: Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S willfinance -u 1001
+
+# Install production dependencies
+RUN apk add --no-cache \
+    openssl \
+    dumb-init \
+    && rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+# Copy package files and install production dependencies
+COPY server/package*.json ./
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy Prisma schema and generate client
+COPY server/prisma ./prisma/
+RUN npx prisma generate
+
+# Copy built application
+COPY --from=builder --chown=willfinance:nodejs /app/dist ./dist
+
+# Create necessary directories
+RUN mkdir -p logs uploads && \
+    chown -R willfinance:nodejs /app
+
+# Switch to non-root user
+USER willfinance
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+
+EXPOSE 8080
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/src/server.js"]

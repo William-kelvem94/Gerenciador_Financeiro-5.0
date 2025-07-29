@@ -22,11 +22,25 @@ async function main() {
     { name: 'Other Income', icon: '💰', color: '#f1c40f', type: 'income' },
   ];
 
-  // Create categories
-  await prisma.category.createMany({
-    data: categories,
-    skipDuplicates: true,
-  });
+  // Create categories as system categories (no userId)
+  for (const category of categories) {
+    try {
+      await prisma.category.create({
+        data: {
+          ...category,
+          isSystem: true,
+          userId: null,
+        },
+      });
+    } catch (error: any) {
+      // Category already exists, skip
+      if (error.code === 'P2002') {
+        console.log(`Category "${category.name}" already exists, skipping...`);
+      } else {
+        throw error;
+      }
+    }
+  }
 
   console.log('✅ Categories created');
 
@@ -144,6 +158,7 @@ async function main() {
       startDate: new Date('2024-01-01'),
       endDate: new Date('2024-01-31'),
       userId: demoUser.id,
+      categoryId: foodCategory?.id || '',
     },
     {
       name: 'Transportation Budget',
@@ -153,15 +168,17 @@ async function main() {
       startDate: new Date('2024-01-01'),
       endDate: new Date('2024-01-31'),
       userId: demoUser.id,
+      categoryId: transportCategory?.id || '',
     },
     {
-      name: 'Annual Vacation Fund',
-      amount: 5000.00,
-      spent: 0.00,
-      period: 'yearly',
+      name: 'Bills Budget',
+      amount: 500.00,
+      spent: 250.00,
+      period: 'monthly',
       startDate: new Date('2024-01-01'),
-      endDate: new Date('2024-12-31'),
+      endDate: new Date('2024-01-31'),
       userId: demoUser.id,
+      categoryId: billsCategory?.id || '',
     },
   ];
 
@@ -180,7 +197,7 @@ async function main() {
       description: 'Build emergency fund for 6 months of expenses',
       targetAmount: 20000.00,
       currentAmount: 15000.00,
-      deadline: new Date('2024-12-31'),
+      targetDate: new Date('2024-12-31'),
       userId: demoUser.id,
     },
     {
@@ -188,7 +205,7 @@ async function main() {
       description: 'Save for a new car down payment',
       targetAmount: 10000.00,
       currentAmount: 3500.00,
-      deadline: new Date('2024-06-30'),
+      targetDate: new Date('2024-06-30'),
       userId: demoUser.id,
     },
   ];

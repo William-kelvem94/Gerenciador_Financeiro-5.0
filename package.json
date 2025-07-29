@@ -15,18 +15,37 @@
     "dev:db": "docker-compose -f docker-compose.dev.yml up -d",
     "dev:db:stop": "docker-compose -f docker-compose.dev.yml down",
     "dev:full": "npm run dev:db && npm run db:setup && npm run dev",
+    "dev:silent": "concurrently --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\" > /dev/null 2>&1",
     "build": "cd client && npm run build && cd ../server && npm run build",
-    "db:setup": "cd server && npx prisma generate && npx prisma migrate deploy && npx prisma db seed",
+    "build:prod": "NODE_ENV=production npm run build",
+    "db:setup": "cd server && npx prisma generate && npx prisma migrate deploy && npx tsx prisma/seed.ts",
     "db:studio": "cd server && npx prisma studio",
     "db:migrate": "cd server && npx prisma migrate dev",
     "db:reset": "cd server && npx prisma migrate reset --force",
+    "db:backup": "cd server && npm run db:backup",
     "start": "cd server && npm run start",
+    "start:prod": "NODE_ENV=production cd server && npm run start:prod",
     "lint": "cd client && npm run lint && cd ../server && npm run lint",
-    "lint:fix": "cd server && npm run lint:fix",
-    "test": "cd server && npm run test",
+    "lint:fix": "cd server && npm run lint:fix && cd ../client && npm run lint -- --fix",
+    "test": "cd server && npm run test && cd ../client && npm run test",
+    "test:e2e": "cd server && npm run test:e2e",
+    "test:coverage": "cd server && npm run test:cov",
+    "health:check": "node scripts/health-monitor.js check",
+    "health:monitor": "node scripts/health-monitor.js monitor",
+    "health:help": "node scripts/health-monitor.js help",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up -d",
+    "docker:logs": "docker-compose logs -f",
     "clean": "rm -rf node_modules client/node_modules server/node_modules client/dist server/dist",
+    "clean:cache": "npm cache clean --force && cd client && npm cache clean --force && cd ../server && npm cache clean --force",
+    "setup": "npm run install:all && npm run db:setup",
+    "audit:fix": "npm audit fix && cd client && npm audit fix && cd ../server && npm audit fix",
+    "update:deps": "npm update && cd client && npm update && cd ../server && npm update",
     "prepare": "husky",
-    "pre-commit": "lint-staged"
+    "pre-commit": "lint-staged",
+    "postinstall": "npm run build || echo 'Build failed, but continuing...'"
   },
   "keywords": [
     "finance",
@@ -64,7 +83,6 @@
   },
   "homepage": "https://github.com/william/will-finance-5.0#readme",
   "devDependencies": {
-    "@types/yup": "^0.29.14",
     "concurrently": "^8.2.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
@@ -72,9 +90,7 @@
   },
   "dependencies": {
     "axios": "^1.10.0",
-    "fast-csv": "^5.0.2",
-    "form-data": "^4.0.3",
-    "yup": "^1.6.1"
+    "form-data": "^4.0.3"
   },
   "lint-staged": {
     "server/src/**/*.{ts,js}": [
