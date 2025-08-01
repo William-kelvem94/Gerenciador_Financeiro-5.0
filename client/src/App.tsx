@@ -14,16 +14,21 @@ import { SettingsPage } from './pages/Settings/SettingsPage';
 import { AuthCallback } from './components/auth/AuthCallback';
 
 function App() {
-  const { isAuthenticated, refreshUser, user } = useAuthStore();
+  const { isAuthenticated, user, initializeAuth } = useAuthStore();
 
   console.log('🚀 App render - isAuthenticated:', isAuthenticated, 'user:', user);
 
   useEffect(() => {
-    // Refresh user data if authenticated
+    // Initialize Firebase auth listener
+    initializeAuth();
+  }, [initializeAuth]);
+
+  useEffect(() => {
+    // Log user authentication status
     if (isAuthenticated && user) {
-      refreshUser();
+      console.log('✅ Usuário autenticado:', user.email);
     }
-  }, [isAuthenticated, user, refreshUser]);
+  }, [isAuthenticated, user]);
 
   return (
     <ThemeProvider>

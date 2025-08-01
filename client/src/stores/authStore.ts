@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
-import { api } from '../lib/api';
+import { auth, signInWithEmail, signInWithGoogle, createUserWithEmail, signOutUser, onAuthStateChangedListener } from '../lib/firebase';
+import { updateProfile } from 'firebase/auth';
 import toast from 'react-hot-toast';
 
 interface User {
@@ -9,15 +10,6 @@ interface User {
   name: string;
   avatar?: string;
   createdAt: string;
-}
-
-interface ApiError {
-  response?: {
-    data?: {
-      message?: string;
-    };
-  };
-  message?: string;
 }
 
 interface AuthState {
@@ -29,11 +21,12 @@ interface AuthState {
   
   // Actions
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   setUser: (user: User, token: string) => void;
   clearError: () => void;
-  refreshUser: () => Promise<void>;
+  initializeAuth: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -47,48 +40,23 @@ export const useAuthStore = create<AuthState>()(
         error: null,
 
         login: async (email: string, password: string) => {
-          console.log('🔐 AuthStore login iniciado com:', { email, password });
+          console.log('🔐 Firebase login iniciado com:', { email });
           set({ isLoading: true, error: null });
           
-          // Demo mode for testing - always enabled for demo credentials
-          if (email === 'demo@willfinance.com' && password === 'demo123') {
-            console.log('🎯 Entrando no modo demo');
-            const demoUser = {
-              id: 'demo-user-1',
-              email: 'demo@willfinance.com',
-              name: 'Demo User',
-              avatar: '',
-              createdAt: new Date().toISOString()
-            };
-            
-            const demoToken = 'demo-token-123';
-            
-            console.log('📝 Definindo estado:', { demoUser, demoToken });
-            set({
-              user: demoUser,
-              token: demoToken,
-              isAuthenticated: true,
-              isLoading: false,
-              error: null,
-            });
-
-            console.log('✅ Estado definido com sucesso no modo demo');
-            toast.success(`Bem-vindo de volta, ${demoUser.name}!`);
-            return Promise.resolve(); // Retorno explícito para garantir sucesso
-          }
-
-          // Try real API login apenas se não for demo
           try {
-            const response = await api.post('/auth/login', {
-              email,
-              password,
-            });
+            const userCredential = await signInWithEmail(email, password);
+            const firebaseUser = userCredential.user;
+            
+            const token = await firebaseUser.getIdToken();
+            
+            const user: User = {
+              id: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Usuário',
+              avatar: firebaseUser.photoURL || '',
+              createdAt: firebaseUser.metadata.creationTime || new Date().toISOString()
+            };
 
-            const { user, token } = response.data;
-            
-            // Set token in API defaults
-            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            
             set({
               user,
               token,
@@ -97,14 +65,69 @@ export const useAuthStore = create<AuthState>()(
               error: null,
             });
 
+            console.log('✅ Login Firebase realizado com sucesso');
             toast.success(`Bem-vindo de volta, ${user.name}!`);
           } catch (error: unknown) {
-            const apiError = error as ApiError;
-            const message = apiError.response?.data?.message || 'Falha no login. Verifique suas credenciais.';
+            console.error('❌ Firebase login error:', error);
+            let message = 'Erro ao fazer login. Verifique suas credenciais.';
+            
+            if (error && typeof error === 'object' && 'code' in error) {
+              const firebaseError = error as { code: string };
+              if (firebaseError.code === 'auth/user-not-found') {
+                message = 'Usuário não encontrado. Verifique o email.';
+              } else if (firebaseError.code === 'auth/wrong-password') {
+                message = 'Senha incorreta.';
+              } else if (firebaseError.code === 'auth/invalid-email') {
+                message = 'Email inválido.';
+              }
+            }
+            
             set({
               error: message,
               isLoading: false,
-              isAuthenticated: false,
+            });
+            toast.error(message);
+            throw error;
+          }
+        },
+
+        loginWithGoogle: async () => {
+          console.log('🔐 Google login iniciado');
+          set({ isLoading: true, error: null });
+          
+          try {
+            const userCredential = await signInWithGoogle();
+            const firebaseUser = userCredential.user;
+            
+            const token = await firebaseUser.getIdToken();
+            
+            const user: User = {
+              id: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Usuário',
+              avatar: firebaseUser.photoURL || '',
+              createdAt: firebaseUser.metadata.creationTime || new Date().toISOString()
+            };
+
+            set({
+              user,
+              token,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
+
+            console.log('✅ Login Google realizado com sucesso');
+            toast.success(`Bem-vindo, ${user.name}!`);
+          } catch (error: unknown) {
+            console.error('❌ Google login error:', error);
+            let message = 'Erro ao fazer login com Google.';
+            if (error && typeof error === 'object' && 'message' in error) {
+              message = (error as { message: string }).message;
+            }
+            set({
+              error: message,
+              isLoading: false,
             });
             toast.error(message);
             throw error;
@@ -112,20 +135,25 @@ export const useAuthStore = create<AuthState>()(
         },
 
         register: async (name: string, email: string, password: string) => {
+          set({ isLoading: true, error: null });
+          
           try {
-            set({ isLoading: true, error: null });
+            const userCredential = await createUserWithEmail(email, password);
+            const firebaseUser = userCredential.user;
             
-            const response = await api.post('/auth/register', {
-              name,
-              email,
-              password,
-            });
+            // Update profile with name
+            await updateProfile(firebaseUser, { displayName: name });
+            
+            const token = await firebaseUser.getIdToken();
+            
+            const user: User = {
+              id: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              name: name,
+              avatar: firebaseUser.photoURL || '',
+              createdAt: firebaseUser.metadata.creationTime || new Date().toISOString()
+            };
 
-            const { user, token } = response.data;
-            
-            // Set token in API defaults
-            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            
             set({
               user,
               token,
@@ -134,14 +162,25 @@ export const useAuthStore = create<AuthState>()(
               error: null,
             });
 
-            toast.success(`Welcome to Will Finance, ${user.name}!`);
+            toast.success(`Conta criada com sucesso! Bem-vindo, ${user.name}!`);
           } catch (error: unknown) {
-            const apiError = error as ApiError;
-            const message = apiError.response?.data?.message || 'Registration failed';
+            console.error('Register error:', error);
+            let message = 'Erro ao criar conta.';
+            
+            if (error && typeof error === 'object' && 'code' in error) {
+              const firebaseError = error as { code: string };
+              if (firebaseError.code === 'auth/email-already-in-use') {
+                message = 'Este email já está em uso.';
+              } else if (firebaseError.code === 'auth/weak-password') {
+                message = 'A senha deve ter pelo menos 6 caracteres.';
+              } else if (firebaseError.code === 'auth/invalid-email') {
+                message = 'Email inválido.';
+              }
+            }
+            
             set({
               error: message,
               isLoading: false,
-              isAuthenticated: false,
             });
             toast.error(message);
             throw error;
@@ -149,23 +188,18 @@ export const useAuthStore = create<AuthState>()(
         },
 
         logout: () => {
-          // Clear API token
-          delete api.defaults.headers.common['Authorization'];
-          
+          console.log('🚪 Fazendo logout...');
+          signOutUser();
           set({
             user: null,
             token: null,
             isAuthenticated: false,
             error: null,
           });
-
-          toast.success('Logged out successfully');
+          toast.success('Logout realizado com sucesso!');
         },
 
         setUser: (user: User, token: string) => {
-          // Set token in API defaults
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          
           set({
             user,
             token,
@@ -178,20 +212,41 @@ export const useAuthStore = create<AuthState>()(
           set({ error: null });
         },
 
-        refreshUser: async () => {
-          try {
-            const { token } = get();
-            if (!token) return;
+        initializeAuth: () => {
+          console.log('🔄 Inicializando autenticação Firebase...');
+          onAuthStateChangedListener(auth, async (firebaseUser) => {
+            if (firebaseUser) {
+              try {
+                const token = await firebaseUser.getIdToken();
+                const user: User = {
+                  id: firebaseUser.uid,
+                  email: firebaseUser.email || '',
+                  name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Usuário',
+                  avatar: firebaseUser.photoURL || '',
+                  createdAt: firebaseUser.metadata.creationTime || new Date().toISOString()
+                };
 
-            const response = await api.get('/auth/me');
-            const user = response.data;
-
-            set({ user });
-          } catch (error) {
-            console.error('Token refresh failed:', error);
-            // If refresh fails, logout
-            get().logout();
-          }
+                set({
+                  user,
+                  token,
+                  isAuthenticated: true,
+                  isLoading: false,
+                });
+                console.log('✅ Usuário autenticado restaurado:', user.email);
+              } catch (error) {
+                console.error('Erro ao obter token:', error);
+                get().logout();
+              }
+            } else {
+              set({
+                user: null,
+                token: null,
+                isAuthenticated: false,
+                isLoading: false,
+              });
+              console.log('📤 Usuário não autenticado');
+            }
+          });
         },
       }),
       {
@@ -201,12 +256,6 @@ export const useAuthStore = create<AuthState>()(
           token: state.token,
           isAuthenticated: state.isAuthenticated,
         }),
-        onRehydrateStorage: () => (state) => {
-          // Set token in API defaults when rehydrating
-          if (state?.token) {
-            api.defaults.headers.common['Authorization'] = `Bearer ${state.token}`;
-          }
-        },
       }
     ),
     { name: 'auth-store' }
