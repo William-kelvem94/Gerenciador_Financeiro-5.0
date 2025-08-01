@@ -22,10 +22,14 @@ async function main() {
   ];
 
   // Create categories
-  await prisma.category.createMany({
-    data: categories,
-    skipDuplicates: true,
-  });
+  try {
+    await prisma.category.createMany({
+      data: categories,
+    });
+  } catch (error) {
+    // Categories might already exist, which is fine
+    console.log('Categories already exist or creation failed:', error);
+  }
 
   console.log('✅ Default categories created');
 

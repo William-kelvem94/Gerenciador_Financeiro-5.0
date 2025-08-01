@@ -15,7 +15,7 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res, next, options) => {
-    const retryAfter = Math.min(60, Math.pow(2, options.current - options.max)); // Progressive delay
+    const retryAfter = Math.min(60, 30); // Fixed 30 second delay
     res.set('Retry-After', retryAfter.toString());
     res.status(options.statusCode).json({ error: `Too many attempts. Please try again in ${retryAfter} seconds.` });
   },
@@ -25,14 +25,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-here';
 
 // Validation schemas
 const registerSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(2),
-  password: z.string().min(6),
+  email: z.string().email('Email inválido'),
+  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
+  password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
 });
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
+  email: z.string().email('Email inválido'),
+  password: z.string().min(1, 'Senha é obrigatória'),
 });
 
 /**
@@ -143,7 +143,7 @@ router.post('/register', authLimiter, async (req, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ 
         error: 'Validation failed', 
-        details: error.errors 
+        details: error.issues 
       });
     }
     console.error('Register error:', error);
@@ -247,7 +247,7 @@ router.post('/login', authLimiter, async (req, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ 
         error: 'Validation failed', 
-        details: error.errors 
+        details: error.issues 
       });
     }
     console.error('Login error:', error);
@@ -261,7 +261,7 @@ router.post('/login', authLimiter, async (req, res) => {
 // Verify token middleware
 export const authenticateToken = (req: any, res: any, next: any) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = authHeader?.split(' ')[1];
 
   if (!token) {
     return res.status(401).json({ error: 'Access token required' });
@@ -269,6 +269,7 @@ export const authenticateToken = (req: any, res: any, next: any) => {
 
   jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
     if (err) {
+      console.error('JWT verification error:', err);
       return res.status(403).json({ error: 'Invalid token' });
     }
     req.user = user;

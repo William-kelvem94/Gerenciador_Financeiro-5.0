@@ -32,6 +32,7 @@ export function LoginPage() {
       toast.success('Login successful!');
       navigate('/dashboard');
     } catch (error) {
+      console.error('Login error:', error);
       toast.error('Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
@@ -46,10 +47,11 @@ export function LoginPage() {
         </h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-300 text-sm font-bold mb-2">
+            <label htmlFor="email" className="block text-gray-300 text-sm font-bold mb-2">
               Email
             </label>
             <input
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -58,10 +60,11 @@ export function LoginPage() {
             />
           </div>
           <div className="mb-6">
-            <label className="block text-gray-300 text-sm font-bold mb-2">
+            <label htmlFor="password" className="block text-gray-300 text-sm font-bold mb-2">
               Password
             </label>
             <input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

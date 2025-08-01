@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { devtools } from 'zustand/middleware';
+import { persist, devtools } from 'zustand/middleware';
 import { api } from '../lib/api';
 import toast from 'react-hot-toast';
 
@@ -10,6 +9,15 @@ interface User {
   name: string;
   avatar?: string;
   createdAt: string;
+}
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
 }
 
 interface AuthState {
@@ -85,8 +93,9 @@ export const useAuthStore = create<AuthState>()(
             });
 
             toast.success(`Welcome back, ${user.name}!`);
-          } catch (error: any) {
-            const message = error.response?.data?.message || 'Login failed';
+          } catch (error: unknown) {
+            const apiError = error as ApiError;
+            const message = apiError.response?.data?.message || 'Login failed';
             set({
               error: message,
               isLoading: false,
@@ -121,8 +130,9 @@ export const useAuthStore = create<AuthState>()(
             });
 
             toast.success(`Welcome to Will Finance, ${user.name}!`);
-          } catch (error: any) {
-            const message = error.response?.data?.message || 'Registration failed';
+          } catch (error: unknown) {
+            const apiError = error as ApiError;
+            const message = apiError.response?.data?.message || 'Registration failed';
             set({
               error: message,
               isLoading: false,
@@ -173,6 +183,7 @@ export const useAuthStore = create<AuthState>()(
 
             set({ user });
           } catch (error) {
+            console.error('Token refresh failed:', error);
             // If refresh fails, logout
             get().logout();
           }

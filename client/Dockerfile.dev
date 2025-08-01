@@ -1,0 +1,20 @@
+
+# Imagem base atualizada e instruções para minimizar vulnerabilidades
+FROM node:20-bookworm-slim
+
+# Atualizar pacotes do sistema e instalar git em um único RUN
+RUN apt-get update && apt-get upgrade -y && apt-get install -y git && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copiar package files
+COPY package*.json ./
+
+# Instalar dependências e limpar cache
+RUN npm ci && npm cache clean --force
+
+# Expor porta do frontend
+EXPOSE 5173
+
+# Comando para desenvolvimento
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

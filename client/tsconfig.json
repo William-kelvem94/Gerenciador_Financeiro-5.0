@@ -20,8 +20,11 @@
       "@/*": ["./src/*"]
     },
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "src/**/*", "src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src", "vite-env.d.ts"],
+  "exclude": ["node_modules", "dist", "build"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

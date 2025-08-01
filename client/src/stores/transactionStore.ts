@@ -58,7 +58,7 @@ export interface TransactionState {
 
 export const useTransactionStore = create<TransactionState>()(
   persist(
-    (set, get) => ({
+    (set, _get) => ({
       transactions: [],
       isLoading: false,
       error: null,

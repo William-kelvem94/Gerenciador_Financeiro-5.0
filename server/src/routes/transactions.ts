@@ -12,12 +12,9 @@ router.use(authenticateToken);
 const createTransactionSchema = z.object({
   accountId: z.string().uuid('Invalid account ID format'),
   categoryId: z.string().uuid('Invalid category ID format'),
-  amount: z.number().refine((value, ctx) => {
-    const type = ctx.parent.type;
-    if (type === 'income' && value <= 0) return false;
-    if ((type === 'expense' || type === 'transfer') && value >= 0) return false;
-    return true;
-  }, { message: 'Invalid amount for the specified transaction type' }),
+  amount: z.number().refine((value) => {
+    return Math.abs(value) > 0;
+  }, { message: 'Amount must be greater than 0' }),
   description: z.string().min(1, 'Description is required'),
   type: z.enum(['income', 'expense', 'transfer']),
   date: z.string().refine((value) => !isNaN(Date.parse(value)), {
@@ -151,8 +148,12 @@ router.post('/', async (req: any, res) => {
       // Create transaction
       const transaction = await tx.transaction.create({
         data: {
-          ...data,
-          userId: req.user.userId,
+          description: data.description,
+          amount: data.amount,
+          type: data.type,
+          categoryId: data.categoryId,
+          accountId: data.accountId,
+          userId: req.user.userId as string,
           date: new Date(data.date),
         },
         include: {
@@ -198,7 +199,7 @@ router.post('/', async (req: any, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ 
         error: 'Validation failed', 
-        details: error.errors 
+        details: error.issues 
       });
     }
     
@@ -342,7 +343,7 @@ router.put('/:id', async (req: any, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ 
         error: 'Validation failed', 
-        details: error.errors 
+        details: error.issues 
       });
     }
 

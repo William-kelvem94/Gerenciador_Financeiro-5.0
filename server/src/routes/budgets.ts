@@ -13,16 +13,17 @@ const createBudgetSchema = z.object({
   name: z.string().min(1, 'Budget name is required'),
   amount: z.number().positive('Amount must be positive'),
   period: z.enum(['monthly', 'yearly']),
-  startDate: z.string().datetime('Invalid start date format'),
-  endDate: z.string().datetime('Invalid end date format'),
+  startDate: z.string().min(1, 'Start date is required'),
+  endDate: z.string().min(1, 'End date is required'),
+  categoryId: z.string().min(1, 'Category ID is required'),
 });
 
 const updateBudgetSchema = z.object({
   name: z.string().min(1, 'Budget name is required').optional(),
   amount: z.number().positive('Amount must be positive').optional(),
   period: z.enum(['monthly', 'yearly']).optional(),
-  startDate: z.string().datetime('Invalid start date format').optional(),
-  endDate: z.string().datetime('Invalid end date format').optional(),
+  startDate: z.string().min(1, 'Start date is required').optional(),
+  endDate: z.string().min(1, 'End date is required').optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -71,8 +72,11 @@ router.post('/', async (req: any, res) => {
 
     const budget = await prisma.budget.create({
       data: {
-        ...data,
-        userId: req.user.userId,
+        name: data.name,
+        amount: data.amount,
+        period: data.period,
+        categoryId: data.categoryId,
+        userId: req.user.userId as string,
         startDate: new Date(data.startDate),
         endDate: new Date(data.endDate),
       },

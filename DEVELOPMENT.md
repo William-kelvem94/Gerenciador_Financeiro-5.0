@@ -1,4 +1,4 @@
-# � Will Finance 5.0 - Guia de Desenvolvimento Atualizado
+# Will Finance 5.0 - Guia de Desenvolvimento Atualizado
 
 Este guia fornece informações detalhadas para desenvolvedores que desejam contribuir ou entender o projeto.
 
@@ -70,6 +70,13 @@ npm run db:setup
 # 5. Iniciar desenvolvimento
 npm run dev
 ```
+## 🐳 Docker Unificado
+Agora existe apenas **UM Dockerfile** e **UM docker-compose.yml** para todo o sistema!
+
+```bash
+docker-compose up --build
+```
+Isso sobe backend, frontend, banco e redis em um único comando.
 
 ## 🛠️ Comandos de Desenvolvimento
 

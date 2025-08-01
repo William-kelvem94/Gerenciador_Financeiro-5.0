@@ -1,30 +1,33 @@
-import * as Yup from 'yup';
+import { z } from 'zod';
 
-export const loginSchema = Yup.object().shape({
-  email: Yup.string()
+export const loginSchema = z.object({
+  email: z.string()
     .email('Email inválido')
-    .required('Email é obrigatório'),
-  password: Yup.string()
-    .min(6, 'A senha deve ter pelo menos 6 caracteres')
-    .required('Senha é obrigatória'),
+    .min(1, 'Email é obrigatório'),
+  password: z.string()
+    .min(6, 'A senha deve ter pelo menos 6 caracteres'),
 });
 
-export const registerSchema = Yup.object().shape({
-  name: Yup.string().required('Nome é obrigatório'),
-  email: Yup.string()
-    .email('Email inválido')
-    .required('Email é obrigatório'),
-  password: Yup.string()
-    .min(6, 'A senha deve ter pelo menos 6 caracteres')
-    .required('Senha é obrigatória'),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref('password'), ''], 'As senhas devem coincidir')
-    .required('Confirmação de senha é obrigatória'),
+export const registerSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório'),
+  email: z.string()
+    .email('Email inválido'),
+  password: z.string()
+    .min(6, 'A senha deve ter pelo menos 6 caracteres'),
+  confirmPassword: z.string()
+    .min(1, 'Confirmação de senha é obrigatória'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'As senhas devem coincidir',
+  path: ['confirmPassword'],
 });
 
-export const transactionSchema = Yup.object().shape({
-  description: Yup.string().required('Descrição é obrigatória'),
-  amount: Yup.number().typeError('Valor inválido').required('Valor é obrigatório'),
-  date: Yup.date().required('Data é obrigatória'),
-  category: Yup.string().required('Categoria é obrigatória'),
+export const transactionSchema = z.object({
+  description: z.string().min(1, 'Descrição é obrigatória'),
+  amount: z.number({ invalid_type_error: 'Valor inválido' }).min(0.01, 'Valor é obrigatório'),
+  date: z.date({ required_error: 'Data é obrigatória' }),
+  category: z.string().min(1, 'Categoria é obrigatória'),
 });
+
+export type LoginFormData = z.infer<typeof loginSchema>;
+export type RegisterFormData = z.infer<typeof registerSchema>;
+export type TransactionFormData = z.infer<typeof transactionSchema>;

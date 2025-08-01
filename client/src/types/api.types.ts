@@ -74,5 +74,5 @@ export interface ApiError {
   message: string;
   statusCode: number;
   code?: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }

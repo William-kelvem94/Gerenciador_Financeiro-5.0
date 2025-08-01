@@ -1,4 +1,4 @@
-# � Will Finance 5.0 - Sistema Profissional de Gerenciamento Financeiro
+# Will Finance 5.0 - Sistema Profissional de Gerenciamento Financeiro
 
 <div align="center">
 
@@ -59,12 +59,11 @@ npm run dev
 ```
 
 ### 🐳 **Opção 2: Docker (Produção)**
-```bash
-# Desenvolvimento com Docker
-docker-compose -f docker-compose.dev.yml up -d
+> **Agora existe apenas UM arquivo Dockerfile e UM docker-compose.yml para todo o sistema!**
 
-# Produção completa
-docker-compose -f docker-compose.prod.yml up -d
+```bash
+# Subir todo o sistema (backend + frontend + banco + redis) em um único comando:
+docker-compose up --build
 ```
 
 ### 🔧 **Opção 3: Setup Manual**
