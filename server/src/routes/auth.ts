@@ -17,7 +17,9 @@ const authLimiter = rateLimit({
   handler: (req, res, next, options) => {
     const retryAfter = Math.min(60, 30); // Fixed 30 second delay
     res.set('Retry-After', retryAfter.toString());
-    res.status(options.statusCode).json({ error: `Too many attempts. Please try again in ${retryAfter} seconds.` });
+    res
+      .status(options.statusCode)
+      .json({ error: `Too many attempts. Please try again in ${retryAfter} seconds.` });
   },
 });
 
@@ -102,9 +104,9 @@ router.post('/register', authLimiter, async (req, res) => {
     });
 
     if (existingUser) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'User already exists',
-        details: 'An account with this email address already exists'
+        details: 'An account with this email address already exists',
       });
     }
 
@@ -128,11 +130,7 @@ router.post('/register', authLimiter, async (req, res) => {
     });
 
     // Generate JWT
-    const token = jwt.sign(
-      { userId: user.id, email: user.email }, 
-      JWT_SECRET, 
-      { expiresIn: '7d' }
-    );
+    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
 
     res.status(201).json({
       user,
@@ -141,15 +139,15 @@ router.post('/register', authLimiter, async (req, res) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
-        error: 'Validation failed', 
-        details: error.issues 
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: error.issues,
       });
     }
     console.error('Register error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Internal server error',
-      details: 'Failed to create user account'
+      details: 'Failed to create user account',
     });
   }
 });
@@ -210,9 +208,9 @@ router.post('/login', authLimiter, async (req, res) => {
     });
 
     if (!user) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         error: 'Invalid credentials',
-        details: 'Email or password is incorrect'
+        details: 'Email or password is incorrect',
       });
     }
 
@@ -220,18 +218,14 @@ router.post('/login', authLimiter, async (req, res) => {
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         error: 'Invalid credentials',
-        details: 'Email or password is incorrect'
+        details: 'Email or password is incorrect',
       });
     }
 
     // Generate JWT
-    const token = jwt.sign(
-      { userId: user.id, email: user.email }, 
-      JWT_SECRET, 
-      { expiresIn: '7d' }
-    );
+    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
 
     res.json({
       user: {
@@ -245,15 +239,15 @@ router.post('/login', authLimiter, async (req, res) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
-        error: 'Validation failed', 
-        details: error.issues 
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: error.issues,
       });
     }
     console.error('Login error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Internal server error',
-      details: 'Failed to authenticate user'
+      details: 'Failed to authenticate user',
     });
   }
 });
@@ -317,21 +311,20 @@ router.get('/me', authenticateToken, async (req: any, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         error: 'User not found',
-        details: 'User account no longer exists'
+        details: 'User account no longer exists',
       });
     }
 
     res.json(user);
   } catch (error) {
     console.error('Get user error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Internal server error',
-      details: 'Failed to retrieve user information'
+      details: 'Failed to retrieve user information',
     });
   }
 });
 
 export { router as authRoutes };
-

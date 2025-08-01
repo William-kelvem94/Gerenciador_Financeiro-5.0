@@ -26,10 +26,7 @@ describe('Auth Routes', () => {
         password: 'password123',
       };
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData)
-        .expect(201);
+      const response = await request(app).post('/api/auth/register').send(userData).expect(201);
 
       expect(response.body).toHaveProperty('user');
       expect(response.body).toHaveProperty('token');
@@ -45,10 +42,7 @@ describe('Auth Routes', () => {
         password: 'password123',
       };
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData)
-        .expect(400);
+      const response = await request(app).post('/api/auth/register').send(userData).expect(400);
 
       expect(response.body).toHaveProperty('error', 'Validation failed');
     });
@@ -60,10 +54,7 @@ describe('Auth Routes', () => {
         password: '123',
       };
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData)
-        .expect(400);
+      const response = await request(app).post('/api/auth/register').send(userData).expect(400);
 
       expect(response.body).toHaveProperty('error', 'Validation failed');
     });
@@ -76,16 +67,10 @@ describe('Auth Routes', () => {
       };
 
       // First registration
-      await request(app)
-        .post('/api/auth/register')
-        .send(userData)
-        .expect(201);
+      await request(app).post('/api/auth/register').send(userData).expect(201);
 
       // Second registration with same email
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData)
-        .expect(400);
+      const response = await request(app).post('/api/auth/register').send(userData).expect(400);
 
       expect(response.body).toHaveProperty('error', 'User already exists');
     });
@@ -94,13 +79,11 @@ describe('Auth Routes', () => {
   describe('POST /api/auth/login', () => {
     beforeEach(async () => {
       // Create a test user
-      await request(app)
-        .post('/api/auth/register')
-        .send({
-          email: 'test@example.com',
-          name: 'Test User',
-          password: 'password123',
-        });
+      await request(app).post('/api/auth/register').send({
+        email: 'test@example.com',
+        name: 'Test User',
+        password: 'password123',
+      });
     });
 
     it('should login successfully with valid credentials', async () => {
@@ -146,14 +129,12 @@ describe('Auth Routes', () => {
     let authToken: string;
 
     beforeEach(async () => {
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send({
-          email: 'test@example.com',
-          name: 'Test User',
-          password: 'password123',
-        });
-      
+      const response = await request(app).post('/api/auth/register').send({
+        email: 'test@example.com',
+        name: 'Test User',
+        password: 'password123',
+      });
+
       authToken = response.body.token;
     });
 
@@ -170,9 +151,7 @@ describe('Auth Routes', () => {
     });
 
     it('should reject request without token', async () => {
-      const response = await request(app)
-        .get('/api/auth/me')
-        .expect(401);
+      const response = await request(app).get('/api/auth/me').expect(401);
 
       expect(response.body).toHaveProperty('error', 'Access token required');
     });

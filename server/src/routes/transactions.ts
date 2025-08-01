@@ -12,9 +12,12 @@ router.use(authenticateToken);
 const createTransactionSchema = z.object({
   accountId: z.string().uuid('Invalid account ID format'),
   categoryId: z.string().uuid('Invalid category ID format'),
-  amount: z.number().refine((value) => {
-    return Math.abs(value) > 0;
-  }, { message: 'Amount must be greater than 0' }),
+  amount: z.number().refine(
+    (value) => {
+      return Math.abs(value) > 0;
+    },
+    { message: 'Amount must be greater than 0' }
+  ),
   description: z.string().min(1, 'Description is required'),
   type: z.enum(['income', 'expense', 'transfer']),
   date: z.string().refine((value) => !isNaN(Date.parse(value)), {
@@ -85,9 +88,9 @@ router.get('/', async (req: any, res) => {
     });
   } catch (error) {
     console.error('Get transactions error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Internal server error',
-      details: 'Failed to retrieve transactions'
+      details: 'Failed to retrieve transactions',
     });
   }
 });
@@ -197,35 +200,35 @@ router.post('/', async (req: any, res) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
-        error: 'Validation failed', 
-        details: error.issues 
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: error.issues,
       });
     }
-    
+
     console.error('Create transaction error:', {
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : null,
     });
-    
+
     if (error instanceof Error) {
       if (error.message.includes('Account not found')) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           error: 'Account not found',
-          details: 'The specified account does not exist or you do not have access to it'
+          details: 'The specified account does not exist or you do not have access to it',
         });
       }
       if (error.message.includes('Category not found')) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           error: 'Category not found',
-          details: 'The specified category does not exist'
+          details: 'The specified category does not exist',
         });
       }
     }
-    
-    res.status(500).json({ 
+
+    res.status(500).json({
       error: 'Internal server error',
-      details: 'Failed to create transaction'
+      details: 'Failed to create transaction',
     });
   }
 });
@@ -278,7 +281,10 @@ router.put('/:id', async (req: any, res) => {
         return type === 'income' ? amount : -amount;
       }
 
-      const oldBalanceChange = calculateBalanceChange(existingTransaction.type, existingTransaction.amount);
+      const oldBalanceChange = calculateBalanceChange(
+        existingTransaction.type,
+        existingTransaction.amount
+      );
       const newAmount = data.amount ?? existingTransaction.amount;
       const newType = data.type ?? existingTransaction.type;
       const newAccountId = data.accountId ?? existingTransaction.accountId;
@@ -341,38 +347,38 @@ router.put('/:id', async (req: any, res) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
-        error: 'Validation failed', 
-        details: error.issues 
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: error.issues,
       });
     }
 
     console.error('Update transaction error:', error);
-    
+
     if (error instanceof Error) {
       if (error.message.includes('Transaction not found')) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           error: 'Transaction not found',
-          details: 'The specified transaction does not exist or you do not have access to it'
+          details: 'The specified transaction does not exist or you do not have access to it',
         });
       }
       if (error.message.includes('account not found')) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           error: 'Account not found',
-          details: 'The specified account does not exist or you do not have access to it'
+          details: 'The specified account does not exist or you do not have access to it',
         });
       }
       if (error.message.includes('Category not found')) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           error: 'Category not found',
-          details: 'The specified category does not exist'
+          details: 'The specified category does not exist',
         });
       }
     }
-    
-    res.status(500).json({ 
+
+    res.status(500).json({
       error: 'Internal server error',
-      details: 'Failed to update transaction'
+      details: 'Failed to update transaction',
     });
   }
 });
@@ -393,7 +399,8 @@ router.delete('/:id', async (req: any, res) => {
       }
 
       // Update account balance (reverse the transaction)
-      const balanceChange = transaction.type === 'income' ? -transaction.amount : transaction.amount;
+      const balanceChange =
+        transaction.type === 'income' ? -transaction.amount : transaction.amount;
       await tx.account.update({
         where: { id: transaction.accountId },
         data: {
@@ -411,7 +418,7 @@ router.delete('/:id', async (req: any, res) => {
       return transaction;
     });
 
-    res.json({ 
+    res.json({
       message: 'Transaction deleted successfully',
       deletedTransaction: {
         id: result.id,
@@ -421,17 +428,17 @@ router.delete('/:id', async (req: any, res) => {
     });
   } catch (error) {
     console.error('Delete transaction error:', error);
-    
+
     if (error instanceof Error && error.message.includes('Transaction not found')) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         error: 'Transaction not found',
-        details: 'The specified transaction does not exist or you do not have access to it'
+        details: 'The specified transaction does not exist or you do not have access to it',
       });
     }
-    
-    res.status(500).json({ 
+
+    res.status(500).json({
       error: 'Internal server error',
-      details: 'Failed to delete transaction'
+      details: 'Failed to delete transaction',
     });
   }
 });

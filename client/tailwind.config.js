@@ -18,11 +18,6 @@ export default {
           dark: '#0A0A0A',       // Deep Black
           surface: '#1A1A1A',    // Dark Gray
           border: '#333333',     // Medium Gray
-          text: {
-            primary: '#FFFFFF',
-            secondary: '#CCCCCC',
-            muted: '#888888',
-          }
         },
         // Traditional colors with cyberpunk twist
         background: {

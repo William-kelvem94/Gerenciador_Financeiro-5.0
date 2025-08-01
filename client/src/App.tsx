@@ -16,6 +16,8 @@ import { AuthCallback } from './components/auth/AuthCallback';
 function App() {
   const { isAuthenticated, refreshUser, user } = useAuthStore();
 
+  console.log('🚀 App render - isAuthenticated:', isAuthenticated, 'user:', user);
+
   useEffect(() => {
     // Refresh user data if authenticated
     if (isAuthenticated && user) {
@@ -26,7 +28,7 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
-        <div className="min-h-screen bg-bg-primary text-text-primary transition-colors duration-300 cyberpunk-container">
+        <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
           <Routes>
             {/* Public routes */}
             <Route 
@@ -62,14 +64,14 @@ function App() {
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="min-h-screen flex items-center justify-center bg-bg-primary"
+                  className="min-h-screen flex items-center justify-center bg-background"
                 >
-                  <div className="text-center cyberpunk-card p-8">
-                    <h1 className="text-6xl font-bold text-primary mb-4 neon-glow">404</h1>
-                    <p className="text-text-secondary mb-8">Página não encontrada no nexus</p>
+                  <div className="text-center card p-8">
+                    <h1 className="text-6xl font-bold text-cyber-primary mb-4 text-glow">404</h1>
+                    <p className="text-foreground-secondary mb-8">Página não encontrada no nexus</p>
                     <button 
                       onClick={() => window.history.back()}
-                      className="cyberpunk-btn"
+                      className="btn-primary"
                     >
                       Voltar ao Sistema
                     </button>

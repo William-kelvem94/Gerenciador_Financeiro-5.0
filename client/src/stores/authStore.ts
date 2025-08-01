@@ -47,33 +47,38 @@ export const useAuthStore = create<AuthState>()(
         error: null,
 
         login: async (email: string, password: string) => {
-          try {
-            set({ isLoading: true, error: null });
+          console.log('🔐 AuthStore login iniciado com:', { email, password });
+          set({ isLoading: true, error: null });
+          
+          // Demo mode for testing - always enabled for demo credentials
+          if (email === 'demo@willfinance.com' && password === 'demo123') {
+            console.log('🎯 Entrando no modo demo');
+            const demoUser = {
+              id: 'demo-user-1',
+              email: 'demo@willfinance.com',
+              name: 'Demo User',
+              avatar: '',
+              createdAt: new Date().toISOString()
+            };
             
-            // Demo mode for testing - only enabled in non-production environments
-            if (import.meta.env.MODE !== 'production' && email === 'demo@willfinance.com' && password === 'demo123') {
-              const demoUser = {
-                id: 'demo-user-1',
-                email: 'demo@willfinance.com',
-                name: 'Demo User',
-                avatar: '',
-                createdAt: new Date().toISOString()
-              };
-              
-              const demoToken = 'demo-token-123';
-              
-              set({
-                user: demoUser,
-                token: demoToken,
-                isAuthenticated: true,
-                isLoading: false,
-                error: null,
-              });
+            const demoToken = 'demo-token-123';
+            
+            console.log('📝 Definindo estado:', { demoUser, demoToken });
+            set({
+              user: demoUser,
+              token: demoToken,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
 
-              toast.success(`Welcome back, ${demoUser.name}!`);
-              return;
-            }
-            
+            console.log('✅ Estado definido com sucesso no modo demo');
+            toast.success(`Bem-vindo de volta, ${demoUser.name}!`);
+            return Promise.resolve(); // Retorno explícito para garantir sucesso
+          }
+
+          // Try real API login apenas se não for demo
+          try {
             const response = await api.post('/auth/login', {
               email,
               password,
@@ -92,10 +97,10 @@ export const useAuthStore = create<AuthState>()(
               error: null,
             });
 
-            toast.success(`Welcome back, ${user.name}!`);
+            toast.success(`Bem-vindo de volta, ${user.name}!`);
           } catch (error: unknown) {
             const apiError = error as ApiError;
-            const message = apiError.response?.data?.message || 'Login failed';
+            const message = apiError.response?.data?.message || 'Falha no login. Verifique suas credenciais.';
             set({
               error: message,
               isLoading: false,

@@ -36,16 +36,14 @@ const format = winston.format.combine(
   // Tell Winston that the logs must be colored
   winston.format.colorize({ all: true }),
   // Define the format of the message showing the timestamp, the level and the message
-  winston.format.printf(
-    (info) => `${info.timestamp} ${info.level}: ${info.message}`,
-  ),
+  winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
 );
 
 // JSON format for file logs
 const jsonFormat = winston.format.combine(
   winston.format.timestamp(),
   winston.format.errors({ stack: true }),
-  winston.format.json(),
+  winston.format.json()
 );
 
 // Define which transports the logger must use to print out messages.
@@ -86,16 +84,16 @@ export const logger = winston.createLogger({
   levels,
   format,
   transports,
-  defaultMeta: { 
+  defaultMeta: {
     service: 'will-finance-server',
-    version: process.env.npm_package_version || '5.0.0'
+    version: process.env.npm_package_version || '5.0.0',
   },
 });
 
 // Request logging middleware
 export const requestLogger = (req: any, res: any, next: any) => {
   const start = Date.now();
-  
+
   // Log request
   logger.http('HTTP Request', {
     method: req.method,
@@ -108,7 +106,7 @@ export const requestLogger = (req: any, res: any, next: any) => {
   // Log response
   res.on('finish', () => {
     const duration = Date.now() - start;
-    
+
     logger.http('HTTP Response', {
       method: req.method,
       url: req.url,

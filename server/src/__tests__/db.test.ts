@@ -5,7 +5,7 @@ describe('PrismaClient Singleton', () => {
     // Import prisma multiple times
     const { prisma: prisma1 } = require('../db/client');
     const { prisma: prisma2 } = require('../db/client');
-    
+
     // Both imports should return the same instance
     expect(prisma1).toBe(prisma2);
     expect(prisma).toBe(prisma1);
