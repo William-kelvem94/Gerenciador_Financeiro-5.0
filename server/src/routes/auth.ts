@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import { prisma } from '../db/client';
+import { logger } from '../utils/logger';
+import { AuthenticatedRequest } from '../types/auth';
 
 const router = express.Router();
 
@@ -144,7 +146,7 @@ router.post('/register', authLimiter, async (req, res) => {
         details: error.issues,
       });
     }
-    console.error('Register error:', error);
+    logger.error('Register error:', error);
     res.status(500).json({
       error: 'Internal server error',
       details: 'Failed to create user account',
@@ -244,7 +246,7 @@ router.post('/login', authLimiter, async (req, res) => {
         details: error.issues,
       });
     }
-    console.error('Login error:', error);
+    logger.error('Login error:', error);
     res.status(500).json({
       error: 'Internal server error',
       details: 'Failed to authenticate user',
@@ -253,7 +255,7 @@ router.post('/login', authLimiter, async (req, res) => {
 });
 
 // Verify token middleware
-export const authenticateToken = (req: any, res: any, next: any) => {
+export const authenticateToken = (req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader?.split(' ')[1];
 
@@ -261,14 +263,27 @@ export const authenticateToken = (req: any, res: any, next: any) => {
     return res.status(401).json({ error: 'Access token required' });
   }
 
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
-    if (err) {
-      console.error('JWT verification error:', err);
-      return res.status(403).json({ error: 'Invalid token' });
-    }
-    req.user = user;
+  interface JwtUserPayload {
+    id?: string | number;
+    userId?: string | number;
+    email: string;
+    [key: string]: unknown;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtUserPayload;
+    
+    // Ensure user has id, email, and name
+    req.user = {
+      id: String(decoded.userId ?? decoded.id),
+      email: String(decoded.email),
+      name: decoded.name as string || (decoded.email as string)?.split('@')[0] || 'User',
+    };
     next();
-  });
+  } catch (err) {
+    logger.error('JWT verification error:', err);
+    return res.status(403).json({ error: 'Invalid token' });
+  }
 };
 
 /**
@@ -296,10 +311,10 @@ export const authenticateToken = (req: any, res: any, next: any) => {
  *         description: Internal server error
  */
 // Get current user
-router.get('/me', authenticateToken, async (req: any, res) => {
+router.get('/me', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id: req.user.userId },
+      where: { id: req.user?.id },
       select: {
         id: true,
         email: true,
@@ -319,7 +334,7 @@ router.get('/me', authenticateToken, async (req: any, res) => {
 
     res.json(user);
   } catch (error) {
-    console.error('Get user error:', error);
+    logger.error('Get user error:', error);
     res.status(500).json({
       error: 'Internal server error',
       details: 'Failed to retrieve user information',
