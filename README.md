@@ -41,6 +41,66 @@ Sistema completo e profissional de gerenciamento financeiro com frontend React m
 - 📊 Gráficos interativos (barras, pizza, linha)
 - 🎯 UX otimizada para produtividade
 
+## 📁 Estrutura do Projeto
+
+```
+Gerenciador_Financeiro-5.0/
+├── .github/                   # Configurações do GitHub & CI/CD
+├── .husky/                    # Hooks do Git
+├── .vscode/                   # Configurações do VSCode
+├── client/                    # Aplicação frontend (React/Vite)
+│   ├── public/
+│   │   └── assets/
+│   │       └── images/
+│   └── src/
+│       ├── components/        # Componentes React organizados por funcionalidade
+│       ├── contexts/          # Contextos React
+│       ├── hooks/             # Hooks customizados
+│       ├── lib/               # Bibliotecas/configurações externas
+│       ├── pages/             # Páginas da aplicação
+│       ├── stores/            # Estado global
+│       ├── styles/            # Estilos globais
+│       ├── types/             # Tipos TypeScript
+│       └── utils/             # Utilitários
+├── server/                    # Backend API (Node.js/Express)
+│   └── src/
+│       ├── config/            # Configurações globais
+│       ├── modules/           # Módulos organizados por funcionalidade
+│       │   ├── auth/          # Autenticação (controllers, services, dtos, strategies)
+│       │   ├── transactions/  # Transações financeiras
+│       │   ├── budgets/       # Orçamentos
+│       │   └── reports/       # Relatórios
+│       ├── shared/            # Código compartilhado
+│       │   ├── decorators/    # Decorators comuns
+│       │   ├── filters/       # Filtros globais
+│       │   ├── interceptors/  # Interceptors
+│       │   └── pipes/         # Pipes de validação
+│       ├── middleware/        # Middlewares
+│       ├── routes/            # Rotas da API
+│       ├── services/          # Serviços globais
+│       └── utils/             # Utilitários
+├── ia/                        # Inteligência Artificial e processamento
+│   ├── datasets/              # Dados para treinamento
+│   │   ├── annotations/       # Anotações manuais
+│   │   ├── pdf/               # PDFs de extratos bancários
+│   │   └── txt/               # Texto extraído
+│   ├── models/                # Modelos treinados
+│   └── notebooks/             # Jupyter notebooks com experimentos
+├── docs/                      # Documentação organizada
+│   ├── api/                   # Documentação da API
+│   ├── guides/                # Guias técnicos
+│   ├── reports/               # Relatórios de progresso
+│   └── setup/                 # Guias de instalação
+├── configs/                   # Configurações centralizadas
+│   ├── .env                   # Variáveis de ambiente principais
+│   ├── client.env             # Configurações do cliente
+│   └── server.env             # Configurações do servidor
+├── scripts/                   # Scripts auxiliares
+├── database/                  # Arquivos relacionados ao banco de dados
+├── docker/                    # Configurações Docker específicas
+└── nginx/                     # Configurações do Nginx
+```
+
 ## ⚡ Início Rápido
 
 ### 🎯 **Opção 1: Setup Automático (Recomendado)**
@@ -59,11 +119,11 @@ npm run dev
 ```
 
 ### 🐳 **Opção 2: Docker (Produção)**
-> **Agora existe apenas UM arquivo Dockerfile e UM docker-compose.yml para todo o sistema!**
+> **Arquivos Docker organizados no diretório docker/ para melhor estruturação!**
 
 ```bash
 # Subir todo o sistema (backend + frontend + banco + redis) em um único comando:
-docker-compose up --build
+cd docker && docker-compose up --build
 ```
 
 ### 🔧 **Opção 3: Setup Manual**
@@ -74,8 +134,9 @@ cd server && npm ci
 cd ../client && npm ci
 
 # 2. Configurar ambiente
-cp .env.example .env
-cp client/.env.example client/.env
+cp configs/.env.example configs/.env
+cp configs/client.env.example configs/client.env
+cp configs/server.env.example configs/server.env
 
 # 3. Configurar banco de dados
 cd server
@@ -160,7 +221,7 @@ Will Finance 5.0/
 │   └── testing/                # Scripts de teste
 │
 ├── � data/                      # Dados de exemplo
-├── 🐳 docker-compose.*.yml       # Configurações Docker
+├── 🐳 docker/                    # Configurações Docker organizadas
 ├── 📋 package.json               # Dependências raiz
 └── 🔐 .env.example              # Variáveis de ambiente
 ```

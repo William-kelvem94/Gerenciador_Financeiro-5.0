@@ -197,11 +197,11 @@ foreach ($dir in $clientTestDirs) {
 # =====================================================
 Write-Host "`n🐳 5. Verificando Configuração Docker..." -ForegroundColor Yellow
 
-$dockerComposePath = Join-Path $projectRoot "docker-compose.yml"
+$dockerComposePath = Join-Path $projectRoot "docker\docker-compose.yml"
 if (Test-Path $dockerComposePath) {
-    Write-Log "docker-compose.yml encontrado" "SUCCESS"
+    Write-Log "docker/docker-compose.yml encontrado" "SUCCESS"
 } else {
-    Write-Log "docker-compose.yml NÃO ENCONTRADO - Verifique se foi criado corretamente" "WARN"
+    Write-Log "docker/docker-compose.yml NÃO ENCONTRADO - Verifique se foi criado corretamente" "WARN"
 }
 
 $dockerComposeProdPath = Join-Path $projectRoot "docker-compose.prod.yml"
@@ -224,8 +224,8 @@ try {
         
         # Adicionar novos scripts de segurança
         $newScripts = @{
-            "validate:security" = "powershell -ExecutionPolicy Bypass -File .\validate-security.ps1"
-            "fix:security" = "powershell -ExecutionPolicy Bypass -File .\fix-security-issues.ps1"
+            "validate:security" = "powershell -ExecutionPolicy Bypass -File .\scripts\validate-security.ps1"
+            "fix:security" = "powershell -ExecutionPolicy Bypass -File .\scripts\fix-security-issues.ps1"
             "test:all" = "npm run test && cd client && npm run test && cd .."
             "audit:all" = "npm audit && cd client && npm audit && cd ../server && npm audit && cd .."
             "build:prod:secure" = "npm run validate:security && npm run test:all && npm run build:prod"
@@ -302,7 +302,7 @@ Write-Host "===============================" -ForegroundColor Gray
 Write-Log "Correções automáticas concluídas!" "SUCCESS"
 
 Write-Host "`n🔍 Próximos passos recomendados:" -ForegroundColor Yellow
-Write-Host "1. Execute: .\validate-security.ps1" -ForegroundColor White
+Write-Host "1. Execute: .\scripts\validate-security.ps1" -ForegroundColor White
 Write-Host "2. Execute: npm run test:all" -ForegroundColor White
 Write-Host "3. Execute: npm run build:prod:secure" -ForegroundColor White
 Write-Host "4. Execute: docker-compose up -d" -ForegroundColor White

@@ -55,7 +55,7 @@ function Write-Log {
 if ($Fix) {
     Write-Host "`n🛠️ 1. Aplicando Correções Automáticas..." -ForegroundColor Yellow
     
-    $fixScript = Join-Path $projectRoot "fix-security-issues.ps1"
+    $fixScript = Join-Path $projectRoot "scripts\fix-security-issues.ps1"
     if (Test-Path $fixScript) {
         try {
             & $fixScript
@@ -75,7 +75,7 @@ if ($Fix) {
 # =====================================================
 Write-Host "`n🔒 2. Executando Validação de Segurança..." -ForegroundColor Yellow
 
-$securityScript = Join-Path $projectRoot "validate-security.ps1"
+$securityScript = Join-Path $projectRoot "scripts\validate-security.ps1"
 if (Test-Path $securityScript) {
     try {
         $securityResult = & $securityScript
@@ -173,7 +173,7 @@ if (-not $SkipTests) {
 # =====================================================
 Write-Host "`n🐳 5. Validando Configuração Docker..." -ForegroundColor Yellow
 
-$dockerFiles = @("docker-compose.yml", "docker-compose.prod.yml")
+$dockerFiles = @("docker\docker-compose.yml", "docker\docker-compose.prod.yml")
 foreach ($dockerFile in $dockerFiles) {
     $dockerPath = Join-Path $projectRoot $dockerFile
     if (Test-Path $dockerPath) {

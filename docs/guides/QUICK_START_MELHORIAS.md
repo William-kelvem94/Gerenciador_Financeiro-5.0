@@ -26,13 +26,13 @@ Este documento descreve as melhorias críticas aplicadas ao Will Finance 5.0, tr
 
 ```powershell
 # Aplicar todas as correções automáticas
-.\fix-security-issues.ps1
+.\scripts\fix-security-issues.ps1
 
 # Validar se tudo está funcionando
-.\validate-security.ps1
+.\scripts\validate-security.ps1
 
 # Validação completa do sistema
-.\validate-complete.ps1
+.\scripts\validate-complete.ps1
 ```
 
 ### 2️⃣ Instalação e Setup
@@ -61,7 +61,7 @@ npm run audit:all
 npm run build:prod:secure
 
 # Validação completa (com correções se necessário)
-.\validate-complete.ps1 -Fix
+.\scripts\validate-complete.ps1 -Fix
 ```
 
 ## 🔧 Scripts Disponíveis
@@ -73,8 +73,8 @@ npm run build:prod:secure
 - `npm run build:prod:secure` - Build com validação
 
 ### Scripts PowerShell:
-- `.\fix-security-issues.ps1` - Aplica correções automáticas
-- `.\validate-security.ps1` - Valida configurações de segurança
+- `.\scripts\fix-security-issues.ps1` - Aplica correções automáticas
+- `.\scripts\validate-security.ps1` - Valida configurações de segurança
 - `.\validate-complete.ps1` - Validação completa do sistema
 
 ## 📊 Melhorias de Performance

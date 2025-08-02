@@ -1,4 +1,4 @@
-# 🔍 Script de Validação de Segurança - Will Finance 5.0
+﻿# 🔍 Script de Validação de Segurança - Will Finance 5.0
 # Valida todas as configurações de segurança e dependências
 
 # Verificar se o script está sendo executado no PowerShell
@@ -14,7 +14,7 @@ Write-Host "=================================================" -ForegroundColor 
 # 🔧 Configurações Iniciais
 # =====================================================
 $ErrorActionPreference = "Continue"
-$projectRoot = $PSScriptRoot
+$projectRoot = Split-Path $PSScriptRoot -Parent  # Volta ao diretório raiz do projeto
 $logFile = Join-Path $projectRoot "security-validation.log"
 $hasErrors = $false
 
@@ -37,7 +37,7 @@ function Write-Log {
 # =====================================================
 Write-Host "`n🔐 1. Validando Variáveis de Ambiente..." -ForegroundColor Yellow
 
-$envFiles = @(".env.example", ".env.production")
+$envFiles = @("configs\.env.example", "configs\server.env.example", "configs\client.env.example")
 foreach ($envFile in $envFiles) {
     $envPath = Join-Path $projectRoot $envFile
     if (Test-Path $envPath) {
@@ -45,7 +45,13 @@ foreach ($envFile in $envFiles) {
         
         # Verificar se contém variáveis essenciais
         $content = Get-Content $envPath -Raw
-        $requiredVars = @("DATABASE_URL", "JWT_SECRET", "NODE_ENV", "PORT")
+        if ($envFile -match "server") {
+            $requiredVars = @("DATABASE_URL", "JWT_SECRET", "NODE_ENV", "PORT")
+        } elseif ($envFile -match "client") {
+            $requiredVars = @("VITE_API_URL")
+        } else {
+            $requiredVars = @("DATABASE_URL", "JWT_SECRET", "NODE_ENV")
+        }
         
         foreach ($var in $requiredVars) {
             if ($content -match $var) {
@@ -115,7 +121,7 @@ if (Test-Path $clientPackageJson) {
 # =====================================================
 Write-Host "`n🐳 3. Validando Configuração Docker..." -ForegroundColor Yellow
 
-$dockerFiles = @("docker-compose.yml", "docker-compose.prod.yml")
+$dockerFiles = @("docker\docker-compose.yml", "docker\docker-compose.prod.yml")
 foreach ($dockerFile in $dockerFiles) {
     $dockerPath = Join-Path $projectRoot $dockerFile
     if (Test-Path $dockerPath) {
@@ -253,28 +259,39 @@ Write-Host "=================================" -ForegroundColor Gray
 if ($hasErrors) {
     Write-Log "Validação FALHOU - Erros críticos encontrados!" "ERROR"
     Write-Host "`n🔧 Para corrigir os problemas, execute:" -ForegroundColor Yellow
-    Write-Host "   .\fix-security-issues.ps1" -ForegroundColor White
+    Write-Host "   .\scripts\fix-security-issues.ps1" -ForegroundColor White
+    
+    # Salvar relatório resumido
+    $summary = @"
+🛡️ RELATÓRIO DE VALIDAÇÃO DE SEGURANÇA
+=======================================
+Data: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+Status: FALHOU
+
+Para mais detalhes, consulte: $logFile
+"@
+    $summaryFile = Join-Path $projectRoot "security-validation-summary.txt"
+    Set-Content -Path $summaryFile -Value $summary
+    Write-Host "`n📝 Relatório resumido salvo em: $summaryFile" -ForegroundColor Gray
+    
     exit 1
 } else {
     Write-Log "Validação SUCESSO - Sistema seguro e pronto para produção!" "SUCCESS"
     Write-Host "`n🚀 Sistema validado com sucesso!" -ForegroundColor Green
     Write-Host "   Log detalhado: $logFile" -ForegroundColor Gray
-    exit 0
-}
-
-# =====================================================
-# 📝 Salvar relatório resumido
-# =====================================================
-$summary = @"
+    
+    # Salvar relatório resumido
+    $summary = @"
 🛡️ RELATÓRIO DE VALIDAÇÃO DE SEGURANÇA
 =======================================
 Data: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
-Status: $(if ($hasErrors) { "FALHOU" } else { "SUCESSO" })
+Status: SUCESSO
 
 Para mais detalhes, consulte: $logFile
 "@
-
-$summaryFile = Join-Path $projectRoot "security-validation-summary.txt"
-Set-Content -Path $summaryFile -Value $summary
-
-Write-Host "`n📝 Relatório resumido salvo em: $summaryFile" -ForegroundColor Gray
+    $summaryFile = Join-Path $projectRoot "security-validation-summary.txt"
+    Set-Content -Path $summaryFile -Value $summary
+    Write-Host "`n📝 Relatório resumido salvo em: $summaryFile" -ForegroundColor Gray
+    
+    exit 0
+}

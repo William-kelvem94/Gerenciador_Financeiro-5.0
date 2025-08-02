@@ -276,11 +276,11 @@ jobs:
     - name: Verify Docker Compose files
       run: |
         echo "🔍 Verifying Docker configuration..."
-        if [ -f "docker-compose.yml" ]; then
-          echo "✅ docker-compose.yml found"
-          docker-compose config
+        if [ -f "docker/docker-compose.yml" ]; then
+          echo "✅ docker/docker-compose.yml found"
+          cd docker && docker-compose config && cd ..
         else
-          echo "❌ docker-compose.yml not found"
+          echo "❌ docker/docker-compose.yml not found"
           exit 1
         fi
         
@@ -290,7 +290,7 @@ jobs:
         
         # Build server image
         echo "Building server image..."
-        docker-compose build server || {
+        cd docker && docker-compose build server || {
           echo "❌ Server Docker build failed"
           exit 1
         }
@@ -309,7 +309,7 @@ jobs:
         echo "🧪 Testing Docker containers..."
         
         # Quick container test
-        docker-compose up -d --no-deps || {
+        cd docker && docker-compose up -d --no-deps || {
           echo "❌ Failed to start containers"
           docker-compose logs
           exit 1
@@ -328,7 +328,7 @@ jobs:
       if: always()
       run: |
         echo "🧹 Cleaning up Docker resources..."
-        docker-compose down --remove-orphans --volumes || true
+        cd docker && docker-compose down --remove-orphans --volumes || true
         docker system prune -f || true
 
   # Notification job that runs on completion (success or failure)
