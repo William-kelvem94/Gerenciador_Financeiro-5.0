@@ -43,12 +43,6 @@ interface FinancialSummary {
   transactionCount: number;
 }
 
-interface CategoryData {
-  name: string;
-  amount: number;
-  percentage: number;
-  color: string;
-}
 
 const FinancialDashboard: React.FC = () => {
   const { transactions, isLoading } = useTransactionStore();
@@ -202,8 +196,9 @@ const FinancialDashboard: React.FC = () => {
     if (!transactions.length) return null;
 
     const dailyBalance = transactions
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .reduce((acc, tx) => {
+      .slice()
+      .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .reduce((acc: { date: string; balance: number }[], tx: any) => {
         const date = format(parseISO(tx.date), 'dd/MM');
         const lastBalance = acc.length > 0 ? acc[acc.length - 1].balance : 0;
         
@@ -217,11 +212,11 @@ const FinancialDashboard: React.FC = () => {
       .slice(-30); // Últimos 30 dias
 
     return {
-      labels: dailyBalance.map(item => item.date),
+      labels: dailyBalance.map((item: { date: string; balance: number }) => item.date),
       datasets: [
         {
           label: 'Saldo Acumulado',
-          data: dailyBalance.map(item => item.balance),
+          data: dailyBalance.map((item: { date: string; balance: number }) => item.balance),
           borderColor: 'rgba(0, 255, 128, 1)',
           backgroundColor: 'rgba(0, 255, 128, 0.1)',
           borderWidth: 3,
@@ -319,9 +314,9 @@ const FinancialDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <CyberpunkCard className="stat-card">
           <div className="stat-content">
-            <h3 className="stat-title">Saldo Atual</h3>
-            <p className={`stat-value ${summary?.balance && summary.balance >= 0 ? 'positive' : 'negative'}`}>
-              R$ {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(summary?.balance || 0)}
+            <h3 className="stat-title">Saldo (Mês)</h3>
+            <p className={`stat-value ${(summary && summary.balance >= 0) ? 'positive' : 'negative'}`}>
+              R$ {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(summary?.balance ?? 0)}
             </p>
             <span className="stat-change">
               {summary?.monthlyGrowth !== undefined && (

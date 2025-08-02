@@ -40,31 +40,7 @@ const adminUser = {
   password: 'admin123'
 };
 
-async function runCompleteSystemTest() {
-  console.log('🚀 WILL FINANCE - TESTE COMPLETO DO SISTEMA REAL\n');
-  console.log('==================================================\n');
-
-  let userToken = '';
-  let adminToken = '';
-
-  try {
-    await testHealthCheck();
-    userToken = await registerOrLoginUser();
-    adminToken = await loginAdmin();
-    await testImportRealBankData();
-    await testAdminFeatures(adminToken);
-    await testDataIsolation(userToken);
-    await testDataManagement(userToken);
-    printSummary(adminToken, userToken);
-  } catch (error) {
-    console.log('\n❌ ERRO CRÍTICO NO TESTE:');
-    console.log('Status:', error.response?.status);
-    console.log('Message:', error.response?.data?.message || error.message);
-    console.log('\n🔧 Verifique se o servidor está rodando e tente novamente.');
-  }
-}
-
-async function testHealthCheck() {
+async function healthCheck() {
   console.log('🏥 1. Testando Health Check...');
   const healthResponse = await axios.get(`${baseURL}/health`);
   console.log('✅ Health Check OK:', healthResponse.data.status);
@@ -183,22 +159,44 @@ async function testDataManagement(userToken) {
   }
 }
 
-function printSummary(adminToken, userToken) {
-  console.log('\n🎉 TESTE COMPLETO FINALIZADO!');
-  console.log('\n📋 RESUMO DOS RESULTADOS:');
-  console.log('==============================');
-  console.log('✅ Sistema de autenticação funcionando');
-  console.log('✅ Registro e login de usuários operacional');
-  console.log('✅ Sistema admin implementado');
-  console.log('✅ Parsing de extratos bancários preciso');
-  console.log('✅ Isolamento de dados por usuário');
-  console.log('✅ Detecção automática de bancos');
-  console.log('✅ API robusta e segura');
-  console.log('✅ Gerenciamento de dados demo/real');
-  console.log('\n🚀 O SISTEMA ESTÁ 100% PRONTO PARA DADOS REAIS!');
-  console.log('\n🔐 CREDENCIAIS:');
-  console.log(`👑 Admin: ${adminUser.email} / ${adminUser.password}`);
-  console.log(`👤 Usuário Teste: ${testUser.email} / ${testUser.password}`);
+async function runCompleteSystemTest() {
+  console.log('🚀 WILL FINANCE - TESTE COMPLETO DO SISTEMA REAL\n');
+  console.log('==================================================\n');
+
+  let userToken = '';
+  let adminToken = '';
+
+  try {
+    await healthCheck();
+    userToken = await registerOrLoginUser();
+    adminToken = await loginAdmin();
+    await testImportRealBankData();
+    await testAdminFeatures(adminToken);
+    await testDataIsolation(userToken);
+    await testDataManagement(userToken);
+
+    console.log('\n🎉 TESTE COMPLETO FINALIZADO!');
+    console.log('\n📋 RESUMO DOS RESULTADOS:');
+    console.log('==============================');
+    console.log('✅ Sistema de autenticação funcionando');
+    console.log('✅ Registro e login de usuários operacional');
+    console.log('✅ Sistema admin implementado');
+    console.log('✅ Parsing de extratos bancários preciso');
+    console.log('✅ Isolamento de dados por usuário');
+    console.log('✅ Detecção automática de bancos');
+    console.log('✅ API robusta e segura');
+    console.log('✅ Gerenciamento de dados demo/real');
+    console.log('\n🚀 O SISTEMA ESTÁ 100% PRONTO PARA DADOS REAIS!');
+    console.log('\n🔐 CREDENCIAIS:');
+    console.log(`👑 Admin: ${adminUser.email} / ${adminUser.password}`);
+    console.log(`👤 Usuário Teste: ${testUser.email} / ${testUser.password}`);
+
+  } catch (error) {
+    console.log('\n❌ ERRO CRÍTICO NO TESTE:');
+    console.log('Status:', error.response?.status);
+    console.log('Message:', error.response?.data?.message || error.message);
+    console.log('\n🔧 Verifique se o servidor está rodando e tente novamente.');
+  }
 }
 
 // Executar teste

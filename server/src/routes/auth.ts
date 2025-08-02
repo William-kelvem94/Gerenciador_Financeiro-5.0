@@ -276,8 +276,10 @@ export const authenticateToken = (req: AuthenticatedRequest, res: express.Respon
     // Ensure user has id, email, and name
     req.user = {
       id: String(decoded.userId ?? decoded.id),
-      email: String(decoded.email),
-      name: decoded.name as string || (decoded.email as string)?.split('@')[0] || 'User',
+      email: decoded.email,
+      name: typeof decoded.name === 'string'
+        ? decoded.name
+        : decoded.email.split('@')[0],
     };
     next();
   } catch (err) {

@@ -65,7 +65,15 @@ class OpenFinanceService {
         timeout: this.TIMEOUT,
       });
 
-      const banks: OpenFinanceBankData[] = response.data.banks.map((bank: any) => ({
+      interface ApiBank {
+        id: string;
+        name: string;
+        logo?: string;
+        features?: string[];
+        status?: 'active' | 'maintenance' | 'inactive';
+      }
+
+      const banks: OpenFinanceBankData[] = response.data.banks.map((bank: ApiBank) => ({
         id: bank.id,
         name: bank.name,
         logo: bank.logo || '/assets/bank-default.png',
@@ -75,8 +83,12 @@ class OpenFinanceService {
 
       logger.info(`✅ ${banks.length} bancos obtidos com sucesso`);
       return banks;
-    } catch (error: any) {
-      logger.error(`❌ Erro ao obter bancos: ${error.message}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        logger.error(`❌ Erro ao obter bancos: ${error.message}`);
+      } else {
+        logger.error('❌ Erro ao obter bancos: erro desconhecido');
+      }
       
       // Retornar bancos mock para desenvolvimento
       return this.getMockBanks();
@@ -111,9 +123,14 @@ class OpenFinanceService {
       logger.info(`✅ URL de autorização gerada: ${authUrl}`);
       
       return authUrl;
-    } catch (error: any) {
-      logger.error(`❌ Erro ao iniciar conexão: ${error.message}`);
-      throw new Error(`Falha ao conectar com ${bankId}: ${error.message}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        logger.error(`❌ Erro ao iniciar conexão: ${error.message}`);
+        throw new Error(`Falha ao conectar com ${bankId}: ${error.message}`);
+      } else {
+        logger.error('❌ Erro ao iniciar conexão: erro desconhecido');
+        throw new Error(`Falha ao conectar com ${bankId}: erro desconhecido`);
+      }
     }
   }
 
@@ -162,9 +179,14 @@ class OpenFinanceService {
 
       logger.info(`✅ Conexão estabelecida: ${connection_id}`);
       return connectionData;
-    } catch (error: any) {
-      logger.error(`❌ Erro no callback: ${error.message}`);
-      throw new Error(`Falha no callback de autorização: ${error.message}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        logger.error(`❌ Erro no callback: ${error.message}`);
+        throw new Error(`Falha no callback de autorização: ${error.message}`);
+      } else {
+        logger.error('❌ Erro no callback: erro desconhecido');
+        throw new Error('Falha no callback de autorização: erro desconhecido');
+      }
     }
   }
 
@@ -196,7 +218,18 @@ class OpenFinanceService {
         }
       );
 
-      const transactions: OpenFinanceTransaction[] = response.data.transactions.map((tx: any) => ({
+      interface ApiTransaction {
+        transactionId: string;
+        bookingDate?: string;
+        valueDate?: string;
+        amount: number;
+        remittanceInformation?: string;
+        additionalInformation?: string;
+        balance?: number;
+        merchant?: { name?: string };
+      }
+
+      const transactions: OpenFinanceTransaction[] = response.data.transactions.map((tx: ApiTransaction) => ({
         bankTransactionId: tx.transactionId,
         date: tx.bookingDate || tx.valueDate,
         amount: Math.abs(tx.amount),
@@ -209,9 +242,14 @@ class OpenFinanceService {
 
       logger.info(`✅ ${transactions.length} transações sincronizadas`);
       return transactions;
-    } catch (error: any) {
-      logger.error(`❌ Erro ao sincronizar transações: ${error.message}`);
-      throw new Error(`Falha na sincronização: ${error.message}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        logger.error(`❌ Erro ao sincronizar transações: ${error.message}`);
+        throw new Error(`Falha na sincronização: ${error.message}`);
+      } else {
+        logger.error('❌ Erro ao sincronizar transações: erro desconhecido');
+        throw new Error('Falha na sincronização: erro desconhecido');
+      }
     }
   }
 
@@ -246,9 +284,14 @@ class OpenFinanceService {
 
       logger.info(`✅ Saldo obtido: ${balanceData.balance} ${balanceData.currency}`);
       return balanceData;
-    } catch (error: any) {
-      logger.error(`❌ Erro ao obter saldo: ${error.message}`);
-      throw new Error(`Falha ao obter saldo: ${error.message}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        logger.error(`❌ Erro ao obter saldo: ${error.message}`);
+        throw new Error(`Falha ao obter saldo: ${error.message}`);
+      } else {
+        logger.error('❌ Erro ao obter saldo: erro desconhecido');
+        throw new Error('Falha ao obter saldo: erro desconhecido');
+      }
     }
   }
 
@@ -273,9 +316,14 @@ class OpenFinanceService {
       await this.removeConnectionTokens(connectionId);
 
       logger.info(`✅ Conexão desconectada: ${connectionId}`);
-    } catch (error: any) {
-      logger.error(`❌ Erro ao desconectar: ${error.message}`);
-      throw new Error(`Falha ao desconectar: ${error.message}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        logger.error(`❌ Erro ao desconectar: ${error.message}`);
+        throw new Error(`Falha ao desconectar: ${error.message}`);
+      } else {
+        logger.error('❌ Erro ao desconectar: erro desconhecido');
+        throw new Error('Falha ao desconectar: erro desconhecido');
+      }
     }
   }
 
@@ -304,7 +352,7 @@ class OpenFinanceService {
       .substring(0, 100);
   }
 
-  private categorizeTransaction(tx: any): string {
+  private categorizeTransaction(tx: { remittanceInformation?: string }): string {
     const description = (tx.remittanceInformation || '').toLowerCase();
     
     // Categorização básica baseada na descrição
@@ -385,9 +433,14 @@ router.get('/banks', async (req, res) => {
   try {
     const banks = await openFinanceService.getBanks();
     res.json({ success: true, banks });
-  } catch (error: any) {
-    logger.error(`Erro ao obter bancos: ${error.message}`);
-    res.status(500).json({ success: false, message: error.message });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      logger.error(`Erro ao obter bancos: ${error.message}`);
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      logger.error('Erro ao obter bancos: erro desconhecido');
+      res.status(500).json({ success: false, message: 'Erro desconhecido ao obter bancos' });
+    }
   }
 });
 
@@ -406,9 +459,14 @@ router.post('/connect', authenticateToken, async (req, res) => {
 
     const authUrl = await openFinanceService.initiateConnection(userId, bankId);
     res.json({ success: true, authUrl });
-  } catch (error: any) {
-    logger.error(`Erro ao conectar banco: ${error.message}`);
-    res.status(500).json({ success: false, message: error.message });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      logger.error(`Erro ao conectar banco: ${error.message}`);
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      logger.error('Erro ao conectar banco: erro desconhecido');
+      res.status(500).json({ success: false, message: 'Erro desconhecido ao conectar banco' });
+    }
   }
 });
 
@@ -426,9 +484,14 @@ router.post('/callback', async (req, res) => {
 
     const connection = await openFinanceService.handleCallback(code, state);
     res.json({ success: true, connection });
-  } catch (error: any) {
-    logger.error(`Erro no callback: ${error.message}`);
-    res.status(500).json({ success: false, message: error.message });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      logger.error(`Erro no callback: ${error.message}`);
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      logger.error('Erro no callback: erro desconhecido');
+      res.status(500).json({ success: false, message: 'Erro desconhecido no callback' });
+    }
   }
 });
 
@@ -443,9 +506,14 @@ router.get('/sync/:connectionId', authenticateToken, async (req, res) => {
 
     const transactions = await openFinanceService.syncTransactions(connectionId, userId);
     res.json({ success: true, transactions });
-  } catch (error: any) {
-    logger.error(`Erro ao sincronizar: ${error.message}`);
-    res.status(500).json({ success: false, message: error.message });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      logger.error(`Erro ao sincronizar: ${error.message}`);
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      logger.error('Erro ao sincronizar: erro desconhecido');
+      res.status(500).json({ success: false, message: 'Erro desconhecido ao sincronizar' });
+    }
   }
 });
 
@@ -459,9 +527,14 @@ router.get('/balance/:connectionId', authenticateToken, async (req, res) => {
 
     const balance = await openFinanceService.getBalance(connectionId);
     res.json({ success: true, balance });
-  } catch (error: any) {
-    logger.error(`Erro ao obter saldo: ${error.message}`);
-    res.status(500).json({ success: false, message: error.message });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      logger.error(`Erro ao obter saldo: ${error.message}`);
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      logger.error('Erro ao obter saldo: erro desconhecido');
+      res.status(500).json({ success: false, message: 'Erro desconhecido ao obter saldo' });
+    }
   }
 });
 
@@ -475,9 +548,14 @@ router.delete('/disconnect/:connectionId', authenticateToken, async (req, res) =
 
     await openFinanceService.disconnectConnection(connectionId);
     res.json({ success: true, message: 'Conexão desconectada com sucesso' });
-  } catch (error: any) {
-    logger.error(`Erro ao desconectar: ${error.message}`);
-    res.status(500).json({ success: false, message: error.message });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      logger.error(`Erro ao desconectar: ${error.message}`);
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      logger.error('Erro ao desconectar: erro desconhecido');
+      res.status(500).json({ success: false, message: 'Erro desconhecido ao desconectar' });
+    }
   }
 });
 

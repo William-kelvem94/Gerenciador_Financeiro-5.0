@@ -164,7 +164,7 @@ const PDFImporter: React.FC = () => {
   }, [addTransaction, processingStages]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
-    onDrop,
+    onDrop: (acceptedFiles: File[]) => { void onDrop(acceptedFiles); },
     accept: {
       'application/pdf': ['.pdf']
     },
@@ -220,8 +220,8 @@ const PDFImporter: React.FC = () => {
               <p className="file-name">{fileName}</p>
               
               <div className="stages-list">
-                {processingStages.map((stage, index) => (
-                  <div key={index} className={`stage-item ${getStageColor(stage)}`}>
+                {processingStages.map((stage) => (
+                  <div key={stage.name} className={`stage-item ${getStageColor(stage)}`}>
                     <span className="stage-icon">{getStageIcon(stage)}</span>
                     <span className="stage-name">{stage.name}</span>
                     <span className="stage-message">{stage.message}</span>

@@ -60,6 +60,11 @@ export interface ThemeContextType {
   previewTheme: (themeId: string) => void;
   exportTheme: () => string;
   importTheme: (themeData: string) => void;
+  soundConfig: SoundConfig;
+  setSoundConfig: (config: SoundConfig) => void;
+  animationConfig: AnimationConfig;
+  setAnimationConfig: (config: AnimationConfig) => void;
+  playSound: (soundType: string) => void;
 }
 
 export interface SoundConfig {

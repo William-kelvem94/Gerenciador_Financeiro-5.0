@@ -1,11 +1,17 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode, useMemo, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+  useMemo,
+  useCallback,
+} from 'react';
 import { CyberpunkTheme, ThemeContextType, SoundConfig, AnimationConfig } from '../types/theme';
 import { availableThemes, defaultTheme } from '../themes/cyberpunk';
 
-// Context
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-// Local Storage Keys
 const THEME_STORAGE_KEY = 'will-finance-theme';
 const SOUND_STORAGE_KEY = 'will-finance-sound-config';
 const ANIMATION_STORAGE_KEY = 'will-finance-animation-config';
@@ -36,6 +42,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   // Load saved theme from localStorage
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     try {
       const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
       const savedSound = localStorage.getItem(SOUND_STORAGE_KEY);
@@ -62,6 +69,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   // Apply theme to CSS variables
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     const root = document.documentElement;
     const theme = currentTheme;
 
@@ -96,7 +104,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     // Animation settings
     const speedMultiplier = animationConfig.speed;
     const intensityMultiplier = animationConfig.intensity;
-    
+
     root.style.setProperty('--animation-speed', `${speedMultiplier}s`);
     root.style.setProperty('--animation-intensity', intensityMultiplier.toString());
 
@@ -116,11 +124,13 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   // Save sound config when it changes
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     localStorage.setItem(SOUND_STORAGE_KEY, JSON.stringify(soundConfig));
   }, [soundConfig]);
 
   // Save animation config when it changes
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     localStorage.setItem(ANIMATION_STORAGE_KEY, JSON.stringify(animationConfig));
   }, [animationConfig]);
 
@@ -152,41 +162,69 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     });
   };
 
+  // Preview theme (aplica temporariamente, retorna função para restaurar)
   const previewTheme = (themeId: string) => {
-    // Temporarily apply theme for preview
     const theme = availableThemes.find(t => t.id === themeId);
     if (theme) {
-      // This could trigger a preview mode without saving
-      console.log('Preview theme:', theme.name);
+      const root = document.documentElement;
+      root.style.setProperty('--color-primary', theme.colors.primary);
+      root.style.setProperty('--color-secondary', theme.colors.secondary);
+      root.style.setProperty('--color-accent', theme.colors.accent);
+      // ... outras propriedades
+
+      return () => {
+        const current = currentTheme;
+        root.style.setProperty('--color-primary', current.colors.primary);
+        root.style.setProperty('--color-secondary', current.colors.secondary);
+        root.style.setProperty('--color-accent', current.colors.accent);
+        // ... restaurar outras propriedades
+      };
     }
+    return undefined;
   };
 
   const exportTheme = useCallback((): string => {
-    return JSON.stringify({
-      theme: currentTheme,
-      sound: soundConfig,
-      animation: animationConfig,
-    }, null, 2);
+    return JSON.stringify(
+      {
+        theme: currentTheme,
+        sound: soundConfig,
+        animation: animationConfig,
+      },
+      null,
+      2
+    );
   }, [currentTheme, soundConfig, animationConfig]);
 
   const importTheme = (themeData: string) => {
     try {
       const data = JSON.parse(themeData);
-      if (data.theme) setCurrentTheme(data.theme);
-      if (data.sound) setSoundConfig(data.sound);
-      if (data.animation) setAnimationConfig(data.animation);
+
+      // Validação básica da estrutura
+      if (!data.theme?.id || !data.theme?.colors) {
+        throw new Error('Invalid theme structure');
+      }
+      if (typeof data.sound?.volume !== 'number') {
+        throw new Error('Invalid sound config structure');
+      }
+      if (typeof data.animation?.speed !== 'number') {
+        throw new Error('Invalid animation config structure');
+      }
+
+      setCurrentTheme(data.theme);
+      setSoundConfig(data.sound);
+      setAnimationConfig(data.animation);
     } catch (error) {
       console.error('Error importing theme:', error);
+      // Opcional: notificar o usuário sobre o erro
     }
   };
 
-  // Sound system
   const playSound = useCallback((soundType: string) => {
     if (!soundConfig.keyboardClicks && soundType === 'click') return;
     if (!soundConfig.notifications && soundType.includes('notification')) return;
     if (!soundConfig.transactions && soundType.includes('transaction')) return;
 
-    // This would be implemented with actual audio files
+    // Implementação real de áudio aqui
     console.log(`Playing sound: ${soundType} at volume ${soundConfig.volume}`);
   }, [soundConfig]);
 
@@ -194,29 +232,41 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     const theme = availableThemes.find(t => t.id === themeId);
     if (theme) {
       setCurrentTheme(theme);
-      // Play theme change sound
       if (soundConfig.notifications) {
         playSound('theme-change');
       }
     }
   }, [soundConfig.notifications, playSound]);
 
-  const value: ThemeContextType = useMemo(() => ({
-    currentTheme,
-    availableThemes,
-    setTheme,
-    customizeTheme,
-    resetTheme,
-    previewTheme,
-    exportTheme,
-    importTheme,
-  }), [currentTheme, exportTheme, setTheme]);
-
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
+  const value: ThemeContextType = useMemo(
+    () => ({
+      currentTheme,
+      availableThemes,
+      setTheme,
+      customizeTheme,
+      resetTheme,
+      previewTheme,
+      exportTheme,
+      importTheme,
+      soundConfig,
+      animationConfig,
+      setSoundConfig,
+      setAnimationConfig,
+      playSound,
+    }),
+    [
+      currentTheme,
+      exportTheme,
+      setTheme,
+      soundConfig,
+      animationConfig,
+      setSoundConfig,
+      setAnimationConfig,
+      playSound,
+    ]
   );
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
 // Hook to use theme context
@@ -230,25 +280,25 @@ export const useTheme = (): ThemeContextType => {
 
 // Hook for sound system
 export const useSound = () => {
-  const playSound = (soundType: string) => {
-    // Implementation would go here
-    console.log(`Playing sound: ${soundType}`);
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useSound must be used within a ThemeProvider');
+  }
+  return {
+    config: context.soundConfig,
+    setConfig: context.setSoundConfig,
+    playSound: context.playSound,
   };
-
-  return { playSound };
 };
 
-// Hook for animations
+// Hook for animations (sincronizado com contexto)
 export const useAnimation = () => {
-  const [animationConfig] = useState<AnimationConfig>({
-    dataVisualization: true,
-    pageTransitions: true,
-    hoverEffects: true,
-    loadingAnimations: true,
-    chartAnimations: true,
-    speed: 1,
-    intensity: 1,
-  });
-
-  return animationConfig;
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useAnimation must be used within a ThemeProvider');
+  }
+  return {
+    config: context.animationConfig,
+    setConfig: context.setAnimationConfig,
+  };
 };

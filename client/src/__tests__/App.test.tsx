@@ -4,7 +4,8 @@ import App from '../App';
 
 // Mock do router para evitar erros nos testes
 vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal() as Record<string, unknown>;
+  const actualModule = await importOriginal();
+  const actual = typeof actualModule === 'object' && actualModule !== null ? actualModule : {};
   return {
     ...actual,
     BrowserRouter: ({ children }: { children: React.ReactNode }) => <div data-testid="browser-router">{children}</div>,

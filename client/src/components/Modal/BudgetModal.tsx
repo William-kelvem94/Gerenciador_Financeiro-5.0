@@ -43,7 +43,7 @@ const getProgressBarColor = (percentage: number): string => {
   return 'bg-red-500';
 };
 
-export function BudgetModal({ isOpen, onClose, onSave, budget }: BudgetModalProps) {
+export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<BudgetModalProps>) {
   const [formData, setFormData] = useState<BudgetData>({
     name: budget?.name || '',
     amount: budget?.amount || 0,
