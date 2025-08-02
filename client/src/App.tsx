@@ -11,6 +11,7 @@ import { TransactionsPage } from './pages/Transactions/TransactionsPage';
 import { BudgetsPage } from './pages/Budgets/BudgetsPage';
 import { ReportsPage } from './pages/Reports/ReportsPage';
 import { SettingsPage } from './pages/Settings/SettingsPage';
+import ImportExportPage from './pages/ImportExport/ImportExportPage';
 import { AuthCallback } from './components/auth/AuthCallback';
 
 function App() {
@@ -60,6 +61,7 @@ function App() {
               <Route path="budgets" element={<BudgetsPage />} />
               <Route path="reports" element={<ReportsPage />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="import-export" element={<ImportExportPage />} />
             </Route>
 
             {/* 404 fallback */}

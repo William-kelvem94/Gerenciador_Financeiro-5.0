@@ -3,7 +3,7 @@
  * Para validar se o parsing está funcionando corretamente
  */
 
-const { ModernBankParser } = require('./server/src/services/modernBankParser.ts');
+const { ModernBankParser } = require('../../server/src/services/bankParser.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -72,9 +72,11 @@ async function testBankParsing() {
   ];
 
   testContents.forEach(test => {
-    const detected = require('./server/src/services/modernBankParser.ts').SafeUtils.detectBank(test.content, test.filename);
+    const detected = require('../../server/src/services/bankParser.js').SafeUtils.detectBank(test.content, test.filename);
     const isCorrect = detected === test.expected;
-    console.log(`${isCorrect ? '✅' : '❌'} ${test.filename}: ${detected} ${isCorrect ? '' : `(esperado: ${test.expected})`}`);
+    let status = isCorrect ? '✅' : '❌';
+    let expectedText = isCorrect ? '' : '(esperado: ' + test.expected + ')';
+    console.log(status + ' ' + test.filename + ': ' + detected + ' ' + expectedText);
   });
 
   console.log('\n🎯 CONCLUSÃO DO TESTE');

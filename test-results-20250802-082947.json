@@ -1,0 +1,23 @@
+﻿{
+    "PassedTests":  0,
+    "Timestamp":  "2025-08-02 08:29:47",
+    "TotalTests":  2,
+    "FailedTests":  2,
+    "Results":  [
+                    {
+                        "Passed":  false,
+                        "Message":  "Backend nÃ£o estÃ¡ rodando",
+                        "Timestamp":  "08:29:47",
+                        "Details":  "",
+                        "Test":  "API Auth Endpoint"
+                    },
+                    {
+                        "Passed":  false,
+                        "Message":  "Backend nÃ£o estÃ¡ rodando",
+                        "Timestamp":  "08:29:47",
+                        "Details":  "",
+                        "Test":  "API Transactions Endpoint"
+                    }
+                ],
+    "SuccessRate":  0
+}

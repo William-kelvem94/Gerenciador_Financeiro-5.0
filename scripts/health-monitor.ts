@@ -6,7 +6,13 @@
  */
 
 import axios from 'axios';
-import { logger } from '../src/utils/logger.js';
+// If you have a logger implementation, adjust the path below accordingly.
+// Example using console as a fallback logger:
+const logger = {
+  info: console.log,
+  warn: console.warn,
+  error: console.error,
+};
 
 interface HealthCheckResult {
   service: string;
@@ -114,7 +120,6 @@ class HealthMonitor {
     const memoryUsage = Math.round((usedMemory / totalMemory) * 100);
 
     // Get CPU usage (simplified)
-    const cpus = os.cpus();
     const cpuUsage = Math.round(Math.random() * 100); // Placeholder - would need proper CPU monitoring
 
     return {
@@ -228,10 +233,11 @@ async function main() {
       process.exit(0);
       break;
       
-    case 'monitor':
+    case 'monitor': {
       const interval = parseInt(args[1]) || 5;
       await monitor.startMonitoring(interval);
       break;
+    }
       
     case 'help':
       console.log('Will Finance 5.0 - Health Monitor');

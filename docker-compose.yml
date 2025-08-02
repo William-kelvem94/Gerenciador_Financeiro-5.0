@@ -10,21 +10,43 @@ services:
       - "8080:8080"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://will_finance:cyberpunk2077@postgres:5432/will_finance_db
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - AI_SERVICE_URL=http://ia:8001
     depends_on:
       - postgres
       - redis
+      - ia
     restart: unless-stopped
+
+  ia:
+    build:
+      context: ./IA
+      dockerfile: Dockerfile
+    container_name: will-finance-ia
+    ports:
+      - "8001:8001"
+    environment:
+      - PYTHON_ENV=production
+      - AI_MODEL_PATH=/app/models/finance_predictor_v6.h5
+      - API_PORT=8001
+    volumes:
+      - ./IA/models:/app/models:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   postgres:
     image: postgres:15-alpine
     container_name: will-finance-db
     environment:
-      POSTGRES_USER: will_finance
-      POSTGRES_PASSWORD: cyberpunk2077
-      POSTGRES_DB: will_finance_db
+      POSTGRES_USER: ${POSTGRES_USER:-will_finance}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password_change_me}
+      POSTGRES_DB: ${POSTGRES_DB:-will_finance_db}
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
     ports:
       - "5432:5432"
@@ -33,7 +55,7 @@ services:
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U will_finance -d will_finance_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-will_finance} -d ${POSTGRES_DB:-will_finance_db}"]
       interval: 10s
       timeout: 5s
       retries: 5

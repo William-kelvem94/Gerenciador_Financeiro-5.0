@@ -2,6 +2,8 @@ import express from 'express';
 import { z } from 'zod';
 import { prisma } from '../db/client';
 import { authenticateToken } from './auth';
+import { logger } from '../utils/logger';
+import { AuthenticatedRequest } from '../types/auth';
 
 const router = express.Router();
 
@@ -28,29 +30,29 @@ const updateBudgetSchema = z.object({
 });
 
 // Get all budgets
-router.get('/', async (req: any, res) => {
+router.get('/', async (req: AuthenticatedRequest, res) => {
   try {
     const budgets = await prisma.budget.findMany({
       where: {
-        userId: req.user.userId,
+        userId: req.user?.id || '',
       },
       orderBy: { createdAt: 'desc' },
     });
 
     res.json({ budgets });
   } catch (error) {
-    console.error('Get budgets error:', error);
+    logger.error('Get budgets error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
 // Get budget by ID
-router.get('/:id', async (req: any, res) => {
+router.get('/:id', async (req: AuthenticatedRequest, res) => {
   try {
     const budget = await prisma.budget.findFirst({
       where: {
         id: req.params.id,
-        userId: req.user.userId,
+        userId: req.user?.id || '',
       },
     });
 
@@ -60,13 +62,13 @@ router.get('/:id', async (req: any, res) => {
 
     res.json(budget);
   } catch (error) {
-    console.error('Get budget error:', error);
+    logger.error('Get budget error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
 // Create budget
-router.post('/', async (req: any, res) => {
+router.post('/', async (req: AuthenticatedRequest, res) => {
   try {
     const data = createBudgetSchema.parse(req.body);
 
@@ -76,7 +78,7 @@ router.post('/', async (req: any, res) => {
         amount: data.amount,
         period: data.period,
         categoryId: data.categoryId,
-        userId: req.user.userId as string,
+        userId: req.user?.id || '' as string,
         startDate: new Date(data.startDate),
         endDate: new Date(data.endDate),
       },
@@ -84,20 +86,20 @@ router.post('/', async (req: any, res) => {
 
     res.status(201).json(budget);
   } catch (error) {
-    console.error('Create budget error:', error);
+    logger.error('Create budget error:', error);
     res.status(400).json({ error: 'Invalid data' });
   }
 });
 
 // Update budget
-router.put('/:id', async (req: any, res) => {
+router.put('/:id', async (req: AuthenticatedRequest, res) => {
   try {
     const data = updateBudgetSchema.parse(req.body);
 
     const existingBudget = await prisma.budget.findFirst({
       where: {
         id: req.params.id,
-        userId: req.user.userId,
+        userId: req.user?.id || '',
       },
     });
 
@@ -116,18 +118,18 @@ router.put('/:id', async (req: any, res) => {
 
     res.json(budget);
   } catch (error) {
-    console.error('Update budget error:', error);
+    logger.error('Update budget error:', error);
     res.status(400).json({ error: 'Invalid data' });
   }
 });
 
 // Delete budget
-router.delete('/:id', async (req: any, res) => {
+router.delete('/:id', async (req: AuthenticatedRequest, res) => {
   try {
     const budget = await prisma.budget.findFirst({
       where: {
         id: req.params.id,
-        userId: req.user.userId,
+        userId: req.user?.id || '',
       },
     });
 
@@ -141,7 +143,7 @@ router.delete('/:id', async (req: any, res) => {
 
     res.json({ message: 'Budget deleted successfully' });
   } catch (error) {
-    console.error('Delete budget error:', error);
+    logger.error('Delete budget error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });

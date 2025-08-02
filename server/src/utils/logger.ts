@@ -1,6 +1,8 @@
 import winston from 'winston';
 import path from 'path';
 import fs from 'fs';
+import { Response, NextFunction } from 'express';
+import { AuthenticatedRequest } from '../types/auth';
 
 // Ensure logs directory exists
 const logsDir = path.join(process.cwd(), 'logs');
@@ -29,6 +31,35 @@ const colors = {
 // Tell winston that you want to link the colors
 winston.addColors(colors);
 
+// Helper function to format message
+const formatMessage = (message: unknown): string => {
+  if (message === null || message === undefined) {
+    return '';
+  }
+  
+  if (typeof message === 'object') {
+    return JSON.stringify(message, null, 2);
+  }
+  
+  if (typeof message === 'string') {
+    return message;
+  }
+  
+  if (typeof message === 'number' || typeof message === 'boolean') {
+    return String(message);
+  }
+  
+  return '[object Object]';
+};
+
+// Helper function to format timestamp
+const formatTimestamp = (timestamp: unknown): string => {
+  if (typeof timestamp === 'string') {
+    return timestamp;
+  }
+  return JSON.stringify(timestamp);
+};
+
 // Choose the aspect of your log customizing the log format.
 const format = winston.format.combine(
   // Add the message timestamp with the preferred format
@@ -36,7 +67,11 @@ const format = winston.format.combine(
   // Tell Winston that the logs must be colored
   winston.format.colorize({ all: true }),
   // Define the format of the message showing the timestamp, the level and the message
-  winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
+  winston.format.printf((info) => {
+    const message = formatMessage(info.message);
+    const timestamp = formatTimestamp(info.timestamp);
+    return `${timestamp} ${info.level}: ${message}`;
+  })
 );
 
 // JSON format for file logs
@@ -91,7 +126,7 @@ export const logger = winston.createLogger({
 });
 
 // Request logging middleware
-export const requestLogger = (req: any, res: any, next: any) => {
+export const requestLogger = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const start = Date.now();
 
   // Log request
@@ -132,7 +167,7 @@ export const requestLogger = (req: any, res: any, next: any) => {
 // Application metrics
 export const metrics = {
   // Track user actions
-  userAction: (action: string, userId: string, metadata?: any) => {
+  userAction: (action: string, userId: string, metadata?: Record<string, unknown>) => {
     logger.info('User Action', {
       action,
       userId,
@@ -141,7 +176,7 @@ export const metrics = {
   },
 
   // Track errors
-  error: (error: any, context?: string, userId?: string) => {
+  error: (error: Error, context?: string, userId?: string) => {
     logger.error('Application Error', {
       error: error.message,
       stack: error.stack,
@@ -161,22 +196,22 @@ export const metrics = {
 };
 
 // Utility functions for different log levels
-export const logInfo = (message: string, meta?: any) => {
+export const logInfo = (message: string, meta?: Record<string, unknown>) => {
   logger.info(message, meta);
 };
 
-export const logError = (message: string, error?: any) => {
+export const logError = (message: string, error?: Error) => {
   logger.error(message, error);
 };
 
-export const logWarn = (message: string, meta?: any) => {
+export const logWarn = (message: string, meta?: Record<string, unknown>) => {
   logger.warn(message, meta);
 };
 
-export const logDebug = (message: string, meta?: any) => {
+export const logDebug = (message: string, meta?: Record<string, unknown>) => {
   logger.debug(message, meta);
 };
 
-export const logHttp = (message: string, meta?: any) => {
+export const logHttp = (message: string, meta?: Record<string, unknown>) => {
   logger.http(message, meta);
 };

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -20,6 +21,8 @@ interface DashboardStats {
 }
 
 export function DashboardPage() {
+  const navigate = useNavigate();
+  
   const [stats] = useState<DashboardStats>({
     totalBalance: 15750.89,
     monthlyIncome: 8500.00,
@@ -30,6 +33,23 @@ export function DashboardPage() {
 
   const savingsProgress = (stats.totalBalance / stats.savingsGoal) * 100;
   const netIncome = stats.monthlyIncome - stats.monthlyExpenses;
+
+  // Navigation handlers
+  const handleNewTransaction = () => {
+    navigate('/transactions');
+  };
+
+  const handleViewReports = () => {
+    navigate('/reports');
+  };
+
+  const handleSetGoal = () => {
+    navigate('/budgets');
+  };
+
+  const handleExportData = () => {
+    navigate('/import-export');
+  };
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.95 },
@@ -194,22 +214,22 @@ export function DashboardPage() {
           <h3 className="text-lg font-cyber text-cyber-secondary mb-6">Ações Rápidas</h3>
           
           <div className="grid grid-cols-2 gap-4">
-            <button className="btn-primary group relative overflow-hidden">
+            <button onClick={handleNewTransaction} className="btn-primary group relative overflow-hidden">
               <span className="relative z-10 font-mono">Nova Transação</span>
               <div className="absolute inset-0 bg-gradient-to-r from-cyber-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </button>
             
-            <button className="btn-outline group relative overflow-hidden">
+            <button onClick={handleViewReports} className="btn-outline group relative overflow-hidden">
               <span className="relative z-10 font-mono">Ver Relatórios</span>
               <div className="absolute inset-0 bg-gradient-to-r from-cyber-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </button>
             
-            <button className="btn-secondary group relative overflow-hidden">
+            <button onClick={handleSetGoal} className="btn-secondary group relative overflow-hidden">
               <span className="relative z-10 font-mono">Definir Meta</span>
               <div className="absolute inset-0 bg-gradient-to-r from-cyber-secondary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </button>
             
-            <button className="btn-ghost group relative overflow-hidden border border-cyber-accent/30 hover:border-cyber-accent">
+            <button onClick={handleExportData} className="btn-ghost group relative overflow-hidden border border-cyber-accent/30 hover:border-cyber-accent">
               <span className="relative z-10 font-mono text-cyber-accent">Exportar Dados</span>
               <div className="absolute inset-0 bg-gradient-to-r from-cyber-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </button>

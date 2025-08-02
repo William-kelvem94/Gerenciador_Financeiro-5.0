@@ -521,13 +521,24 @@ export function SettingsPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <button className="flex items-center justify-center space-x-3 px-6 py-4 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-400 text-cyan-400 rounded-xl hover:from-cyan-500/30 hover:to-purple-500/30 transition-all">
+                      <button 
+                        onClick={() => {
+                          alert('Função de exportação será implementada em breve!');
+                          console.log('Exportar dados do sistema');
+                        }}
+                        className="flex items-center justify-center space-x-3 px-6 py-4 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-400 text-cyan-400 rounded-xl hover:from-cyan-500/30 hover:to-purple-500/30 transition-all"
+                      >
                         <Download className="w-5 h-5" />
                         <span className="font-semibold">EXPORT DATA</span>
                       </button>
-                      <button className="flex items-center justify-center space-x-3 px-6 py-4 bg-gradient-to-r from-green-500/20 to-cyan-500/20 border border-green-400 text-green-400 rounded-xl hover:from-green-500/30 hover:to-cyan-500/30 transition-all">
+                      <button 
+                        onClick={() => {
+                          window.location.href = '/import-export';
+                        }}
+                        className="flex items-center justify-center space-x-3 px-6 py-4 bg-gradient-to-r from-green-500/20 to-cyan-500/20 border border-green-400 text-green-400 rounded-xl hover:from-green-500/30 hover:to-cyan-500/30 transition-all"
+                      >
                         <Upload className="w-5 h-5" />
-                        <span className="font-semibold">IMPORT DATA</span>
+                        <span className="font-semibold">IR PARA IMPORT/EXPORT</span>
                       </button>
                     </div>
 

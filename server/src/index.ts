@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit';
 import { authRoutes } from './routes/auth';
 import { transactionRoutes } from './routes/transactions';
 import { budgetRoutes } from './routes/budgets';
+import { importExportRoutes } from './routes/importExport';
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
 import { swaggerUi, swaggerSpec } from './utils/swagger';
@@ -77,6 +78,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
+app.use('/api/import-export', importExportRoutes);
 
 // API root endpoint
 app.get('/api', (req, res) => {
@@ -103,6 +105,7 @@ app.use('*', (req, res) => {
       '/api/auth',
       '/api/transactions',
       '/api/budgets',
+      '/api/import-export',
     ],
   });
 });

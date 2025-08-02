@@ -63,7 +63,7 @@ describe('AuthStore - Validações Críticas', () => {
       // Verifica se o estado persistido contém as propriedades corretas
       const calls = localStorageMock.setItem.mock.calls;
       if (calls.length > 0) {
-        const [key, value] = calls[calls.length - 1];
+        const [, value] = calls[calls.length - 1];
         const parsedValue = JSON.parse(value);
         
         expect(parsedValue.state).toHaveProperty('user');
@@ -133,7 +133,7 @@ describe('AuthStore - Validações Críticas', () => {
       const { login } = useAuthStore.getState();
       
       // Simula subscription para mudanças de estado
-      let stateChanges: any[] = [];
+      const stateChanges: Array<{ isAuthenticated: boolean; user?: string }> = [];
       const unsubscribe = useAuthStore.subscribe((state) => {
         stateChanges.push({
           isAuthenticated: state.isAuthenticated,
@@ -177,7 +177,6 @@ describe('AuthStore - Validações Críticas', () => {
       
       // Testa que demo funciona mesmo em "production"
       const originalEnv = import.meta.env.MODE;
-      // @ts-ignore
       import.meta.env.MODE = 'production';
       
       await login('demo@willfinance.com', 'demo123');
@@ -186,18 +185,13 @@ describe('AuthStore - Validações Críticas', () => {
       expect(isAuthenticated).toBe(true);
       
       // Restaura env original
-      // @ts-ignore
       import.meta.env.MODE = originalEnv;
     });
 
     it('deve rejeitar credenciais inválidas', async () => {
       const { login } = useAuthStore.getState();
       
-      try {
-        await login('invalid@email.com', 'wrongpassword');
-      } catch (error) {
-        // Esperado que falhe
-      }
+      await expect(login('invalid@email.com', 'wrongpassword')).rejects.toThrow();
       
       const { isAuthenticated } = useAuthStore.getState();
       expect(isAuthenticated).toBe(false);

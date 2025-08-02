@@ -79,9 +79,8 @@ async function cleanDemoData() {
       where: {
         OR: [
           { email: 'demo@willfinance.com' },
-          { username: 'demo_user' },
-          { firstName: 'Demo' },
-          { firstName: 'Usuário' }
+          { name: { contains: 'Demo' } },
+          { name: { contains: 'Usuário' } }
         ]
       }
     });

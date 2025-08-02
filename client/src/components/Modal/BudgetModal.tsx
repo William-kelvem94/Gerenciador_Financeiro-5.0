@@ -1,0 +1,391 @@
+import React, { useState } from 'react';
+import { X, Save, Target, DollarSign, Calendar, Tag } from 'lucide-react';
+
+type BudgetPeriod = 'monthly' | 'weekly' | 'yearly';
+
+interface BudgetModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (budget: BudgetData) => void;
+  budget?: BudgetData | null;
+}
+
+export interface BudgetData {
+  id?: string;
+  name: string;
+  amount: number;
+  spent: number;
+  category: string;
+  period: BudgetPeriod;
+  startDate: string;
+  endDate: string;
+  description?: string;
+}
+
+const budgetCategories = [
+  'Alimentação',
+  'Transporte',
+  'Moradia',
+  'Saúde',
+  'Educação',
+  'Lazer',
+  'Compras',
+  'Conta/Utilidades',
+  'Investimentos',
+  'Viagem',
+  'Emergência',
+  'Outros'
+];
+
+const getProgressBarColor = (percentage: number): string => {
+  if (percentage <= 70) return 'bg-green-500';
+  if (percentage <= 90) return 'bg-yellow-500';
+  return 'bg-red-500';
+};
+
+export function BudgetModal({ isOpen, onClose, onSave, budget }: BudgetModalProps) {
+  const [formData, setFormData] = useState<BudgetData>({
+    name: budget?.name || '',
+    amount: budget?.amount || 0,
+    spent: budget?.spent || 0,
+    category: budget?.category || '',
+    period: budget?.period || 'monthly',
+    startDate: budget?.startDate || new Date().toISOString().split('T')[0],
+    endDate: budget?.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    description: budget?.description || ''
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleInputChange = (field: keyof BudgetData, value: string | number) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Remove error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Nome do orçamento é obrigatório';
+    }
+
+    if (formData.amount <= 0) {
+      newErrors.amount = 'Valor deve ser maior que zero';
+    }
+
+    if (!formData.category) {
+      newErrors.category = 'Categoria é obrigatória';
+    }
+
+    if (!formData.startDate) {
+      newErrors.startDate = 'Data de início é obrigatória';
+    }
+
+    if (!formData.endDate) {
+      newErrors.endDate = 'Data de fim é obrigatória';
+    }
+
+    if (formData.startDate && formData.endDate && new Date(formData.startDate) >= new Date(formData.endDate)) {
+      newErrors.endDate = 'Data de fim deve ser posterior à data de início';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (validateForm()) {
+      onSave({
+        ...formData,
+        id: budget?.id || Date.now().toString()
+      });
+      onClose();
+      // Reset form
+      setFormData({
+        name: '',
+        amount: 0,
+        spent: 0,
+        category: '',
+        period: 'monthly',
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        description: ''
+      });
+      setErrors({});
+    }
+  };
+
+  const handleClose = () => {
+    onClose();
+    setErrors({});
+  };
+
+  if (!isOpen) return null;
+
+  const remainingAmount = formData.amount - formData.spent;
+  const percentageUsed = formData.amount > 0 ? (formData.spent / formData.amount) * 100 : 0;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-gray-800 rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-700">
+          <h2 className="text-xl font-semibold text-white">
+            {budget ? 'Editar Orçamento' : 'Novo Orçamento'}
+          </h2>
+          <button
+            onClick={handleClose}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Budget Name */}
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+              <Target size={16} className="inline mr-1" />
+              Nome do Orçamento
+            </label>
+            <input
+              id="name"
+              type="text"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              placeholder="Ex: Alimentação - Agosto 2025"
+              className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 
+                         focus:outline-none focus:border-cyan-400 transition-colors ${
+                           errors.name ? 'border-red-500' : 'border-gray-600'
+                         }`}
+            />
+            {errors.name && (
+              <p className="text-red-400 text-sm mt-1">{errors.name}</p>
+            )}
+          </div>
+
+          {/* Budget Amount */}
+          <div>
+            <label htmlFor="amount" className="block text-sm font-medium text-gray-300 mb-2">
+              <DollarSign size={16} className="inline mr-1" />
+              Valor do Orçamento
+            </label>
+            <input
+              id="amount"
+              type="number"
+              step="0.01"
+              min="0"
+              value={formData.amount}
+              onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
+              placeholder="0,00"
+              className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 
+                         focus:outline-none focus:border-cyan-400 transition-colors ${
+                           errors.amount ? 'border-red-500' : 'border-gray-600'
+                         }`}
+            />
+            {errors.amount && (
+              <p className="text-red-400 text-sm mt-1">{errors.amount}</p>
+            )}
+          </div>
+
+          {/* Spent Amount (only show when editing) */}
+          {budget && (
+            <div>
+              <label htmlFor="spent" className="block text-sm font-medium text-gray-300 mb-2">
+                Valor Gasto
+              </label>
+              <input
+                id="spent"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.spent}
+                onChange={(e) => handleInputChange('spent', parseFloat(e.target.value) || 0)}
+                placeholder="0,00"
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 
+                           focus:outline-none focus:border-cyan-400 transition-colors"
+              />
+              
+              {/* Progress Indicator */}
+              <div className="mt-2">
+                <div className="flex justify-between text-sm text-gray-400 mb-1">
+                  <span>Progresso: {percentageUsed.toFixed(1)}%</span>
+                  <span>Restante: R$ {remainingAmount.toFixed(2)}</span>
+                </div>
+                <div className="w-full bg-gray-700 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all ${getProgressBarColor(percentageUsed)}`}
+                    style={{ width: `${Math.min(percentageUsed, 100)}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Category */}
+          <div>
+            <label htmlFor="category" className="block text-sm font-medium text-gray-300 mb-2">
+              <Tag size={16} className="inline mr-1" />
+              Categoria
+            </label>
+            <select
+              id="category"
+              value={formData.category}
+              onChange={(e) => handleInputChange('category', e.target.value)}
+              className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white 
+                         focus:outline-none focus:border-cyan-400 transition-colors ${
+                           errors.category ? 'border-red-500' : 'border-gray-600'
+                         }`}
+            >
+              <option value="">Selecione uma categoria</option>
+              {budgetCategories.map(category => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+            {errors.category && (
+              <p className="text-red-400 text-sm mt-1">{errors.category}</p>
+            )}
+          </div>
+
+          {/* Period */}
+          <div>
+            <fieldset>
+              <legend className="block text-sm font-medium text-gray-300 mb-2">
+                Período
+              </legend>
+              <div className="flex space-x-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="period"
+                    value="weekly"
+                    checked={formData.period === 'weekly'}
+                    onChange={(e) => handleInputChange('period', e.target.value as BudgetPeriod)}
+                    className="mr-2"
+                  />
+                  <span className="text-gray-300">Semanal</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="period"
+                    value="monthly"
+                    checked={formData.period === 'monthly'}
+                    onChange={(e) => handleInputChange('period', e.target.value as BudgetPeriod)}
+                    className="mr-2"
+                  />
+                  <span className="text-gray-300">Mensal</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="period"
+                    value="yearly"
+                    checked={formData.period === 'yearly'}
+                    onChange={(e) => handleInputChange('period', e.target.value as BudgetPeriod)}
+                    className="mr-2"
+                  />
+                  <span className="text-gray-300">Anual</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          {/* Date Range */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="startDate" className="block text-sm font-medium text-gray-300 mb-2">
+                <Calendar size={16} className="inline mr-1" />
+                Data de Início
+              </label>
+              <input
+                id="startDate"
+                type="date"
+                value={formData.startDate}
+                onChange={(e) => handleInputChange('startDate', e.target.value)}
+                className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white 
+                           focus:outline-none focus:border-cyan-400 transition-colors ${
+                             errors.startDate ? 'border-red-500' : 'border-gray-600'
+                           }`}
+              />
+              {errors.startDate && (
+                <p className="text-red-400 text-sm mt-1">{errors.startDate}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="endDate" className="block text-sm font-medium text-gray-300 mb-2">
+                Data de Fim
+              </label>
+              <input
+                id="endDate"
+                type="date"
+                value={formData.endDate}
+                onChange={(e) => handleInputChange('endDate', e.target.value)}
+                className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white 
+                           focus:outline-none focus:border-cyan-400 transition-colors ${
+                             errors.endDate ? 'border-red-500' : 'border-gray-600'
+                           }`}
+              />
+              {errors.endDate && (
+                <p className="text-red-400 text-sm mt-1">{errors.endDate}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Description */}
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2">
+              Descrição (Opcional)
+            </label>
+            <textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              placeholder="Detalhes sobre este orçamento..."
+              rows={3}
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 
+                         focus:outline-none focus:border-cyan-400 transition-colors resize-none"
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={handleClose}
+              className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg 
+                         transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg 
+                         transition-colors flex items-center justify-center"
+            >
+              <Save size={18} className="mr-2" />
+              {budget ? 'Salvar' : 'Criar'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

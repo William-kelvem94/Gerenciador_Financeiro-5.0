@@ -2,6 +2,8 @@ import express from 'express';
 import { z } from 'zod';
 import { prisma } from '../db/client';
 import { authenticateToken } from './auth';
+import { logger } from '../utils/logger';
+import { AuthenticatedRequest } from '../types/auth';
 
 const router = express.Router();
 
@@ -35,18 +37,27 @@ const updateTransactionSchema = z.object({
 });
 
 // Get all transactions
-router.get('/', async (req: any, res) => {
+router.get('/', async (req: AuthenticatedRequest, res) => {
   try {
     const { page = 1, limit = 10, type, accountId, categoryId } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
 
-    const where: any = {
-      userId: req.user.userId,
+    const where: {
+      userId: string;
+      categoryId?: string;
+      accountId?: string;
+      type?: string;
+      date?: {
+        gte?: Date;
+        lte?: Date;
+      };
+    } = {
+      userId: req.user?.id || '',
     };
 
-    if (type) where.type = type;
-    if (accountId) where.accountId = accountId;
-    if (categoryId) where.categoryId = categoryId;
+    if (type && typeof type === 'string') where.type = type;
+    if (accountId && typeof accountId === 'string') where.accountId = accountId;
+    if (categoryId && typeof categoryId === 'string') where.categoryId = categoryId;
 
     const [transactions, total] = await Promise.all([
       prisma.transaction.findMany({
@@ -87,7 +98,7 @@ router.get('/', async (req: any, res) => {
       },
     });
   } catch (error) {
-    console.error('Get transactions error:', error);
+    logger.error('Get transactions error:', error);
     res.status(500).json({
       error: 'Internal server error',
       details: 'Failed to retrieve transactions',
@@ -96,12 +107,12 @@ router.get('/', async (req: any, res) => {
 });
 
 // Get transaction by ID
-router.get('/:id', async (req: any, res) => {
+router.get('/:id', async (req: AuthenticatedRequest, res) => {
   try {
     const transaction = await prisma.transaction.findFirst({
       where: {
         id: req.params.id,
-        userId: req.user.userId,
+        userId: req.user?.id || '',
       },
       include: {
         account: true,
@@ -115,13 +126,13 @@ router.get('/:id', async (req: any, res) => {
 
     res.json(transaction);
   } catch (error) {
-    console.error('Get transaction error:', error);
+    logger.error('Get transaction error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
 // Create transaction with atomic balance update
-router.post('/', async (req: any, res) => {
+router.post('/', async (req: AuthenticatedRequest, res) => {
   try {
     const data = createTransactionSchema.parse(req.body);
 
@@ -131,7 +142,7 @@ router.post('/', async (req: any, res) => {
       const account = await tx.account.findFirst({
         where: {
           id: data.accountId,
-          userId: req.user.userId,
+          userId: req.user?.id || '',
         },
       });
 
@@ -156,7 +167,7 @@ router.post('/', async (req: any, res) => {
           type: data.type,
           categoryId: data.categoryId,
           accountId: data.accountId,
-          userId: req.user.userId as string,
+          userId: req.user.id,
           date: new Date(data.date),
         },
         include: {
@@ -206,7 +217,7 @@ router.post('/', async (req: any, res) => {
       });
     }
 
-    console.error('Create transaction error:', {
+    logger.error('Create transaction error:', {
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : null,
     });
@@ -234,7 +245,7 @@ router.post('/', async (req: any, res) => {
 });
 
 // Update transaction with atomic balance correction
-router.put('/:id', async (req: any, res) => {
+router.put('/:id', async (req: AuthenticatedRequest, res) => {
   try {
     const data = updateTransactionSchema.parse(req.body);
 
@@ -243,7 +254,7 @@ router.put('/:id', async (req: any, res) => {
       const existingTransaction = await tx.transaction.findFirst({
         where: {
           id: req.params.id,
-          userId: req.user.userId,
+          userId: req.user.id,
         },
       });
 
@@ -256,7 +267,7 @@ router.put('/:id', async (req: any, res) => {
         const newAccount = await tx.account.findFirst({
           where: {
             id: data.accountId,
-            userId: req.user.userId,
+            userId: req.user.id,
           },
         });
 
@@ -353,7 +364,7 @@ router.put('/:id', async (req: any, res) => {
       });
     }
 
-    console.error('Update transaction error:', error);
+    logger.error('Update transaction error:', error);
 
     if (error instanceof Error) {
       if (error.message.includes('Transaction not found')) {
@@ -384,13 +395,13 @@ router.put('/:id', async (req: any, res) => {
 });
 
 // Delete transaction with atomic balance correction
-router.delete('/:id', async (req: any, res) => {
+router.delete('/:id', async (req: AuthenticatedRequest, res) => {
   try {
     const result = await prisma.$transaction(async (tx) => {
       const transaction = await tx.transaction.findFirst({
         where: {
           id: req.params.id,
-          userId: req.user.userId,
+          userId: req.user.id,
         },
       });
 
@@ -427,7 +438,7 @@ router.delete('/:id', async (req: any, res) => {
       },
     });
   } catch (error) {
-    console.error('Delete transaction error:', error);
+    logger.error('Delete transaction error:', error);
 
     if (error instanceof Error && error.message.includes('Transaction not found')) {
       return res.status(404).json({

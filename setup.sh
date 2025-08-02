@@ -111,7 +111,7 @@ setup_environment_files() {
 NODE_ENV=development
 
 # Database
-DATABASE_URL=postgresql://will_finance:cyberpunk2077@localhost:5432/will_finance_db
+DATABASE_URL=postgresql://will_finance:${POSTGRES_PASSWORD:-your-password}@localhost:5432/will_finance_db
 
 # JWT Secrets
 JWT_SECRET=your-super-secret-jwt-key-change-in-production-2024-cyberpunk

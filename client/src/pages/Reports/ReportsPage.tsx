@@ -118,6 +118,10 @@ export const ReportsPage: React.FC = () => {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      alert('Função de exportação será implementada em breve!');
+                      console.log('Exportar dados do período:', selectedPeriod);
+                    }}
                     className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-500 text-gray-900 rounded-xl font-semibold hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 shadow-lg shadow-cyan-500/25"
                   >
                     <Download className="w-5 h-5" />

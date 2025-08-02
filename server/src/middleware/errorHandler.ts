@@ -1,6 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 
-export const errorHandler = (error: any, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (
+  error: Error & { statusCode?: number },
+  req: Request,
+  res: Response,
+  _next: NextFunction
+) => {
+  // eslint-disable-next-line no-console
   console.error('Error:', error);
 
   const statusCode = error.statusCode || 500;

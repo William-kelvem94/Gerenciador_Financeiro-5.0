@@ -10,7 +10,8 @@ import {
   TrendingUp, 
   Settings, 
   LogOut,
-  User
+  User,
+  ArrowUpDown
 } from 'lucide-react';
 
 const navigation = [
@@ -18,6 +19,7 @@ const navigation = [
   { name: 'Transações', href: '/transactions', icon: CreditCard },
   { name: 'Orçamentos', href: '/budgets', icon: PiggyBank },
   { name: 'Relatórios', href: '/reports', icon: TrendingUp },
+  { name: 'Import/Export', href: '/import-export', icon: ArrowUpDown },
   { name: 'Configurações', href: '/settings', icon: Settings },
 ];
 

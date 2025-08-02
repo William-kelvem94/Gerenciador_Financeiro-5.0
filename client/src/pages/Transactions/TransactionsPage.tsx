@@ -12,6 +12,7 @@ import {
   ArrowDownCircle,
   RefreshCw
 } from 'lucide-react';
+import { TransactionModal, TransactionData } from '../../components/Modal/TransactionModal';
 
 interface Transaction {
   id: string;
@@ -26,8 +27,43 @@ interface Transaction {
 export function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   
-  const [transactions] = useState<Transaction[]>([
+  // Handler para abrir modal de nova transação
+  const handleNewTransaction = () => {
+    setEditingTransaction(null);
+    setIsModalOpen(true);
+  };
+
+  // Handler para editar transação
+  const handleEditTransaction = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+    setIsModalOpen(true);
+  };
+
+  // Handler para salvar transação
+  const handleSaveTransaction = (transactionData: TransactionData) => {
+    if (editingTransaction) {
+      // Atualizar transação existente
+      setTransactions(prev => prev.map(t => 
+        t.id === editingTransaction.id 
+          ? { ...transactionData, id: editingTransaction.id } as Transaction
+          : t
+      ));
+    } else {
+      // Criar nova transação
+      const newTransaction: Transaction = {
+        ...transactionData,
+        id: Date.now().toString(),
+        status: 'completed'
+      } as Transaction;
+      setTransactions(prev => [newTransaction, ...prev]);
+    }
+    setIsModalOpen(false);
+  };
+  
+  const [transactions, setTransactions] = useState<Transaction[]>([
     {
       id: '1',
       description: 'Salário - Empresa XYZ',
@@ -110,6 +146,7 @@ export function TransactionsPage() {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={handleNewTransaction}
           className="btn-primary mt-4 lg:mt-0 self-start lg:self-auto"
         >
           <Plus className="w-5 h-5 mr-2" />
@@ -253,7 +290,8 @@ export function TransactionsPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
-              className="p-6 hover:bg-background-secondary/30 transition-colors duration-200 group"
+              className="p-6 hover:bg-background-secondary/30 transition-colors duration-200 group cursor-pointer"
+              onClick={() => handleEditTransaction(transaction)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -308,6 +346,14 @@ export function TransactionsPage() {
           ))}
         </div>
       </motion.div>
+
+      {/* Transaction Modal */}
+      <TransactionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveTransaction}
+        transaction={editingTransaction}
+      />
     </div>
   );
 }

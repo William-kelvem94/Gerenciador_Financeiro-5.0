@@ -13,6 +13,7 @@ import {
   Car,
   Coffee
 } from 'lucide-react';
+import { BudgetModal, BudgetData } from '../../components/Modal/BudgetModal';
 
 interface Budget {
   id: string;
@@ -26,7 +27,61 @@ interface Budget {
 }
 
 export function BudgetsPage() {
-  const [budgets] = useState<Budget[]>([
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingBudget, setEditingBudget] = useState<BudgetData | null>(null);
+  
+  const handleNewBudget = () => {
+    setEditingBudget(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditBudget = (budget: Budget) => {
+    setEditingBudget({
+      id: budget.id,
+      name: budget.name,
+      amount: budget.allocated,
+      spent: budget.spent,
+      category: budget.category,
+      period: 'monthly',
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSaveBudget = (budgetData: BudgetData) => {
+    if (editingBudget) {
+      // Atualizar orçamento existente
+      setBudgets(prev => prev.map(b => 
+        b.id === editingBudget.id 
+          ? { 
+              ...b, 
+              name: budgetData.name,
+              allocated: budgetData.amount,
+              spent: budgetData.spent,
+              category: budgetData.category
+            }
+          : b
+      ));
+    } else {
+      // Criar novo orçamento
+      const newBudget: Budget = {
+        id: Date.now().toString(),
+        name: budgetData.name,
+        category: budgetData.category,
+        allocated: budgetData.amount,
+        spent: budgetData.spent,
+        icon: ShoppingCart, // Default icon
+        color: 'cyber-primary',
+        status: budgetData.spent > budgetData.amount * 0.9 ? 'danger' : 
+                budgetData.spent > budgetData.amount * 0.7 ? 'warning' : 'healthy'
+      };
+      setBudgets(prev => [...prev, newBudget]);
+    }
+    setIsModalOpen(false);
+  };
+
+  const [budgets, setBudgets] = useState<Budget[]>([
     {
       id: '1',
       name: 'Alimentação',
@@ -127,6 +182,7 @@ export function BudgetsPage() {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={handleNewBudget}
           className="btn-primary mt-4 lg:mt-0 self-start lg:self-auto"
         >
           <Plus className="w-5 h-5 mr-2" />
@@ -265,7 +321,8 @@ export function BudgetsPage() {
               initial="hidden"
               animate="visible"
               transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
-              className="glass p-6 rounded-xl border border-cyber-primary/20 hover:border-cyber-primary/40 transition-all duration-300 group"
+              className="glass p-6 rounded-xl border border-cyber-primary/20 hover:border-cyber-primary/40 transition-all duration-300 group cursor-pointer"
+              onClick={() => handleEditBudget(budget)}
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
@@ -330,6 +387,13 @@ export function BudgetsPage() {
           );
         })}
       </div>
+      {/* Budget Modal */}
+      <BudgetModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveBudget}
+        budget={editingBudget}
+      />
     </div>
   );
 }

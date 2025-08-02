@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
   try {
     // Testar conexão com o banco de dados
-    const connectionTest = await prisma.$queryRaw`SELECT 1 as result`;
+    await prisma.$queryRaw`SELECT 1 as result`;
     console.log('✅ Conexão com o banco de dados estabelecida com sucesso!');
     
     // Listar todos os modelos e contagem

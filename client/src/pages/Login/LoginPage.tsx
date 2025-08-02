@@ -92,7 +92,7 @@ export function LoginPage() {
       setEmail('admin@willfinance.com');
       setPassword('admin123');
       setIsRegisterMode(false);
-      toast.info('Tentando fazer login com credenciais admin...');
+      toast.success('Tentando fazer login com credenciais admin...');
     } finally {
       setLoading(false);
     }
