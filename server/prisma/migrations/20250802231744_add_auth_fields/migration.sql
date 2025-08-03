@@ -1,0 +1,44 @@
+-- RedefineTables
+PRAGMA defer_foreign_keys=ON;
+PRAGMA foreign_keys=OFF;
+CREATE TABLE "new_users" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "email" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "avatar" TEXT,
+    "phone" TEXT,
+    "role" TEXT NOT NULL DEFAULT 'USER',
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "emailVerified" BOOLEAN NOT NULL DEFAULT false,
+    "emailVerifiedAt" DATETIME,
+    "emailVerificationToken" TEXT,
+    "passwordResetToken" TEXT,
+    "passwordResetExpires" DATETIME,
+    "lastLoginAt" DATETIME,
+    "googleId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "budgetAlerts" BOOLEAN NOT NULL DEFAULT true,
+    "currency" TEXT NOT NULL DEFAULT 'BRL',
+    "dateFormat" TEXT NOT NULL DEFAULT 'DD/MM/YYYY',
+    "emailNotifications" BOOLEAN NOT NULL DEFAULT true,
+    "goalReminders" BOOLEAN NOT NULL DEFAULT true,
+    "isEmailPublic" BOOLEAN NOT NULL DEFAULT false,
+    "isProfilePublic" BOOLEAN NOT NULL DEFAULT false,
+    "language" TEXT NOT NULL DEFAULT 'pt-BR',
+    "monthlyBudget" REAL,
+    "pushNotifications" BOOLEAN NOT NULL DEFAULT true,
+    "savingsGoal" REAL,
+    "theme" TEXT NOT NULL DEFAULT 'dark',
+    "timezone" TEXT NOT NULL DEFAULT 'America/Sao_Paulo',
+    "twoFactorEnabled" BOOLEAN NOT NULL DEFAULT false,
+    "twoFactorSecret" TEXT
+);
+INSERT INTO "new_users" ("avatar", "budgetAlerts", "createdAt", "currency", "dateFormat", "email", "emailNotifications", "emailVerified", "emailVerifiedAt", "goalReminders", "id", "isEmailPublic", "isProfilePublic", "language", "lastLoginAt", "monthlyBudget", "name", "password", "pushNotifications", "savingsGoal", "theme", "timezone", "twoFactorEnabled", "twoFactorSecret", "updatedAt") SELECT "avatar", "budgetAlerts", "createdAt", "currency", "dateFormat", "email", "emailNotifications", "emailVerified", "emailVerifiedAt", "goalReminders", "id", "isEmailPublic", "isProfilePublic", "language", "lastLoginAt", "monthlyBudget", "name", "password", "pushNotifications", "savingsGoal", "theme", "timezone", "twoFactorEnabled", "twoFactorSecret", "updatedAt" FROM "users";
+DROP TABLE "users";
+ALTER TABLE "new_users" RENAME TO "users";
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+CREATE UNIQUE INDEX "users_googleId_key" ON "users"("googleId");
+PRAGMA foreign_keys=ON;
+PRAGMA defer_foreign_keys=OFF;
