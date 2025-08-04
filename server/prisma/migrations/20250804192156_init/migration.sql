@@ -5,19 +5,26 @@ CREATE TABLE "users" (
     "name" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "avatar" TEXT,
+    "phone" TEXT,
+    "role" TEXT NOT NULL DEFAULT 'USER',
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "emailVerified" BOOLEAN NOT NULL DEFAULT false,
+    "emailVerifiedAt" DATETIME,
+    "emailVerificationToken" TEXT,
+    "passwordResetToken" TEXT,
+    "passwordResetExpires" DATETIME,
+    "lastLoginAt" DATETIME,
+    "googleId" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "budgetAlerts" BOOLEAN NOT NULL DEFAULT true,
     "currency" TEXT NOT NULL DEFAULT 'BRL',
     "dateFormat" TEXT NOT NULL DEFAULT 'DD/MM/YYYY',
     "emailNotifications" BOOLEAN NOT NULL DEFAULT true,
-    "emailVerified" BOOLEAN NOT NULL DEFAULT false,
-    "emailVerifiedAt" DATETIME,
     "goalReminders" BOOLEAN NOT NULL DEFAULT true,
     "isEmailPublic" BOOLEAN NOT NULL DEFAULT false,
     "isProfilePublic" BOOLEAN NOT NULL DEFAULT false,
     "language" TEXT NOT NULL DEFAULT 'pt-BR',
-    "lastLoginAt" DATETIME,
     "monthlyBudget" REAL,
     "pushNotifications" BOOLEAN NOT NULL DEFAULT true,
     "savingsGoal" REAL,
@@ -161,6 +168,9 @@ CREATE TABLE "ai_insights" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_googleId_key" ON "users"("googleId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "categories_name_userId_key" ON "categories"("name", "userId");

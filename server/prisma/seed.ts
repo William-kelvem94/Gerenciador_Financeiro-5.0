@@ -45,16 +45,12 @@ async function main() {
   console.log('✅ Categories created');
 
   // Create demo user
-  const hashedPassword = await bcrypt.hash('demo123', 12);
-  
-  const demoUser = await prisma.user.upsert({
-    where: { email: 'demo@willfinance.com' },
-    update: {},
-    create: {
-      email: 'demo@willfinance.com',
+  console.log('ℹ️ Creating demo user for development');
+  const demoUser = await prisma.user.create({
+    data: {
       name: 'Demo User',
-      password: hashedPassword,
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      email: 'demo@willfinance.com',
+      password: await bcrypt.hash('demo123', 10),
     },
   });
 

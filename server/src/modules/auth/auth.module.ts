@@ -34,7 +34,7 @@ export class AuthModule {
     this.tokenService = new TokenService();
     this.userService = new UserService();
     this.authService = new AuthService(this.userService, this.tokenService);
-    this.googleStrategy = new GoogleStrategy(this.authService);
+    this.googleStrategy = new GoogleStrategy(this.authService, this.userService, this.tokenService);
   }
 
   private initializeControllers(): void {
