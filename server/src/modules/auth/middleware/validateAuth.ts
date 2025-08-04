@@ -4,7 +4,6 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { AppError } from '../../../shared/errors/AppError';
 import { HTTP_STATUS } from '../../../shared/constants/httpStatus';
 import { logger } from '../../../utils/logger';
 

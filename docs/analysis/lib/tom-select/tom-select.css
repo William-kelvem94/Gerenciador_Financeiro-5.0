@@ -157,8 +157,7 @@
   color: #303030;
   font-family: inherit;
   font-size: 13px;
-  line-height: 18px;
-  font-smoothing: inherit; }
+  line-height: 18px; }
 
 .ts-control,
 .ts-wrapper.single.input-active .ts-control {
@@ -316,7 +315,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   max-height: 200px;
-  overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth; }
 
 .ts-hidden-accessible {

@@ -273,13 +273,14 @@ export const authenticateToken = (req: AuthenticatedRequest, res: express.Respon
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as JwtUserPayload;
     
-    // Ensure user has id, email, and name
+    // Ensure user has id, email, name, and role
     req.user = {
       id: String(decoded.userId ?? decoded.id),
       email: decoded.email,
       name: typeof decoded.name === 'string'
         ? decoded.name
         : decoded.email.split('@')[0],
+      role: typeof decoded.role === 'string' ? decoded.role : 'user',
     };
     next();
   } catch (err) {

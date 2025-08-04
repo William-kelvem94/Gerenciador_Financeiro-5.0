@@ -26,10 +26,15 @@ import { generateRandomToken } from '../../../utils/crypto';
 
 export class AuthService {
   constructor(
-    public readonly userService: UserService,
-    public readonly tokenService: TokenService,
+    private readonly userService: UserService,
+    private readonly tokenService: TokenService,
     private readonly emailService: EmailService = new EmailService()
-  ) {}
+  ) {
+    // Ensure services are properly initialized
+    this.userService = userService;
+    this.tokenService = tokenService;
+    this.emailService = emailService;
+  }
 
   /**
    * 📝 Registrar novo usuário

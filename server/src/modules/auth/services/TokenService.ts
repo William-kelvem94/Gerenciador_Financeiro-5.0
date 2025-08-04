@@ -20,6 +20,11 @@ interface JwtPayload {
   exp: number;
 }
 
+interface DecodedToken {
+  exp?: number;
+  [key: string]: string | number | boolean | undefined;
+}
+
 export class TokenService {
   private readonly accessTokenSecret: string;
   private readonly refreshTokenSecret: string;
@@ -45,17 +50,17 @@ export class TokenService {
 
       // Gerar access token
       const accessToken = jwt.sign(payload, this.accessTokenSecret, {
-        expiresIn: this.accessTokenExpiry,
+        expiresIn: this.accessTokenExpiry as string,
         issuer: 'will-finance',
         audience: 'will-finance-app'
-      });
+      } as jwt.SignOptions);
 
       // Gerar refresh token
       const refreshToken = jwt.sign(payload, this.refreshTokenSecret, {
-        expiresIn: this.refreshTokenExpiry,
+        expiresIn: this.refreshTokenExpiry as string,
         issuer: 'will-finance',
         audience: 'will-finance-app'
-      });
+      } as jwt.SignOptions);
 
       // Calcular tempo de expiração
       const decoded = jwt.decode(accessToken) as { exp: number };
@@ -219,11 +224,11 @@ export class TokenService {
   }
 
   /**
-   * ⏰ Verificar se token está próximo do vencimento
+   * ⏰ Verificar se o token está próximo do vencimento
    */
   isTokenExpiringSoon(token: string, thresholdMinutes: number = 5): boolean {
     try {
-      const decoded = this.decodeToken(token) as any;
+      const decoded = this.decodeToken(token) as DecodedToken;
       if (!decoded || !decoded.exp) {
         return true;
       }

@@ -2,21 +2,75 @@
  * 🔗 Estratégia Google OAuth - Will Finance 5.0
  */
 
+import fetch from 'node-fetch';
+import { randomBytes } from 'crypto';
+import { URLSearchParams } from 'url';
 import { AuthService } from '../services/AuthService';
+import { UserService } from '../services/UserService';
+import { TokenService } from '../services/TokenService';
 import { GoogleUserDto, AuthResponseDto } from '../dtos';
 import { AppError } from '../../../shared/errors/AppError';
 import { HTTP_STATUS } from '../../../shared/constants/httpStatus';
 import { logger } from '../../../utils/logger';
+
+interface GoogleOAuthErrorResponse {
+  error?: string;
+  error_description?: string;
+}
+
+interface GoogleTokenResponse {
+  access_token: string;
+  expires_in: number;
+  refresh_token?: string;
+  scope: string;
+  token_type: string;
+  id_token?: string;
+}
+
+interface GoogleUserInfo {
+  id: string;
+  email: string;
+  name?: string;
+  picture?: string;
+  verified_email?: boolean;
+  error?: {
+    message?: string;
+  };
+}
 
 export class GoogleStrategy {
   private readonly clientId: string;
   private readonly clientSecret: string;
   private readonly redirectUri: string;
 
-  constructor(private readonly authService: AuthService) {
-    this.clientId = process.env.GOOGLE_CLIENT_ID || '';
-    this.clientSecret = process.env.GOOGLE_CLIENT_SECRET || '';
+  constructor(
+    private readonly _authService: AuthService,
+    private readonly _userService: UserService,
+    private readonly _tokenService: TokenService
+  ) {
+    // Validar variáveis de ambiente obrigatórias
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+      throw new AppError('Configuração do Google OAuth incompleta', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }
+
+    this.clientId = process.env.GOOGLE_CLIENT_ID;
+    this.clientSecret = process.env.GOOGLE_CLIENT_SECRET;
     this.redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:8080/api/auth/google/callback';
+  }
+
+  /**
+   * 🔍 Getters para acessar os serviços
+   */
+  private get authService(): AuthService {
+    return this._authService;
+  }
+
+  private get userService(): UserService {
+    return this._userService;
+  }
+
+  private get tokenService(): TokenService {
+    return this._tokenService;
   }
 
   /**
@@ -44,6 +98,10 @@ export class GoogleStrategy {
    * 📞 Processar callback do Google
    */
   async handleCallback(code: string): Promise<AuthResponseDto> {
+    if (!code) {
+      throw new AppError('Código de autorização não fornecido', HTTP_STATUS.BAD_REQUEST);
+    }
+
     try {
       // 1. Trocar código por tokens
       const tokens = await this.exchangeCodeForTokens(code);
@@ -55,7 +113,14 @@ export class GoogleStrategy {
       return await this.processAuthentication(googleUser);
       
     } catch (error) {
+      if (error instanceof AppError) throw error;
+      
       logger.error('Erro no callback do Google:', error);
+      
+      if (error instanceof Error && error.message.includes('invalid_grant')) {
+        throw new AppError('Código de autorização inválido ou expirado', HTTP_STATUS.UNAUTHORIZED);
+      }
+      
       throw new AppError('Falha na autenticação Google', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
   }
@@ -63,7 +128,7 @@ export class GoogleStrategy {
   /**
    * 🔄 Trocar código por tokens
    */
-  private async exchangeCodeForTokens(code: string): Promise<any> {
+  private async exchangeCodeForTokens(code: string): Promise<GoogleTokenResponse> {
     try {
       const response = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
@@ -76,19 +141,27 @@ export class GoogleStrategy {
           code,
           grant_type: 'authorization_code',
           redirect_uri: this.redirectUri,
-        }),
+        }).toString()
       });
 
-      const tokens = await response.json();
+      const tokens = await response.json() as GoogleTokenResponse & GoogleOAuthErrorResponse;
 
       if (!response.ok) {
-        throw new Error(tokens.error_description || 'Erro ao obter tokens');
+        const errorMessage = tokens.error_description || tokens.error || 'Erro ao obter tokens do Google';
+        
+        if (errorMessage.includes('invalid_grant')) {
+          throw new AppError('Código de autorização inválido ou expirado', HTTP_STATUS.UNAUTHORIZED);
+        }
+        
+        throw new AppError(errorMessage, HTTP_STATUS.BAD_REQUEST);
       }
 
       return tokens;
     } catch (error) {
+      if (error instanceof AppError) throw error;
+      
       logger.error('Erro ao trocar código por tokens:', error);
-      throw error;
+      throw new AppError('Falha na comunicação com Google OAuth', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -96,6 +169,10 @@ export class GoogleStrategy {
    * 👤 Obter dados do usuário do Google
    */
   private async getUserData(accessToken: string): Promise<GoogleUserDto> {
+    if (!accessToken) {
+      throw new AppError('Token de acesso não fornecido', HTTP_STATUS.BAD_REQUEST);
+    }
+
     try {
       const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
         headers: {
@@ -103,22 +180,32 @@ export class GoogleStrategy {
         },
       });
 
-      const userData = await response.json();
+      const userData = await response.json() as GoogleUserInfo;
 
       if (!response.ok) {
-        throw new Error(userData.error?.message || 'Erro ao obter dados do usuário');
+        throw new AppError(
+          userData.error?.message || 'Erro ao obter dados do usuário Google',
+          HTTP_STATUS.BAD_REQUEST
+        );
+      }
+
+      // Validar dados essenciais
+      if (!userData.email || !userData.id) {
+        throw new AppError('Dados incompletos do usuário Google', HTTP_STATUS.BAD_REQUEST);
       }
 
       return {
         id: userData.id,
         email: userData.email,
-        name: userData.name,
-        picture: userData.picture,
-        verified_email: userData.verified_email
+        name: userData.name || '',
+        picture: userData.picture || '',
+        verified_email: userData.verified_email || false
       };
     } catch (error) {
+      if (error instanceof AppError) throw error;
+      
       logger.error('Erro ao obter dados do usuário:', error);
-      throw error;
+      throw new AppError('Falha na comunicação com Google API', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -128,43 +215,43 @@ export class GoogleStrategy {
   private async processAuthentication(googleUser: GoogleUserDto): Promise<AuthResponseDto> {
     try {
       // Verificar se usuário já existe pelo Google ID
-      let user = await this.authService.userService.findByGoogleId(googleUser.id);
+      let user = await this.userService.findByGoogleId(googleUser.id);
       
       if (user) {
         // Usuário já existe - fazer login
         logger.info(`Login Google para usuário existente: ${googleUser.email}`);
         
         // Atualizar último login
-        await this.authService.userService.updateLastLogin(user.id);
+        await this.userService.updateLastLogin(user.id);
         
         // Gerar tokens
-        const tokens = await this.authService.tokenService.generateTokens(user.id, user.email);
+        const tokens = await this.tokenService.generateTokens(user.id, user.email);
         
         return {
-          user: this.authService.userService.sanitizeUser(user),
+          user: this.userService.sanitizeUser(user),
           tokens
         };
       }
       
       // Verificar se existe usuário com o mesmo email
-      user = await this.authService.userService.findByEmail(googleUser.email);
+      user = await this.userService.findByEmail(googleUser.email);
       
       if (user) {
         // Vincular conta Google ao usuário existente
         logger.info(`Vinculando conta Google ao usuário: ${googleUser.email}`);
         
         await this.linkGoogleAccount(user.id, googleUser);
-        user = await this.authService.userService.findById(user.id);
+        user = await this.userService.findById(user.id);
         
         if (!user) {
           throw new AppError('Erro ao vincular conta', HTTP_STATUS.INTERNAL_SERVER_ERROR);
         }
         
         // Gerar tokens
-        const tokens = await this.authService.tokenService.generateTokens(user.id, user.email);
+        const tokens = await this.tokenService.generateTokens(user.id, user.email);
         
         return {
-          user: this.authService.userService.sanitizeUser(user),
+          user: this.userService.sanitizeUser(user),
           tokens
         };
       }
@@ -172,7 +259,7 @@ export class GoogleStrategy {
       // Criar novo usuário
       logger.info(`Criando novo usuário via Google: ${googleUser.email}`);
       
-      user = await this.authService.userService.create({
+      user = await this.userService.create({
         name: googleUser.name,
         email: googleUser.email,
         password: this.generateRandomPassword(), // Senha aleatória (não será usada)
@@ -182,8 +269,8 @@ export class GoogleStrategy {
       
       // Marcar email como verificado se o Google confirma
       if (googleUser.verified_email) {
-        await this.authService.userService.verifyEmail(user.id);
-        user = await this.authService.userService.findById(user.id);
+        await this.userService.verifyEmail(user.id);
+        user = await this.userService.findById(user.id);
       }
       
       if (!user) {
@@ -191,16 +278,18 @@ export class GoogleStrategy {
       }
       
       // Gerar tokens
-      const tokens = await this.authService.tokenService.generateTokens(user.id, user.email);
+      const tokens = await this.tokenService.generateTokens(user.id, user.email);
       
       return {
-        user: this.authService.userService.sanitizeUser(user),
+        user: this.userService.sanitizeUser(user),
         tokens
       };
       
     } catch (error) {
+      if (error instanceof AppError) throw error;
+      
       logger.error('Erro ao processar autenticação:', error);
-      throw error;
+      throw new AppError('Falha na autenticação Google', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -208,21 +297,26 @@ export class GoogleStrategy {
    * 🔗 Vincular conta Google a usuário existente
    */
   private async linkGoogleAccount(userId: string, googleUser: GoogleUserDto): Promise<void> {
-    await this.authService.userService.updateProfile(userId, {
-      avatar: googleUser.picture
-    });
-    
-    // Aqui você salvaria o Google ID no banco
-    // Como não temos um método específico, vamos simular
-    logger.info(`Conta Google vinculada para usuário: ${userId}`);
+    try {
+      // Atualizar dados do usuário com informações do Google
+      await this.userService.updateProfile(userId, {
+        avatar: googleUser.picture
+      });
+      
+      // Atualizar último login já que estamos vinculando a conta
+      await this.userService.updateLastLogin(userId);
+      
+      logger.info(`Conta Google vinculada para usuário: ${userId}`);
+    } catch (error) {
+      logger.error('Erro ao vincular conta Google:', error);
+      throw new AppError('Erro ao vincular conta Google', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }
   }
 
   /**
    * 🎲 Gerar senha aleatória para usuários Google
    */
   private generateRandomPassword(): string {
-    return Math.random().toString(36).slice(-12) + 
-           Math.random().toString(36).slice(-12) + 
-           '!@#';
+    return randomBytes(16).toString('hex') + '!@#';
   }
 }

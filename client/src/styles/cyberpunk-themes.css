@@ -45,7 +45,7 @@
 body {
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
   transition: all 0.3s ease;
 }
 
@@ -337,7 +337,7 @@ body {
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .cyberpunk-btn {
     padding: 10px 20px;
     font-size: 14px;

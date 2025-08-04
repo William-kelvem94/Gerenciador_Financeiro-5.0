@@ -67,7 +67,7 @@ export class EmailService {
   /**
    * 👋 Enviar email de boas-vindas
    */
-  async sendWelcomeEmail(email: string, name: string): Promise<void> {
+  async sendWelcomeEmail(email: string, _name: string): Promise<void> {
     try {
       logger.info(`👋 Email de boas-vindas enviado para ${email}`);
       
@@ -88,7 +88,7 @@ export class EmailService {
   /**
    * 💰 Enviar notificação de orçamento
    */
-  async sendBudgetAlert(email: string, name: string, budgetName: string, percentage: number): Promise<void> {
+  async sendBudgetAlert(email: string, _name: string, _budgetName: string, _percentage: number): Promise<void> {
     try {
       logger.info(`💰 Alerta de orçamento enviado para ${email}`);
       
@@ -109,16 +109,16 @@ export class EmailService {
   /**
    * 🎯 Enviar notificação de meta atingida
    */
-  async sendGoalAchievedEmail(email: string, name: string, goalName: string): Promise<void> {
+  async sendGoalAchievedEmail(email: string, _name: string, _goalName: string): Promise<void> {
     try {
       logger.info(`🎯 Notificação de meta atingida enviada para ${email}`);
       
       // Aqui você implementaria a lógica real de envio
       // await emailProvider.send({
       //   to: email,
-      //   subject: `Parabéns! Meta "${goalName}" atingida!`,
+      //   subject: `Parabéns! Meta "${_goalName}" atingida!`,
       //   template: 'goal-achieved',
-      //   data: { name, goalName }
+      //   data: { name, goalName: _goalName }
       // });
       
     } catch (error) {

@@ -25,9 +25,9 @@ import { HTTP_STATUS } from '../../../shared/constants/httpStatus';
 
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UserService,
-    private readonly googleStrategy: GoogleStrategy
+    private readonly _authService: AuthService,
+    private readonly _userService: UserService,
+    private readonly _googleStrategy: GoogleStrategy
   ) {}
 
   /**
@@ -39,7 +39,7 @@ export class AuthController {
       
       logger.info(`Tentativa de registro para email: ${registerDto.email}`);
 
-      const result = await this.authService.register(registerDto);
+      const result = await this._authService.register(registerDto);
 
       logger.info(`Usuário registrado com sucesso: ${registerDto.email}`);
 
@@ -66,7 +66,7 @@ export class AuthController {
       
       logger.info(`Tentativa de login para email: ${loginDto.email}`);
 
-      const result = await this.authService.login(loginDto);
+      const result = await this._authService.login(loginDto);
 
       logger.info(`Login realizado com sucesso: ${loginDto.email}`);
 
@@ -91,7 +91,7 @@ export class AuthController {
     try {
       const refreshTokenDto: RefreshTokenDto = req.body;
       
-      const result = await this.authService.refreshToken(refreshTokenDto.refreshToken);
+      const result = await this._authService.refreshToken(refreshTokenDto.refreshToken);
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
@@ -117,7 +117,7 @@ export class AuthController {
         throw new AppError('Usuário não autenticado', HTTP_STATUS.UNAUTHORIZED);
       }
 
-      await this.authService.logout(userId);
+      await this._authService.logout(userId);
 
       logger.info(`Logout realizado para usuário: ${userId}`);
 
@@ -136,7 +136,7 @@ export class AuthController {
    */
   async googleAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const authUrl = await this.googleStrategy.getAuthUrl();
+      const authUrl = await this._googleStrategy.getAuthUrl();
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
@@ -162,7 +162,7 @@ export class AuthController {
         throw new AppError('Código de autorização inválido', HTTP_STATUS.BAD_REQUEST);
       }
 
-      const result = await this.googleStrategy.handleCallback(code);
+      const result = await this._googleStrategy.handleCallback(code);
 
       logger.info(`Login Google realizado: ${result.user.email}`);
 
@@ -191,7 +191,7 @@ export class AuthController {
         throw new AppError('Usuário não autenticado', HTTP_STATUS.UNAUTHORIZED);
       }
 
-      const user = await this.userService.findById(userId);
+      const user = await this._userService.findById(userId);
 
       if (!user) {
         throw new AppError('Usuário não encontrado', HTTP_STATUS.NOT_FOUND);
@@ -222,7 +222,7 @@ export class AuthController {
         throw new AppError('Usuário não autenticado', HTTP_STATUS.UNAUTHORIZED);
       }
 
-      const updatedUser = await this.userService.updateProfile(userId, updateProfileDto);
+      const updatedUser = await this._userService.updateProfile(userId, updateProfileDto);
 
       logger.info(`Perfil atualizado para usuário: ${userId}`);
 
@@ -251,7 +251,7 @@ export class AuthController {
         throw new AppError('Usuário não autenticado', HTTP_STATUS.UNAUTHORIZED);
       }
 
-      await this.authService.changePassword(userId, changePasswordDto);
+      await this._authService.changePassword(userId, changePasswordDto);
 
       logger.info(`Senha alterada para usuário: ${userId}`);
 
@@ -272,7 +272,7 @@ export class AuthController {
     try {
       const forgotPasswordDto: ForgotPasswordDto = req.body;
 
-      await this.authService.forgotPassword(forgotPasswordDto);
+      await this._authService.forgotPassword(forgotPasswordDto);
 
       logger.info(`Recuperação de senha solicitada para: ${forgotPasswordDto.email}`);
 
@@ -293,7 +293,7 @@ export class AuthController {
     try {
       const resetPasswordDto: ResetPasswordDto = req.body;
 
-      await this.authService.resetPassword(resetPasswordDto);
+      await this._authService.resetPassword(resetPasswordDto);
 
       logger.info('Senha redefinida com sucesso');
 
@@ -314,7 +314,7 @@ export class AuthController {
     try {
       const verifyEmailDto: VerifyEmailDto = req.body;
 
-      await this.authService.verifyEmail(verifyEmailDto);
+      await this._authService.verifyEmail(verifyEmailDto);
 
       logger.info('Email verificado com sucesso');
 
@@ -335,7 +335,7 @@ export class AuthController {
     try {
       const resendVerificationDto: ResendVerificationDto = req.body;
 
-      await this.authService.resendVerification(resendVerificationDto);
+      await this._authService.resendVerification(resendVerificationDto);
 
       logger.info(`Verificação reenviada para: ${resendVerificationDto.email}`);
 

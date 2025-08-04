@@ -14,11 +14,11 @@ import rateLimit from 'express-rate-limit';
 import { AuthModule } from './modules/auth/auth.module';
 import { authenticateToken, requireRole } from './shared/middleware/authenticateToken';
 
-// Importar outros módulos (a serem criados)
-import { TransactionModule } from './modules/transactions/transaction.module';
-import { BudgetModule } from './modules/budgets/budget.module';
-import { CategoryModule } from './modules/categories/category.module';
-import { ReportModule } from './modules/reports/report.module';
+// Importar outros módulos (a serem criados - comentados até implementação)
+// import { TransactionModule } from './modules/transactions/transaction.module';
+// import { BudgetModule } from './modules/budgets/budget.module';
+// import { CategoryModule } from './modules/categories/category.module';
+// import { ReportModule } from './modules/reports/report.module';
 
 // Middleware e utilitários
 import { errorHandler } from './middleware/errorHandler';
@@ -37,11 +37,21 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", process.env.NODE_ENV === 'development' ? "'unsafe-inline'" : "'self'"],
       scriptSrc: ["'self'"],
       imgSrc: ["'self'", 'data:', 'https:'],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
     },
   },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
 }));
 
 // Compressão de respostas
@@ -50,7 +60,7 @@ app.use(compression());
 // Rate limiting geral
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 1000, // máximo 1000 requests por IP por janela
+  max: process.env.NODE_ENV === 'production' ? 500 : 1000, // reduzido para produção
   message: { 
     error: 'Muitas requisições deste IP, tente novamente em 15 minutos.',
     code: 'RATE_LIMIT_EXCEEDED'
@@ -58,33 +68,90 @@ const generalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+// Rate limiting para rotas sensíveis (auth)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: process.env.NODE_ENV === 'production' ? 20 : 100, // muito mais restritivo
+  message: { 
+    error: 'Muitas tentativas de autenticação, tente novamente em 15 minutos.',
+    code: 'AUTH_RATE_LIMIT_EXCEEDED'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 app.use(generalLimiter);
 
-// CORS
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+// CORS com configuração melhorada
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.CLIENT_URL!, 'https://willfinance.app'] 
+    : ['http://localhost:5173', 'http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-}));
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With',
+    'X-CSRF-Token'
+  ],
+  optionsSuccessStatus: 200 // alguns browsers legados falham com 204
+};
 
-// Parse JSON e URL encoded
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cors(corsOptions));
+
+// Middleware de logging e headers de segurança
+app.use((req, res, next) => {
+  // Logging de requisições
+  logger.info(`${req.method} ${req.path} - IP: ${req.ip}`);
+  
+  // Headers de segurança adicionais
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  next();
+});
+
+// Parse JSON e URL encoded com limites configuráveis
+const jsonLimit = process.env.JSON_LIMIT || '10mb';
+const urlencodedLimit = process.env.URLENCODED_LIMIT || '10mb';
+
+app.use(express.json({ limit: jsonLimit }));
+app.use(express.urlencoded({ extended: true, limit: urlencodedLimit }));
 
 // =====================================================
 // 📊 Health Check e Monitoramento
 // =====================================================
 
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    version: '5.0.0',
-    environment: process.env.NODE_ENV || 'development',
-    uptime: process.uptime(),
-    memory: process.memoryUsage(),
-  });
+app.get('/health', async (req, res) => {
+  try {
+    const healthData = {
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      version: '5.0.0',
+      environment: process.env.NODE_ENV || 'development',
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      // TODO: Adicionar verificação de conexão com banco de dados
+      // database: await checkDatabaseConnection(),
+      services: {
+        api: 'healthy',
+        // TODO: adicionar outros serviços
+      }
+    };
+    
+    res.json(healthData);
+  } catch (error) {
+    logger.error('Health check failed:', error);
+    res.status(503).json({
+      status: 'ERROR',
+      timestamp: new Date().toISOString(),
+      error: 'Service temporarily unavailable'
+    });
+  }
 });
 
 app.get('/api', (req, res) => {
@@ -95,12 +162,14 @@ app.get('/api', (req, res) => {
     documentation: '/api-docs',
     health: '/health',
     endpoints: {
-      auth: '/api/auth',
-      transactions: '/api/transactions',
-      budgets: '/api/budgets',
-      categories: '/api/categories',
-      reports: '/api/reports'
-    }
+      auth: '/api/v1/auth',
+      // TODO: Adicionar quando os módulos forem implementados
+      // transactions: '/api/v1/transactions',
+      // budgets: '/api/v1/budgets',
+      // categories: '/api/v1/categories',
+      // reports: '/api/v1/reports'
+    },
+    status: 'Módulos em desenvolvimento - Apenas Auth disponível'
   });
 });
 
@@ -110,23 +179,27 @@ app.get('/api', (req, res) => {
 
 // Instanciar módulos
 const authModule = new AuthModule();
-const transactionModule = new TransactionModule();
-const budgetModule = new BudgetModule();
-const categoryModule = new CategoryModule();
-const reportModule = new ReportModule();
+// TODO: Descomentar quando os módulos forem implementados
+// const transactionModule = new TransactionModule();
+// const budgetModule = new BudgetModule();
+// const categoryModule = new CategoryModule();
+// const reportModule = new ReportModule();
 
-// Aplicar rotas dos módulos
-app.use('/api/auth', authModule.getRouter());
-app.use('/api/transactions', authenticateToken, transactionModule.getRouter());
-app.use('/api/budgets', authenticateToken, budgetModule.getRouter());
-app.use('/api/categories', authenticateToken, categoryModule.getRouter());
-app.use('/api/reports', authenticateToken, reportModule.getRouter());
+// Aplicar rotas dos módulos com versionamento
+const API_VERSION = '/api/v1';
+
+app.use(`${API_VERSION}/auth`, authLimiter, authModule.getRouter());
+// TODO: Descomentar quando os módulos forem implementados
+// app.use(`${API_VERSION}/transactions`, authenticateToken, transactionModule.getRouter());
+// app.use(`${API_VERSION}/budgets`, authenticateToken, budgetModule.getRouter());
+// app.use(`${API_VERSION}/categories`, authenticateToken, categoryModule.getRouter());
+// app.use(`${API_VERSION}/reports`, authenticateToken, reportModule.getRouter());
 
 // =====================================================
 // 🔒 Rotas Administrativas (Exemplo)
 // =====================================================
 
-app.get('/api/admin/users', 
+app.get(`${API_VERSION}/admin/users`, 
   authenticateToken, 
   requireRole('ADMIN'), 
   async (req, res) => {
@@ -160,12 +233,17 @@ app.use('*', (req, res) => {
     availableEndpoints: [
       'GET /api',
       'GET /health',
-      'POST /api/auth/register',
-      'POST /api/auth/login',
-      'GET /api/transactions',
-      'POST /api/transactions',
-      'GET /api/budgets',
-      'POST /api/budgets'
+      'POST /api/v1/auth/register',
+      'POST /api/v1/auth/login',
+      'GET /api/v1/auth/me',
+      'POST /api/v1/auth/logout'
+      // TODO: Adicionar quando outros módulos forem implementados
+      // 'GET /api/v1/transactions',
+      // 'POST /api/v1/transactions',
+      // 'GET /api/v1/budgets',
+      // 'POST /api/v1/budgets',
+      // 'GET /api/v1/categories',
+      // 'GET /api/v1/reports'
     ]
   });
 });
@@ -185,11 +263,20 @@ app.listen(PORT, () => {
   
   // Log de rotas disponíveis
   logger.info('📋 Rotas disponíveis:');
-  logger.info('   🔐 Auth: /api/auth');
-  logger.info('   💰 Transactions: /api/transactions');
-  logger.info('   📊 Budgets: /api/budgets');
-  logger.info('   🏷️ Categories: /api/categories');
-  logger.info('   📈 Reports: /api/reports');
+  logger.info(`   🔐 Auth: ${API_VERSION}/auth`);
+  logger.info('   ⚠️  Outros módulos em desenvolvimento...');
+  // TODO: Descomentar quando módulos forem implementados
+  // logger.info(`   💰 Transactions: ${API_VERSION}/transactions`);
+  // logger.info(`   📊 Budgets: ${API_VERSION}/budgets`);
+  // logger.info(`   🏷️ Categories: ${API_VERSION}/categories`);
+  // logger.info(`   📈 Reports: ${API_VERSION}/reports`);
+  
+  // Log de configurações de segurança
+  logger.info('🛡️ Configurações de segurança ativas:');
+  logger.info('   ✅ Helmet (CSP, HSTS, etc.)');
+  logger.info('   ✅ Rate Limiting');
+  logger.info('   ✅ CORS configurado');
+  logger.info('   ✅ Headers de segurança adicionais');
 });
 
 // =====================================================
@@ -206,7 +293,7 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason, _promise) => {
   logger.error('🚨 Unhandled Promise Rejection:', reason);
   // Em produção, você pode querer encerrar o processo
   // process.exit(1);
