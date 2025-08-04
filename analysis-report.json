@@ -1,0 +1,14 @@
+{
+  "project": "Will Finance 5.0",
+  "date": "2025-08-03 19:32:36",
+  "summary": {
+    "structure_ok": true,
+    "files_ok": true,
+    "deps_ok": false,
+    "security_ok": false
+  },
+  "structure": {
+    "directories": 14,
+    "files": 108
+  }
+}
