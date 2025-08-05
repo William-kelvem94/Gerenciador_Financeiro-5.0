@@ -11,9 +11,7 @@ import {
   ArrowUpCircle,
   ArrowDownCircle,
   RefreshCw,
-  AlertCircle,
-  Edit,
-  Trash2
+  AlertCircle
 } from 'lucide-react';
 import { TransactionModal, TransactionData } from '../../components/Modal/TransactionModal';
 import { useAuthStore } from '../../stores/authStore';
@@ -29,68 +27,25 @@ interface Transaction {
 }
 
 export function TransactionsPage() {
-  const { user, token } = useAuthStore();
+  const { user } = useAuthStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(false);
+  // REMOVIDO: declaração duplicada do estado transactions
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Dados mockados para demonstração
-  const mockTransactions: Transaction[] = [
-    {
-      id: '1',
-      description: 'Salário - Empresa XYZ',
-      amount: 8500.00,
-      type: 'income',
-      category: 'Salário',
-      date: '2025-08-01',
-      status: 'completed'
-    },
-    {
-      id: '2', 
-      description: 'Supermercado Central',
-      amount: 350.75,
-      type: 'expense',
-      category: 'Alimentação',
-      date: '2025-07-30',
-      status: 'completed'
-    },
-    {
-      id: '3',
-      description: 'Freelance - Projeto Web',
-      amount: 2500.00,
-      type: 'income',
-      category: 'Freelance',
-      date: '2025-07-28',
-      status: 'completed'
-    },
-    {
-      id: '4',
-      description: 'Conta de Luz',
-      amount: 180.45,
-      type: 'expense',
-      category: 'Utilidades',
-      date: '2025-07-25',
-      status: 'pending'
-    }
-  ];
 
   // Buscar transações do usuário
   useEffect(() => {
+    if (!user) return;
+    
     const fetchTransactions = async () => {
       try {
         setLoading(true);
-        setError(null);
+        const token = localStorage.getItem('token');
         
-        // Por enquanto usar dados mockados
-        setTransactions(mockTransactions);
-        
-        // TODO: Integrar com API quando estiver pronta
-        /*
-        if (!user || !token) {
+        if (!token) {
           setError('Token de autenticação não encontrado');
           return;
         }
@@ -108,17 +63,17 @@ export function TransactionsPage() {
 
         const data = await response.json();
         setTransactions(data);
-        */
+        setError(null);
       } catch (err) {
-        setError('Erro ao carregar transações');
-        setTransactions(mockTransactions);
+        setError('Erro ao carregar transações. Tente novamente.');
+        setTransactions([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchTransactions();
-  }, [user, token]);
+  }, [user]);
   
   // Handler para abrir modal de nova transação
   const handleNewTransaction = () => {
@@ -152,6 +107,54 @@ export function TransactionsPage() {
     }
     setIsModalOpen(false);
   };
+  
+  const [transactions, setTransactions] = useState<Transaction[]>([
+    {
+      id: '1',
+      description: 'Salário - Empresa XYZ',
+      amount: 8500.00,
+      type: 'income',
+      category: 'Salário',
+      date: '2025-08-01',
+      status: 'completed'
+    },
+    {
+      id: '2', 
+      description: 'Supermercado Central',
+      amount: -350.75,
+      type: 'expense',
+      category: 'Alimentação',
+      date: '2025-07-30',
+      status: 'completed'
+    },
+    {
+      id: '3',
+      description: 'Freelance - Projeto Web',
+      amount: 2500.00,
+      type: 'income',
+      category: 'Freelance',
+      date: '2025-07-28',
+      status: 'completed'
+    },
+    {
+      id: '4',
+      description: 'Conta de Luz',
+      amount: -180.45,
+      type: 'expense',
+      category: 'Utilidades',
+      date: '2025-07-25',
+      status: 'pending'
+    },
+    {
+      id: '5',
+      description: 'Investimento - Ações',
+      amount: -1500.00,
+      type: 'expense',
+      category: 'Investimentos',
+      date: '2025-07-22',
+      status: 'completed'
+    }
+  ]);
 
   const filteredTransactions = transactions.filter(transaction => {
     const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -160,24 +163,12 @@ export function TransactionsPage() {
   });
 
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-  const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-  const netBalance = totalIncome - totalExpenses;
+  const totalExpenses = Math.abs(transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0));
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <RefreshCw className="w-8 h-8 animate-spin text-cyber-primary mx-auto mb-4" />
-          <p className="text-foreground-muted">Carregando transações...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-8">
@@ -193,7 +184,7 @@ export function TransactionsPage() {
             Transações
           </h1>
           <p className="text-foreground-muted font-mono">
-            Controle total de suas movimentações financeiras
+            Histórico completo de movimentações financeiras
           </p>
         </div>
         
@@ -207,20 +198,6 @@ export function TransactionsPage() {
           <span className="font-mono">Nova Transação</span>
         </motion.button>
       </motion.div>
-
-      {/* Error Message */}
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass p-4 rounded-xl border border-cyber-danger/30 bg-cyber-danger/10"
-        >
-          <div className="flex items-center">
-            <AlertCircle className="w-5 h-5 text-cyber-danger mr-3" />
-            <p className="text-cyber-danger font-mono">{error}</p>
-          </div>
-        </motion.div>
-      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -267,25 +244,17 @@ export function TransactionsPage() {
           initial="hidden"
           animate="visible"
           transition={{ duration: 0.6, delay: 0.3 }}
-          className={`glass p-6 rounded-xl border transition-all duration-300 ${
-            netBalance >= 0 
-              ? 'border-cyber-primary/30 hover:shadow-glow' 
-              : 'border-cyber-danger/30 hover:shadow-[0_0_20px_#FF0040]'
-          }`}
+          className="glass p-6 rounded-xl border border-cyber-primary/30 hover:shadow-glow transition-all duration-300"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-              netBalance >= 0 
-                ? 'bg-gradient-cyber' 
-                : 'bg-gradient-to-br from-cyber-danger to-cyber-secondary'
-            }`}>
+            <div className="w-12 h-12 bg-gradient-cyber rounded-lg flex items-center justify-center">
               <DollarSign className="w-6 h-6 text-background" />
             </div>
-            <RefreshCw className={`w-5 h-5 ${netBalance >= 0 ? 'text-cyber-primary' : 'text-cyber-danger'}`} />
+            <RefreshCw className="w-5 h-5 text-cyber-primary" />
           </div>
           <h3 className="text-sm font-mono text-foreground-muted mb-1">Saldo Líquido</h3>
-          <p className={`text-2xl font-bold ${netBalance >= 0 ? 'text-cyber-primary' : 'text-cyber-danger'}`}>
-            R$ {netBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          <p className="text-2xl font-bold text-cyber-primary">
+            R$ {(totalIncome - totalExpenses).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
         </motion.div>
       </div>
@@ -318,7 +287,7 @@ export function TransactionsPage() {
               className={`px-4 py-2 rounded-lg font-mono text-sm transition-all duration-200 ${
                 filterType === 'all'
                   ? 'bg-cyber-primary text-background'
-                  : 'bg-background-secondary text-foreground-muted hover:text-cyber-primary'
+                  : 'bg-background-secondary text-foreground-secondary hover:text-cyber-primary'
               }`}
             >
               Todas
@@ -328,7 +297,7 @@ export function TransactionsPage() {
               className={`px-4 py-2 rounded-lg font-mono text-sm transition-all duration-200 ${
                 filterType === 'income'
                   ? 'bg-cyber-accent text-background'
-                  : 'bg-background-secondary text-foreground-muted hover:text-cyber-accent'
+                  : 'bg-background-secondary text-foreground-secondary hover:text-cyber-accent'
               }`}
             >
               Receitas
@@ -338,7 +307,7 @@ export function TransactionsPage() {
               className={`px-4 py-2 rounded-lg font-mono text-sm transition-all duration-200 ${
                 filterType === 'expense'
                   ? 'bg-cyber-danger text-background'
-                  : 'bg-background-secondary text-foreground-muted hover:text-cyber-danger'
+                  : 'bg-background-secondary text-foreground-secondary hover:text-cyber-danger'
               }`}
             >
               Gastos
@@ -356,104 +325,71 @@ export function TransactionsPage() {
         className="glass rounded-xl border border-cyber-primary/20 overflow-hidden"
       >
         <div className="p-6 border-b border-cyber-primary/20">
-          <h3 className="text-lg font-cyber text-cyber-primary">
-            Histórico de Transações ({filteredTransactions.length})
-          </h3>
+          <h3 className="text-lg font-cyber text-cyber-primary">Histórico de Transações</h3>
         </div>
         
-        {filteredTransactions.length > 0 ? (
-          <div className="divide-y divide-cyber-primary/10">
-            {filteredTransactions.map((transaction, index) => (
-              <motion.div
-                key={transaction.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                className="p-6 hover:bg-background-secondary/30 transition-colors duration-200 group"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                      transaction.type === 'income' 
-                        ? 'bg-cyber-accent/20 text-cyber-accent' 
-                        : 'bg-cyber-danger/20 text-cyber-danger'
-                    }`}>
-                      {transaction.type === 'income' ? (
-                        <ArrowUpCircle className="w-6 h-6" />
-                      ) : (
-                        <ArrowDownCircle className="w-6 h-6" />
-                      )}
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium text-foreground group-hover:text-cyber-primary transition-colors">
-                        {transaction.description}
-                      </h4>
-                      <div className="flex items-center space-x-3 mt-1">
-                        <span className="flex items-center text-sm text-foreground-muted font-mono">
-                          <Tag className="w-4 h-4 mr-1" />
-                          {transaction.category}
-                        </span>
-                        <span className="flex items-center text-sm text-foreground-muted font-mono">
-                          <Calendar className="w-4 h-4 mr-1" />
-                          {new Date(transaction.date).toLocaleDateString('pt-BR')}
-                        </span>
-                      </div>
-                    </div>
+        <div className="divide-y divide-cyber-primary/10">
+          {filteredTransactions.map((transaction, index) => (
+            <motion.div
+              key={transaction.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+              className="p-6 hover:bg-background-secondary/30 transition-colors duration-200 group cursor-pointer"
+              onClick={() => handleEditTransaction(transaction)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                    transaction.type === 'income' 
+                      ? 'bg-cyber-accent/20 text-cyber-accent' 
+                      : 'bg-cyber-danger/20 text-cyber-danger'
+                  }`}>
+                    {transaction.type === 'income' ? (
+                      <ArrowUpCircle className="w-6 h-6" />
+                    ) : (
+                      <ArrowDownCircle className="w-6 h-6" />
+                    )}
                   </div>
                   
-                  <div className="flex items-center space-x-4">
-                    <div className="text-right">
-                      <p className={`text-xl font-bold ${
-                        transaction.type === 'income' ? 'text-cyber-accent' : 'text-cyber-danger'
-                      }`}>
-                        {transaction.type === 'income' ? '+' : '-'}R$ {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </p>
-                      <span className={`inline-flex px-2 py-1 rounded-full text-xs font-mono mt-1 ${
-                        transaction.status === 'completed' 
-                          ? 'bg-cyber-accent/20 text-cyber-accent'
-                          : transaction.status === 'pending'
-                          ? 'bg-yellow-500/20 text-yellow-400'
-                          : 'bg-cyber-danger/20 text-cyber-danger'
-                      }`}>
-                        {transaction.status === 'completed' ? 'Concluída' : 
-                         transaction.status === 'pending' ? 'Pendente' : 'Cancelada'}
+                  <div>
+                    <h4 className="font-medium text-foreground group-hover:text-cyber-primary transition-colors">
+                      {transaction.description}
+                    </h4>
+                    <div className="flex items-center space-x-3 mt-1">
+                      <span className="flex items-center text-sm text-foreground-muted font-mono">
+                        <Tag className="w-4 h-4 mr-1" />
+                        {transaction.category}
                       </span>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={() => handleEditTransaction(transaction)}
-                        className="p-2 text-cyber-primary hover:bg-cyber-primary/20 rounded-lg transition-colors"
-                        title="Editar transação"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
+                      <span className="flex items-center text-sm text-foreground-muted font-mono">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        {new Date(transaction.date).toLocaleDateString('pt-BR')}
+                      </span>
                     </div>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        ) : (
-          <div className="p-12 text-center">
-            <AlertCircle className="w-12 h-12 text-foreground-muted mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">Nenhuma transação encontrada</h3>
-            <p className="text-foreground-muted mb-6">
-              {searchTerm || filterType !== 'all' 
-                ? 'Tente ajustar os filtros de busca' 
-                : 'Comece criando sua primeira transação'}
-            </p>
-            <button
-              onClick={handleNewTransaction}
-              className="btn-primary"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Nova Transação
-            </button>
-          </div>
-        )}
+                
+                <div className="text-right">
+                  <p className={`text-xl font-bold ${
+                    transaction.type === 'income' ? 'text-cyber-accent' : 'text-cyber-danger'
+                  }`}>
+                    {transaction.type === 'income' ? '+' : ''}R$ {Math.abs(transaction.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                  <span className={`inline-flex px-2 py-1 rounded-full text-xs font-mono mt-1 ${
+                    transaction.status === 'completed' 
+                      ? 'bg-cyber-accent/20 text-cyber-accent'
+                      : transaction.status === 'pending'
+                      ? 'bg-yellow-500/20 text-yellow-400'
+                      : 'bg-cyber-danger/20 text-cyber-danger'
+                  }`}>
+                    {transaction.status === 'completed' ? 'Concluída' : 
+                     transaction.status === 'pending' ? 'Pendente' : 'Cancelada'}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </motion.div>
 
       {/* Transaction Modal */}

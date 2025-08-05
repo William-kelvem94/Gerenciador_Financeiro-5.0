@@ -36,15 +36,13 @@ build/
 */build/
 client/dist/
 server/dist/
-
+*.tsbuildinfo
 # Logs
 logs/
 *.log
 server/logs/
 client/logs/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+lerna-debug.log*
 lerna-debug.log*
 
 # Runtime data
@@ -55,9 +53,11 @@ pids/
 
 # Coverage directory used by tools like istanbul
 coverage/
+# Coverage directory used by tools like istanbul
+coverage/
 *.lcov
-
-# Temporary folders
+.nyc_output
+.jest-cache
 tmp/
 temp/
 .tmp/
@@ -87,6 +87,12 @@ Thumbs.db
 # Cache directories
 .cache/
 .npm/
+.yarn/
+.parcel-cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
 .eslintcache
 .stylelintcache
 
@@ -116,20 +122,7 @@ test-results/
 coverage/
 .nyc_output/
 
-# Backup files
-*.bak
-*.backup
-package-new.json
-package.json.bak
-
-# Build Outputs
-build/
-dist/
-server/dist/
-client/dist/
-*.tsbuildinfo
-
-# Logs
+# (Removed duplicate Build Outputs and Logs sections above)
 logs/
 *.log
 server/logs/
@@ -144,26 +137,13 @@ coverage/
 .jest-cache
 
 # Cache Directories
-.npm
-.yarn
-.cache
-.parcel-cache
-.rpt2_cache/
+# (Already included above in Coverage directory section)
 .rts2_cache_cjs/
 .rts2_cache_es/
 .rts2_cache_umd/
 .eslintcache
 
-# Runtime Data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# IDE & Editor Files
-.vscode/
-.idea/
-*.swp
+# (Already included above in Cache directories section)
 *.swo
 *.sublime-project
 *.sublime-workspace
@@ -174,11 +154,7 @@ pids
 .settings/
 
 # OS Generated Files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
+# (Already included above in Runtime data section)
 ehthumbs.db
 Thumbs.db
 desktop.ini

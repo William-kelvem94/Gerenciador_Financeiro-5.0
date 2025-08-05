@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { TransactionModal, TransactionData } from '../../components/Modal/TransactionModal';
 import { useAuthStore } from '../../stores/authStore';
+import toast from 'react-hot-toast';
 
 interface Transaction {
   id: string;
@@ -38,7 +39,7 @@ export function TransactionsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Dados mockados para demonstração
+  // Dados mockados para funcionar enquanto o backend não está conectado
   const mockTransactions: Transaction[] = [
     {
       id: '1',
@@ -75,43 +76,66 @@ export function TransactionsPage() {
       category: 'Utilidades',
       date: '2025-07-25',
       status: 'pending'
+    },
+    {
+      id: '5',
+      description: 'Investimento - Ações',
+      amount: 1500.00,
+      type: 'expense',
+      category: 'Investimentos',
+      date: '2025-07-22',
+      status: 'completed'
     }
   ];
 
-  // Buscar transações do usuário
+  // Buscar transações
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         setLoading(true);
         setError(null);
-        
-        // Por enquanto usar dados mockados
-        setTransactions(mockTransactions);
-        
-        // TODO: Integrar com API quando estiver pronta
-        /*
-        if (!user || !token) {
-          setError('Token de autenticação não encontrado');
+
+        // Verificar se usuário está autenticado
+        if (!user) {
+          setError('Usuário não autenticado');
+          setTransactions([]);
           return;
         }
 
-        const response = await fetch('/api/transactions', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        // Tentar buscar do servidor, caso falhe usar dados mockados
+        if (token) {
+          try {
+            const response = await fetch('http://localhost:8080/api/transactions', {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            });
 
-        if (!response.ok) {
-          throw new Error('Erro ao carregar transações');
+            if (response.ok) {
+              const data = await response.json();
+              setTransactions(data.data || data);
+            } else {
+              throw new Error('Erro ao carregar do servidor');
+            }
+          } catch (serverError) {
+            console.warn('Servidor não disponível, usando dados mockados:', serverError);
+            setTransactions(mockTransactions);
+            toast.success('Carregando dados de exemplo');
+          }
+        } else {
+          // Sem token, usar dados mockados
+          setTransactions(mockTransactions);
+          toast('Modo demonstração - dados de exemplo', {
+            icon: 'ℹ️',
+            duration: 4000,
+          });
         }
-
-        const data = await response.json();
-        setTransactions(data);
-        */
       } catch (err) {
+        console.error('Erro ao carregar transações:', err);
         setError('Erro ao carregar transações');
         setTransactions(mockTransactions);
+        toast.error('Erro ao carregar dados, usando exemplos');
       } finally {
         setLoading(false);
       }
@@ -132,33 +156,58 @@ export function TransactionsPage() {
     setIsModalOpen(true);
   };
 
-  // Handler para salvar transação
-  const handleSaveTransaction = (transactionData: TransactionData) => {
-    if (editingTransaction) {
-      // Atualizar transação existente
-      setTransactions(prev => prev.map(t => 
-        t.id === editingTransaction.id 
-          ? { ...transactionData, id: editingTransaction.id } as Transaction
-          : t
-      ));
-    } else {
-      // Criar nova transação
-      const newTransaction: Transaction = {
-        ...transactionData,
-        id: Date.now().toString(),
-        status: 'completed'
-      } as Transaction;
-      setTransactions(prev => [newTransaction, ...prev]);
+  // Handler para deletar transação
+  const handleDeleteTransaction = async (transactionId: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta transação?')) {
+      return;
     }
-    setIsModalOpen(false);
+
+    try {
+      // Remover localmente
+      setTransactions(prev => prev.filter(t => t.id !== transactionId));
+      toast.success('Transação excluída com sucesso');
+    } catch (err) {
+      console.error('Erro ao excluir transação:', err);
+      toast.error('Erro ao excluir transação');
+    }
   };
 
+  // Handler para salvar transação
+  const handleSaveTransaction = async (transactionData: TransactionData) => {
+    try {
+      if (editingTransaction) {
+        // Atualizar transação existente
+        setTransactions(prev => prev.map(t => 
+          t.id === editingTransaction.id 
+            ? { ...transactionData, id: editingTransaction.id } as Transaction
+            : t
+        ));
+        toast.success('Transação atualizada com sucesso');
+      } else {
+        // Criar nova transação
+        const newTransaction: Transaction = {
+          ...transactionData,
+          id: Date.now().toString(),
+          status: 'completed'
+        } as Transaction;
+        setTransactions(prev => [newTransaction, ...prev]);
+        toast.success('Nova transação criada com sucesso');
+      }
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error('Erro ao salvar transação:', err);
+      toast.error('Erro ao salvar transação');
+    }
+  };
+
+  // Filtrar transações
   const filteredTransactions = transactions.filter(transaction => {
     const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterType === 'all' || transaction.type === filterType;
     return matchesSearch && matchesFilter;
   });
 
+  // Calcular totais
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
   const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
   const netBalance = totalIncome - totalExpenses;
@@ -429,6 +478,13 @@ export function TransactionsPage() {
                         title="Editar transação"
                       >
                         <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteTransaction(transaction.id)}
+                        className="p-2 text-cyber-danger hover:bg-cyber-danger/20 rounded-lg transition-colors"
+                        title="Excluir transação"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>

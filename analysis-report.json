@@ -1,14 +1,18 @@
 {
-  "project": "Will Finance 5.0",
-  "date": "2025-08-03 19:32:36",
-  "summary": {
-    "structure_ok": true,
-    "files_ok": true,
-    "deps_ok": false,
-    "security_ok": false
+  "success": true,
+  "data": {
+    "summary": "Relatório de análise financeira",
+    "totalIncome": 12000,
+    "totalExpense": 8000,
+    "balance": 4000,
+    "categories": [
+      { "name": "Salário", "amount": 10000 },
+      { "name": "Freelance", "amount": 2000 },
+      { "name": "Alimentação", "amount": 3000 },
+      { "name": "Transporte", "amount": 1000 },
+      { "name": "Lazer", "amount": 4000 }
+    ]
   },
-  "structure": {
-    "directories": 14,
-    "files": 108
-  }
+  "message": "Relatório gerado com sucesso",
+  "timestamp": "2024-06-11T12:00:00Z"
 }

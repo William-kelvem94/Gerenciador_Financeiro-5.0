@@ -1,48 +1,56 @@
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting seed process...');
+  console.log('🌱 Iniciando configuração do banco de dados...');
 
-  // Create default categories
-  const categories = [
-    { name: 'Food & Dining', icon: '🍽️', color: '#ff6b6b', type: 'expense' },
-    { name: 'Transportation', icon: '🚗', color: '#4ecdc4', type: 'expense' },
-    { name: 'Shopping', icon: '🛍️', color: '#45b7d1', type: 'expense' },
-    { name: 'Entertainment', icon: '🎬', color: '#f39c12', type: 'expense' },
-    { name: 'Bills & Utilities', icon: '💡', color: '#e74c3c', type: 'expense' },
-    { name: 'Healthcare', icon: '🏥', color: '#2ecc71', type: 'expense' },
-    { name: 'Education', icon: '📚', color: '#9b59b6', type: 'expense' },
-    { name: 'Travel', icon: '✈️', color: '#1abc9c', type: 'expense' },
-    { name: 'Salary', icon: '💼', color: '#27ae60', type: 'income' },
-    { name: 'Business', icon: '🏢', color: '#2980b9', type: 'income' },
-    { name: 'Investments', icon: '📈', color: '#8e44ad', type: 'income' },
-    { name: 'Other Income', icon: '💰', color: '#f1c40f', type: 'income' },
+  // Criar categorias padrão do sistema (sem dados fictícios)
+  const systemCategories = [
+    { name: 'Alimentação', icon: '🍽️', color: '#ff6b6b', type: 'expense' },
+    { name: 'Transporte', icon: '🚗', color: '#4ecdc4', type: 'expense' },
+    { name: 'Compras', icon: '🛍️', color: '#45b7d1', type: 'expense' },
+    { name: 'Entretenimento', icon: '🎬', color: '#f39c12', type: 'expense' },
+    { name: 'Contas e Utilidades', icon: '💡', color: '#e74c3c', type: 'expense' },
+    { name: 'Saúde', icon: '🏥', color: '#2ecc71', type: 'expense' },
+    { name: 'Educação', icon: '📚', color: '#9b59b6', type: 'expense' },
+    { name: 'Viagem', icon: '✈️', color: '#1abc9c', type: 'expense' },
+    { name: 'Salário', icon: '💼', color: '#27ae60', type: 'income' },
+    { name: 'Negócios', icon: '🏢', color: '#2980b9', type: 'income' },
+    { name: 'Investimentos', icon: '📈', color: '#8e44ad', type: 'income' },
+    { name: 'Outras Receitas', icon: '💰', color: '#f1c40f', type: 'income' },
+    { name: 'Outras Despesas', icon: '❓', color: '#95a5a6', type: 'expense' },
   ];
 
-  // Create categories as system categories (no userId)
-  for (const category of categories) {
+  // Criar apenas categorias do sistema (sem dados de usuário)
+  for (const category of systemCategories) {
     try {
-      await prisma.category.create({
-        data: {
-          ...category,
-          isSystem: true,
-          userId: null,
-        },
+      const existing = await prisma.category.findFirst({
+        where: {
+          name: category.name,
+          userId: null
+        }
       });
-    } catch (error: any) {
-      // Category already exists, skip
-      if (error.code === 'P2002') {
-        console.log(`Category "${category.name}" already exists, skipping...`);
+
+      if (!existing) {
+        await prisma.category.create({
+          data: {
+            ...category,
+            isSystem: true,
+            userId: null,
+          },
+        });
+        console.log(`✅ Categoria "${category.name}" criada`);
       } else {
-        throw error;
+        console.log(`ℹ️ Categoria "${category.name}" já existe`);
       }
+    } catch (error: any) {
+      console.error(`❌ Erro ao criar categoria "${category.name}":`, error.message);
     }
   }
 
-  console.log('✅ Categories created');
+  console.log('✅ Categorias do sistema configuradas');
 
   // Create demo user
   console.log('ℹ️ Creating demo user for development');

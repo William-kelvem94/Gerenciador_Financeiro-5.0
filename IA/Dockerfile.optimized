@@ -7,12 +7,15 @@ ARG PYTHON_VERSION=3.12
 ARG DEBIAN_VERSION=bookworm
 ARG USER_ID=1001
 ARG GROUP_ID=1001\n\n# Imagem base otimizada e segura
-FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION}\n\n# Labels informativos para metadados
+FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION}
+# Labels informativos para metadados
 LABEL maintainer="Will Finance Team" \
       version="5.0" \
       description="AI Environment for Financial Management System" \
       org.opencontainers.image.source="https://github.com/William-kelvem94/Gerenciador_Financeiro-5.0" \
-      org.opencontainers.image.documentation="https://github.com/William-kelvem94/Gerenciador_Financeiro-5.0/blob/main/README.md"\n\n# Variáveis de ambiente seguras e otimizadas
+          org.opencontainers.image.documentation="https://github.com/William-kelvem94/Gerenciador_Financeiro-5.0/blob/main/README.md"
+    
+    # Variáveis de ambiente seguras e otimizadas
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
@@ -21,7 +24,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH="/workspace" \
     AI_MODEL_PATH="/app/models/finance_predictor_v6.h5" \
     API_PORT=8001 \
-    PATH="/home/appuser/.local/bin:${PATH}"\n\n# Instalação otimizada de dependências do sistema
+    PATH="/home/appuser/.local/bin:${PATH}"
+# Instalação otimizada de dependências do sistema
 RUN set -ex && \
     # Atualiza sistema e instala dependências essenciais
     apt-get update && \

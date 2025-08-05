@@ -3,14 +3,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
-// import { authRoutes } from './routes/auth';
-// import { budgetRoutes } from './routes/budgets';
-// import { importExportRoutes } from './routes/importExport';
-// import { dashboardRoutes } from './modules/dashboard/routes/dashboardRoutes';
-// import transactionRoutes from './modules/transactions/routes/transactionSimpleRoutes';
-// import { errorHandler } from './middleware/errorHandler';
-// import { logger } from './utils/logger';
-// import { swaggerUi, swaggerSpec } from './utils/swagger';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -55,18 +47,6 @@ app.use(
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// API Documentation
-/*
-app.use(
-  '/api-docs',
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerSpec, {
-    customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'Will Finance 5.0 API Documentation',
-  })
-);
-*/
-
 // Health check
 app.get('/health', (req, res) => {
   res.json({
@@ -76,15 +56,6 @@ app.get('/health', (req, res) => {
     environment: process.env.NODE_ENV || 'development',
   });
 });
-
-// API routes
-/*
-app.use('/api/auth', authRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/budgets', budgetRoutes);
-app.use('/api/import-export', importExportRoutes);
-*/
 
 // API root endpoint
 app.get('/api', (req, res) => {
@@ -96,8 +67,22 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Error handling
-// app.use(errorHandler);
+// Basic transaction endpoint for testing
+app.get('/api/transactions', (req, res) => {
+  res.json({
+    data: [
+      {
+        id: '1',
+        description: 'Transação de exemplo',
+        amount: 100.00,
+        type: 'INCOME',
+        date: new Date().toISOString(),
+        category: 'Salário'
+      }
+    ],
+    message: 'Dados de exemplo - backend funcionando!'
+  });
+});
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -106,21 +91,15 @@ app.use('*', (req, res) => {
     message: 'The requested endpoint does not exist',
     availableEndpoints: [
       '/api',
-      '/api-docs',
       '/health',
-      '/api/auth',
       '/api/transactions',
-      '/api/budgets',
-      '/api/import-export',
     ],
   });
 });
 
-import { logger } from './utils/logger';
-
 app.listen(PORT, () => {
-  logger.info(`🚀 Server running on port ${PORT}`);
-  logger.info(`📊 Health check: http://localhost:${PORT}/health`);
-  logger.info(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
-  logger.info(`🔗 API Root: http://localhost:${PORT}/api`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  console.log(`🔗 API Root: http://localhost:${PORT}/api`);
+  console.log(`💰 Transactions: http://localhost:${PORT}/api/transactions`);
 });

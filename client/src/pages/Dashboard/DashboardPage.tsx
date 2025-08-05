@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  CreditCard, 
+import clsx from 'clsx';
+import {
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  CreditCard,
   PiggyBank,
   Activity,
   Target,
-  Zap
+  Zap,
+  AlertCircle
 } from 'lucide-react';
+import { useAuthStore } from '../../stores/authStore';
 
 interface DashboardStats {
   totalBalance: number;
@@ -20,41 +23,374 @@ interface DashboardStats {
   transactions: number;
 }
 
-export function DashboardPage() {
-  const navigate = useNavigate();
-  
-  const [stats] = useState<DashboardStats>({
-    totalBalance: 15750.89,
-    monthlyIncome: 8500.00,
-    monthlyExpenses: 4250.75,
-    savingsGoal: 25000.00,
-    transactions: 127
-  });
+const TIMEOUT_DURATION = 10000; // 10 segundos
 
-  const savingsProgress = (stats.totalBalance / stats.savingsGoal) * 100;
-  const netIncome = stats.monthlyIncome - stats.monthlyExpenses;
+const INITIAL_STATS_STATE: DashboardStats = {
+  totalBalance: 0,
+  monthlyIncome: 0,
+  monthlyExpenses: 0,
+  savingsGoal: 0,
+  transactions: -1
+};
 
-  // Navigation handlers
-  const handleNewTransaction = () => {
-    navigate('/transactions');
-  };
+function formatCurrency(value: number) {
+  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
 
-  const handleViewReports = () => {
-    navigate('/reports');
-  };
+function validateDashboardData(data: any): data is DashboardStats {
+  return (
+    data &&
+    typeof data.totalBalance === 'number' && Number.isFinite(data.totalBalance) &&
+    typeof data.monthlyIncome === 'number' && Number.isFinite(data.monthlyIncome) && data.monthlyIncome >= 0 &&
+    typeof data.monthlyExpenses === 'number' && Number.isFinite(data.monthlyExpenses) && data.monthlyExpenses >= 0 &&
+    typeof data.savingsGoal === 'number' && Number.isFinite(data.savingsGoal) && data.savingsGoal >= 0 &&
+    typeof data.transactions === 'number' && Number.isInteger(data.transactions) && data.transactions >= -1
+  );
+}
 
-  const handleSetGoal = () => {
-    navigate('/budgets');
-  };
+interface StatCardProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  valueClass: string;
+  borderClass: string;
+  gradientClass: string;
+  rightIcon?: React.ReactNode;
+  delay?: number;
+}
 
-  const handleExportData = () => {
-    navigate('/import-export');
-  };
-
+function StatCard({
+  icon,
+  label,
+  value,
+  valueClass,
+  borderClass,
+  gradientClass,
+  rightIcon,
+  delay = 0
+}: StatCardProps) {
   const cardVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.95 },
     visible: { opacity: 1, y: 0, scale: 1 }
   };
+  return (
+    <motion.div
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      transition={{ duration: 0.6, delay }}
+      className={clsx(
+        'glass p-6 rounded-xl border relative overflow-hidden group hover:shadow-glow transition-all duration-300',
+        borderClass
+      )}
+    >
+      <div className="flex items-center justify-between mb-4">
+        <div className={clsx('w-12 h-12 rounded-lg flex items-center justify-center', gradientClass)}>
+          {icon}
+        </div>
+        {rightIcon}
+      </div>
+      <h3 className="text-sm font-mono text-foreground-muted mb-1">{label}</h3>
+      <p className={clsx('text-2xl font-bold', valueClass)}>{value}</p>
+      <div className="absolute top-0 right-0 w-20 h-20 bg-cyber-primary/10 rounded-full -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-500"></div>
+    </motion.div>
+  );
+}
+
+function SavingProgress({ stats, progress }: { stats: DashboardStats; progress: number }) {
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      transition={{ duration: 0.6, delay: 0.5 }}
+      className="glass p-6 rounded-xl border border-cyber-primary/20"
+    >
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-cyber text-cyber-primary">Meta de Poupança</h3>
+        <Target className="w-6 h-6 text-cyber-primary" />
+      </div>
+      <div className="space-y-4">
+        <div className="flex justify-between text-sm font-mono">
+          <span className="text-foreground-muted">Progresso</span>
+          <span className="text-cyber-primary">{progress.toFixed(1)}%</span>
+        </div>
+        <div className="w-full bg-background-tertiary rounded-full h-3 overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 1.5, delay: 1 }}
+            className="h-full bg-gradient-to-r from-cyber-primary to-cyber-accent relative"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
+          </motion.div>
+        </div>
+        <div className="flex justify-between text-sm font-mono">
+          <span className="text-foreground-secondary">
+            {formatCurrency(stats.totalBalance)}
+          </span>
+          <span className="text-cyber-accent">
+            {formatCurrency(stats.savingsGoal)}
+          </span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+interface QuickActionsHandlers {
+  handleNewTransaction: () => void;
+  handleViewReports: () => void;
+  handleSetGoal: () => void;
+  handleExportData: () => void;
+}
+
+function QuickActions({
+  handlers
+}: {
+  handlers: QuickActionsHandlers;
+}) {
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      transition={{ duration: 0.6, delay: 0.6 }}
+      className="glass p-6 rounded-xl border border-cyber-secondary/20"
+    >
+      <h3 className="text-lg font-cyber text-cyber-secondary mb-6">Ações Rápidas</h3>
+      <div className="grid grid-cols-2 gap-4">
+        <button
+          onClick={handlers.handleNewTransaction}
+          className="btn-primary group relative overflow-hidden"
+          aria-label="Nova Transação"
+        >
+          <span className="relative z-10 font-mono">Nova Transação</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-cyber-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        </button>
+        <button
+          onClick={handlers.handleViewReports}
+          className="btn-outline group relative overflow-hidden"
+          aria-label="Ver Relatórios"
+        >
+          <span className="relative z-10 font-mono">Ver Relatórios</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-cyber-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        </button>
+        <button
+          onClick={handlers.handleSetGoal}
+          className="btn-secondary group relative overflow-hidden"
+          aria-label="Definir Meta"
+        >
+          <span className="relative z-10 font-mono">Definir Meta</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-cyber-secondary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        </button>
+        <button
+          onClick={handlers.handleExportData}
+          className="btn-ghost group relative overflow-hidden border border-cyber-accent/30 hover:border-cyber-accent"
+          aria-label="Exportar Dados"
+        >
+          <span className="relative z-10 font-mono text-cyber-accent">Exportar Dados</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-cyber-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+function SysStatus({
+  transactionsCount,
+  syncStatus,
+  lastSyncTime
+}: {
+  transactionsCount: number;
+  syncStatus: 'syncing' | 'synced' | 'error';
+  lastSyncTime: Date | null;
+}) {
+  const getStatusText = () => {
+    switch (syncStatus) {
+      case 'syncing':
+        return 'Sincronizando...';
+      case 'synced':
+        return `${transactionsCount} transações processadas`;
+      case 'error':
+        return 'Erro na sincronização';
+      default:
+        return 'Status desconhecido';
+    }
+  };
+
+  const getStatusColor = () => {
+    switch (syncStatus) {
+      case 'syncing':
+        return 'bg-cyber-accent animate-pulse';
+      case 'synced':
+        return 'bg-cyber-primary';
+      case 'error':
+        return 'bg-cyber-danger animate-pulse';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      transition={{ duration: 0.6, delay: 0.7 }}
+      className="glass p-4 rounded-xl border border-cyber-accent/20 bg-gradient-to-r from-background-secondary/50 to-background-tertiary/30"
+      aria-live="polite"
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <div className={clsx('w-3 h-3 rounded-full', getStatusColor())}></div>
+          <span className="text-sm font-mono text-foreground-secondary">
+            Sistema Phoenix operacional • {getStatusText()}
+          </span>
+        </div>
+        <div className="text-xs font-mono text-foreground-muted">
+          {lastSyncTime
+            ? `Última sincronização: ${lastSyncTime.toLocaleTimeString('pt-BR')}`
+            : 'Aguardando sincronização...'
+          }
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+export function DashboardPage() {
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
+
+  const [stats, setStats] = useState<DashboardStats>(INITIAL_STATS_STATE);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [syncStatus, setSyncStatus] = useState<'syncing' | 'synced' | 'error'>('syncing');
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+
+  const savingsProgress = stats.savingsGoal > 0 ? (stats.totalBalance / stats.savingsGoal) * 100 : 0;
+  const netIncome = stats.monthlyIncome - stats.monthlyExpenses;
+
+  const handleNewTransaction = useCallback(() => navigate('/transactions'), [navigate]);
+  const handleViewReports = useCallback(() => navigate('/reports'), [navigate]);
+  const handleSetGoal = useCallback(() => navigate('/budgets'), [navigate]);
+  const handleExportData = useCallback(() => navigate('/import-export'), [navigate]);
+
+  const fetchDashboardData = useCallback(
+    async (signal?: AbortSignal) => {
+      try {
+        setLoading(true);
+        setError(null);
+        setSyncStatus('syncing');
+
+        if (!navigator.onLine) {
+          throw new Error('Sem conexão com a internet');
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
+        const response = await fetch('/api/dashboard/stats', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          signal
+        });
+
+        if (!response.ok) throw new Error('Erro ao carregar dados');
+
+        const data = await response.json();
+        if (!validateDashboardData(data)) throw new Error('Formato de dados inválido');
+
+        setStats(data);
+        setSyncStatus('synced');
+        setLastSyncTime(new Date());
+      } catch (err: any) {
+        let errorMessage = 'Erro desconhecido';
+        if (err instanceof Error) {
+          errorMessage = err.message;
+        } else if (typeof err === 'string') {
+          errorMessage = err;
+        }
+        if (err?.name !== 'AbortError') {
+          console.error('Erro ao carregar dados:', err);
+          setError(errorMessage);
+          setSyncStatus('error');
+          setStats(INITIAL_STATS_STATE);
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [navigate]
+  );
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    let isMounted = true;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      if (isMounted && loading) {
+        controller.abort();
+        setError('Tempo limite excedido ao carregar dados');
+        setLoading(false);
+      }
+    }, TIMEOUT_DURATION);
+
+    const fetchData = async () => {
+      try {
+        await fetchDashboardData(controller.signal);
+      } catch (err: any) {
+        if (err?.name !== 'AbortError') {
+          // Outros erros já tratados em fetchDashboardData
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [user, navigate, fetchDashboardData, loading]);
+
+  if (loading) {
+    return (
+      <div className="space-y-8" aria-busy="true" aria-live="polite">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-cyber-primary"></div>
+          <p className="text-foreground-muted mt-4">Carregando dados financeiros...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-8" role="alert">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-cyber-danger mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-cyber-danger mb-2">Erro ao carregar dados</h2>
+          <p className="text-foreground-muted mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-cyber-primary text-cyber-dark rounded-lg hover:bg-cyber-accent transition-colors"
+            aria-label="Tentar novamente"
+          >
+            Tentar novamente
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -75,188 +411,67 @@ export function DashboardPage() {
 
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total Balance */}
-        <motion.div
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="glass p-6 rounded-xl border border-cyber-primary/30 relative overflow-hidden group hover:shadow-glow transition-all duration-300"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-cyber-primary to-cyber-secondary rounded-lg flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-cyber-dark" />
-            </div>
-            <TrendingUp className="w-5 h-5 text-cyber-accent" />
-          </div>
-          <h3 className="text-sm font-mono text-foreground-muted mb-1">Saldo Total</h3>
-          <p className="text-2xl font-bold text-cyber-primary">
-            R$ {stats.totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-          </p>
-          <div className="absolute top-0 right-0 w-20 h-20 bg-cyber-primary/10 rounded-full -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-500"></div>
-        </motion.div>
-
-        {/* Monthly Income */}
-        <motion.div
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="glass p-6 rounded-xl border border-cyber-accent/30 relative overflow-hidden group hover:shadow-[0_0_20px_#39FF14] transition-all duration-300"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-cyber-accent to-cyber-primary rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-cyber-dark" />
-            </div>
-            <Activity className="w-5 h-5 text-cyber-accent" />
-          </div>
-          <h3 className="text-sm font-mono text-foreground-muted mb-1">Receita Mensal</h3>
-          <p className="text-2xl font-bold text-cyber-accent">
-            R$ {stats.monthlyIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-          </p>
-          <div className="absolute top-0 right-0 w-20 h-20 bg-cyber-accent/10 rounded-full -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-500"></div>
-        </motion.div>
-
-        {/* Monthly Expenses */}
-        <motion.div
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="glass p-6 rounded-xl border border-cyber-danger/30 relative overflow-hidden group hover:shadow-[0_0_20px_#FF0040] transition-all duration-300"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-cyber-danger to-cyber-secondary rounded-lg flex items-center justify-center">
-              <TrendingDown className="w-6 h-6 text-cyber-dark" />
-            </div>
-            <CreditCard className="w-5 h-5 text-cyber-danger" />
-          </div>
-          <h3 className="text-sm font-mono text-foreground-muted mb-1">Gastos Mensais</h3>
-          <p className="text-2xl font-bold text-cyber-danger">
-            R$ {stats.monthlyExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-          </p>
-          <div className="absolute top-0 right-0 w-20 h-20 bg-cyber-danger/10 rounded-full -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-500"></div>
-        </motion.div>
-
-        {/* Net Income */}
-        <motion.div
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="glass p-6 rounded-xl border border-cyber-secondary/30 relative overflow-hidden group hover:shadow-[0_0_20px_#FF00FF] transition-all duration-300"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-cyber-secondary to-cyber-primary rounded-lg flex items-center justify-center">
-              <Zap className="w-6 h-6 text-cyber-dark" />
-            </div>
-            <PiggyBank className="w-5 h-5 text-cyber-secondary" />
-          </div>
-          <h3 className="text-sm font-mono text-foreground-muted mb-1">Lucro Líquido</h3>
-          <p className="text-2xl font-bold text-cyber-secondary">
-            R$ {netIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-          </p>
-          <div className="absolute top-0 right-0 w-20 h-20 bg-cyber-secondary/10 rounded-full -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-500"></div>
-        </motion.div>
+        <StatCard
+          icon={<DollarSign className="w-6 h-6 text-cyber-dark" />}
+          label="Saldo Total"
+          value={formatCurrency(stats.totalBalance)}
+          valueClass="text-cyber-primary"
+          borderClass="border-cyber-primary/30"
+          gradientClass="bg-gradient-to-br from-cyber-primary to-cyber-secondary"
+          rightIcon={<TrendingUp className="w-5 h-5 text-cyber-accent" />}
+          delay={0.1}
+        />
+        <StatCard
+          icon={<TrendingUp className="w-6 h-6 text-cyber-dark" />}
+          label="Receita Mensal"
+          value={formatCurrency(stats.monthlyIncome)}
+          valueClass="text-cyber-accent"
+          borderClass="border-cyber-accent/30"
+          gradientClass="bg-gradient-to-br from-cyber-accent to-cyber-primary"
+          rightIcon={<Activity className="w-5 h-5 text-cyber-accent" />}
+          delay={0.2}
+        />
+        <StatCard
+          icon={<TrendingDown className="w-6 h-6 text-cyber-dark" />}
+          label="Gastos Mensais"
+          value={formatCurrency(stats.monthlyExpenses)}
+          valueClass="text-cyber-danger"
+          borderClass="border-cyber-danger/30"
+          gradientClass="bg-gradient-to-br from-cyber-danger to-cyber-secondary"
+          rightIcon={<CreditCard className="w-5 h-5 text-cyber-danger" />}
+          delay={0.3}
+        />
+        <StatCard
+          icon={<Zap className="w-6 h-6 text-cyber-dark" />}
+          label="Lucro Líquido"
+          value={formatCurrency(netIncome)}
+          valueClass="text-cyber-secondary"
+          borderClass="border-cyber-secondary/30"
+          gradientClass="bg-gradient-to-br from-cyber-secondary to-cyber-primary"
+          rightIcon={<PiggyBank className="w-5 h-5 text-cyber-secondary" />}
+          delay={0.4}
+        />
       </div>
 
       {/* Secondary Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Savings Progress */}
-        <motion.div
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="glass p-6 rounded-xl border border-cyber-primary/20"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-cyber text-cyber-primary">Meta de Poupança</h3>
-            <Target className="w-6 h-6 text-cyber-primary" />
-          </div>
-          
-          <div className="space-y-4">
-            <div className="flex justify-between text-sm font-mono">
-              <span className="text-foreground-muted">Progresso</span>
-              <span className="text-cyber-primary">{savingsProgress.toFixed(1)}%</span>
-            </div>
-            
-            <div className="w-full bg-background-tertiary rounded-full h-3 overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${savingsProgress}%` }}
-                transition={{ duration: 1.5, delay: 1 }}
-                className="h-full bg-gradient-to-r from-cyber-primary to-cyber-accent relative"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
-              </motion.div>
-            </div>
-            
-            <div className="flex justify-between text-sm font-mono">
-              <span className="text-foreground-secondary">
-                R$ {stats.totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </span>
-              <span className="text-cyber-accent">
-                R$ {stats.savingsGoal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Quick Actions */}
-        <motion.div
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="glass p-6 rounded-xl border border-cyber-secondary/20"
-        >
-          <h3 className="text-lg font-cyber text-cyber-secondary mb-6">Ações Rápidas</h3>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <button onClick={handleNewTransaction} className="btn-primary group relative overflow-hidden">
-              <span className="relative z-10 font-mono">Nova Transação</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-cyber-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            </button>
-            
-            <button onClick={handleViewReports} className="btn-outline group relative overflow-hidden">
-              <span className="relative z-10 font-mono">Ver Relatórios</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-cyber-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            </button>
-            
-            <button onClick={handleSetGoal} className="btn-secondary group relative overflow-hidden">
-              <span className="relative z-10 font-mono">Definir Meta</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-cyber-secondary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            </button>
-            
-            <button onClick={handleExportData} className="btn-ghost group relative overflow-hidden border border-cyber-accent/30 hover:border-cyber-accent">
-              <span className="relative z-10 font-mono text-cyber-accent">Exportar Dados</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-cyber-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            </button>
-          </div>
-        </motion.div>
+        <SavingProgress stats={stats} progress={savingsProgress} />
+        <QuickActions
+          handlers={{
+            handleNewTransaction,
+            handleViewReports,
+            handleSetGoal,
+            handleExportData
+          }}
+        />
       </div>
 
       {/* System Status */}
-      <motion.div
-        variants={cardVariants}
-        initial="hidden"
-        animate="visible"
-        transition={{ duration: 0.6, delay: 0.7 }}
-        className="glass p-4 rounded-xl border border-cyber-accent/20 bg-gradient-to-r from-background-secondary/50 to-background-tertiary/30"
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-3 h-3 bg-cyber-accent rounded-full animate-pulse"></div>
-            <span className="text-sm font-mono text-foreground-secondary">
-              Sistema Phoenix operacional • {stats.transactions} transações processadas
-            </span>
-          </div>
-          <div className="text-xs font-mono text-foreground-muted">
-            Última sincronização: {new Date().toLocaleTimeString('pt-BR')}
-          </div>
-        </div>
-      </motion.div>
+      <SysStatus
+        transactionsCount={stats.transactions}
+        syncStatus={syncStatus}
+        lastSyncTime={lastSyncTime}
+      />
     </div>
   );
 }

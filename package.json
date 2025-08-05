@@ -11,6 +11,7 @@
     "install:all": "npm install && cd client && npm install && cd ../server && npm install && cd ..",
     "install:fix": "npm install --force && cd client && npm install --force && cd ../server && npm install --force && cd ..",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:safe": "npm run db:quick-setup && concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:local": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev",
@@ -22,10 +23,11 @@
     "build": "cd client && npm run build && cd ../server && npm run build",
     "build:prod": "NODE_ENV=production npm run build && npm run optimize:images",
     "build:docker": "docker-compose build",
-    "db:setup": "cd server && npx prisma generate && npx prisma migrate deploy && npx tsx prisma/seed.ts",
+    "db:setup": "cd server && npx prisma generate && npx prisma migrate deploy && npx tsx src/prisma/seed.ts",
+    "db:quick-setup": "cd server && npx prisma generate && npx prisma db push && npx tsx src/prisma/seed.ts",
     "db:studio": "cd server && npx prisma studio",
     "db:migrate": "cd server && npx prisma migrate dev",
-    "db:reset": "cd server && npx prisma migrate reset --force && npx tsx prisma/seed.ts",
+    "db:reset": "cd server && npx prisma migrate reset --force && npx tsx src/prisma/seed.ts",
     "db:backup": "cd server && npm run db:backup",
     "start": "docker-compose up -d",
     "stop": "docker-compose down",
@@ -43,8 +45,10 @@
     "fix:all": "npm run lint:fix && npm run format",
     "fix:security": "powershell -ExecutionPolicy Bypass -File .\\scripts\\fix-security-issues.ps1",
     "audit:all": "npm audit && cd client && npm audit && cd ../server && npm audit && cd ..",
+    "security:audit:all": "npm audit && npm run audit --workspaces",
     "build:prod:secure": "npm run validate:security && npm run test:all && npm run build:prod",
     "check:all": "cd client && npm run check:all && cd ../server && npm run check:all",
+    "check:outdated": "npm outdated && cd client && npm outdated && cd ../server && npm outdated",
     "deploy:check": "npm run validate:complete && npm run health:check",
     "health:check": "node scripts/health-monitor.js check",
     "health:monitor": "node scripts/health-monitor.js monitor",
@@ -54,19 +58,16 @@
     "docker:down": "docker-compose down",
     "docker:prod": "docker-compose -f docker-compose.prod.yml up -d",
     "docker:logs": "docker-compose logs -f",
-    "clean": "rm -rf node_modules client/node_modules server/node_modules client/dist server/dist",
+    "clean": "node scripts/clean.js",
     "clean:cache": "npm cache clean --force && cd client && npm cache clean --force && cd ../server && npm cache clean --force",
     "clean:all": "npm run clean && npm run clean:cache && docker system prune -f",
     "optimize:images": "echo 'Compressing images...' && find . -name '*.png' -exec optipng -o5 {} \\;",
-    "security:audit": "npm audit && cd client && npm audit && cd ../server && npm audit",
-    "deps:update": "npm update && cd client && npm update && cd ../server && npm update",
-    "reset": "npm run clean && npm run install:all",
-    "setup": "npm run install:all && npm run db:setup",
+    "docs": "cd server && npm run docs && cd ../client && npm run docs",
     "audit:fix": "npm audit fix && cd client && npm audit fix && cd ../server && npm audit fix",
     "update:deps": "npm update && cd client && npm update && cd ../server && npm update",
     "prepare": "husky",
     "pre-commit": "lint-staged",
-    "postinstall": "npm run build || echo 'Build failed, but continuing...'"
+    "postinstall": "if [ \"$NODE_ENV\" = \"development\" ]; then npm run build; fi || echo 'Build failed, but continuing...'"
   },
   "keywords": [
     "finance",
@@ -107,7 +108,9 @@
     "concurrently": "^8.2.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "rimraf": "^5.0.5",
+    "optipng-bin": "^7.0.1"
   },
   "dependencies": {
     "axios": "^1.10.0",
@@ -122,11 +125,16 @@
       "npm run lint --workspace=client"
     ]
   },
-  "workspaces": [
-    "client",
-    "server",
-    "IA"
-  ],
+  "workspaces": {
+    "packages": ["client", "server", "ia"],
+    "nohoist": ["**/esbuild", "esbuild"]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
   "optionalDependencies": {
     "@electron/rebuild": "^3.2.10"
   }

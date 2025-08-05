@@ -70,44 +70,6 @@ Will Finance 5.0 é um sistema completo de gerenciamento financeiro desenvolvido
 ## 🛠️ Tecnologias
 
 ### **Frontend**
-- React 18
-- TypeScript
-- Vite
-- Tailwind CSS
-- Framer Motion
-- PostCSS
-- Zustand
-- React Query
-- React Hook Form
-- Zod
-- Firebase Auth
-- React Router v6
-- Lucide React
-
-### **Backend**
-- Node.js
-- Express
-- TypeScript
-- Prisma ORM
-- SQLite/PostgreSQL
-- JWT
-- bcrypt
-- Zod
-- Multer
-- Helmet
-- CORS
-- Winston
-
-### **DevOps**
-- Docker
-- Docker Compose
-- GitHub Actions
-- Vitest
-- Jest
-- ESLint
-- Prettier
-- Health checks
-- Logs
 ```json
 {
   "core": ["React 18", "TypeScript", "Vite"],
@@ -152,32 +114,32 @@ Will Finance 5.0 é um sistema completo de gerenciamento financeiro desenvolvido
 Will-Finance-5.0/
 ├── 📱 client/                    # Frontend React
 │   ├── src/
-│   │   ├── components/          # Componentes reutilizáveis
-│   │   ├── pages/              # Páginas principais
-│   │   ├── hooks/              # Hooks customizados  
-│   │   ├── stores/             # Estado global (Zustand)
-│   │   ├── types/              # Tipos TypeScript
-│   │   ├── utils/              # Utilitários
-│   │   └── styles/             # Estilos globais
-│   └── public/                 # Assets estáticos
-├── 🖥️ server/                   # Backend Node.js
+│   │   ├── components/           # Componentes reutilizáveis
+│   │   ├── pages/                # Páginas principais
+│   │   ├── hooks/                # Hooks customizados  
+│   │   ├── stores/               # Estado global (Zustand)
+│   │   ├── types/                # Tipos TypeScript
+│   │   ├── utils/                # Utilitários
+│   │   └── styles/               # Estilos globais
+│   └── public/                   # Assets estáticos
+├── 🖥️ server/                    # Backend Node.js
 │   ├── src/
-│   │   ├── modules/            # Módulos por domínio
-│   │   ├── middleware/         # Middlewares customizados
-│   │   ├── config/             # Configurações
-│   │   ├── utils/              # Utilitários do servidor
-│   │   └── types/              # Tipos do backend
-│   └── prisma/                 # Schema e migrações
-├── 🤖 IA/                       # Módulo de Inteligência Artificial
-│   ├── src/                    # Código fonte IA
-│   ├── models/                 # Modelos treinados
-│   ├── datasets/               # Datasets de treino
-│   └── notebooks/              # Jupyter notebooks
-├── 🐳 docker/                   # Configurações Docker
-├── 📚 docs/                     # Documentação
-├── ⚙️ configs/                  # Arquivos de configuração
-├── 🔧 scripts/                  # Scripts de automação
-└── 📦 archive/                  # Arquivos antigos/backup
+│   │   ├── modules/              # Módulos por domínio
+│   │   ├── middleware/           # Middlewares customizados
+│   │   ├── config/               # Configurações
+│   │   ├── utils/                # Utilitários do servidor
+│   │   └── types/                # Tipos do backend
+│   └── prisma/                   # Schema e migrações
+├── 🤖 ia/                        # Módulo de inteligência artificial
+│   ├── src/                      # Código fonte IA
+│   ├── models/                   # Modelos treinados
+│   ├── datasets/                 # Datasets de treino
+│   └── notebooks/                # Jupyter notebooks
+├── 🐳 docker/                     # Configurações Docker
+├── 📚 docs/                       # Documentação
+├── ⚙️ configs/                    # Arquivos de configuração
+├── 🔧 scripts/                    # Scripts de automação
+└── 📦 archive/                    # Arquivos antigos/backup
 ```
 
 ---
