@@ -16,21 +16,19 @@ import {
 import { useAuthStore } from '../../stores/authStore';
 
 interface DashboardStats {
-  totalBalance: number;
-  monthlyIncome: number;
-  monthlyExpenses: number;
-  savingsGoal: number;
-  transactions: number;
+  income: number;
+  expenses: number;
+  balance: number;
+  transactionCount: number;
 }
 
 const TIMEOUT_DURATION = 10000; // 10 segundos
 
 const INITIAL_STATS_STATE: DashboardStats = {
-  totalBalance: 0,
-  monthlyIncome: 0,
-  monthlyExpenses: 0,
-  savingsGoal: 0,
-  transactions: -1
+  income: 0,
+  expenses: 0,
+  balance: 0,
+  transactionCount: 0
 };
 
 function formatCurrency(value: number) {
@@ -40,11 +38,10 @@ function formatCurrency(value: number) {
 function validateDashboardData(data: any): data is DashboardStats {
   return (
     data &&
-    typeof data.totalBalance === 'number' && Number.isFinite(data.totalBalance) &&
-    typeof data.monthlyIncome === 'number' && Number.isFinite(data.monthlyIncome) && data.monthlyIncome >= 0 &&
-    typeof data.monthlyExpenses === 'number' && Number.isFinite(data.monthlyExpenses) && data.monthlyExpenses >= 0 &&
-    typeof data.savingsGoal === 'number' && Number.isFinite(data.savingsGoal) && data.savingsGoal >= 0 &&
-    typeof data.transactions === 'number' && Number.isInteger(data.transactions) && data.transactions >= -1
+    typeof data.income === 'number' && Number.isFinite(data.income) &&
+    typeof data.expenses === 'number' && Number.isFinite(data.expenses) &&
+    typeof data.balance === 'number' && Number.isFinite(data.balance) &&
+    typeof data.transactionCount === 'number' && Number.isInteger(data.transactionCount) && data.transactionCount >= 0
   );
 }
 
@@ -126,10 +123,10 @@ function SavingProgress({ stats, progress }: { stats: DashboardStats; progress: 
         </div>
         <div className="flex justify-between text-sm font-mono">
           <span className="text-foreground-secondary">
-            {formatCurrency(stats.totalBalance)}
+            {formatCurrency(stats.balance)}
           </span>
           <span className="text-cyber-accent">
-            {formatCurrency(stats.savingsGoal)}
+            Saldo Total
           </span>
         </div>
       </div>
@@ -266,8 +263,9 @@ export function DashboardPage() {
   const [syncStatus, setSyncStatus] = useState<'syncing' | 'synced' | 'error'>('syncing');
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
 
-  const savingsProgress = stats.savingsGoal > 0 ? (stats.totalBalance / stats.savingsGoal) * 100 : 0;
-  const netIncome = stats.monthlyIncome - stats.monthlyExpenses;
+  // Remover funcionalidade de savings goal por enquanto
+  const savingsProgress = 0; // stats.balance > 0 ? 100 : 0;
+  const netIncome = stats.income - stats.expenses;
 
   const handleNewTransaction = useCallback(() => navigate('/transactions'), [navigate]);
   const handleViewReports = useCallback(() => navigate('/reports'), [navigate]);
@@ -276,6 +274,12 @@ export function DashboardPage() {
 
   const fetchDashboardData = useCallback(
     async (signal?: AbortSignal) => {
+      if (!user?.id) {
+        console.warn('🚫 Usuário não identificado para carregar dados');
+        setStats(INITIAL_STATS_STATE);
+        return;
+      }
+
       try {
         setLoading(true);
         setError(null);
@@ -285,15 +289,10 @@ export function DashboardPage() {
           throw new Error('Sem conexão com a internet');
         }
 
-        const token = localStorage.getItem('token');
-        if (!token) {
-          navigate('/login');
-          return;
-        }
+        console.log('📊 Carregando dados do dashboard para usuário:', user.id);
 
-        const response = await fetch('/api/dashboard/stats', {
+        const response = await fetch(`http://localhost:8080/api/dashboard/stats?userId=${user.id}`, {
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
           signal
@@ -301,10 +300,13 @@ export function DashboardPage() {
 
         if (!response.ok) throw new Error('Erro ao carregar dados');
 
-        const data = await response.json();
-        if (!validateDashboardData(data)) throw new Error('Formato de dados inválido');
+        const result = await response.json();
+        if (!result.success || !validateDashboardData(result.data)) {
+          throw new Error('Formato de dados inválido');
+        }
 
-        setStats(data);
+        console.log('✅ Dados do dashboard carregados:', result.data);
+        setStats(result.data);
         setSyncStatus('synced');
         setLastSyncTime(new Date());
       } catch (err: any) {
@@ -315,7 +317,7 @@ export function DashboardPage() {
           errorMessage = err;
         }
         if (err?.name !== 'AbortError') {
-          console.error('Erro ao carregar dados:', err);
+          console.error('❌ Erro ao carregar dados:', err);
           setError(errorMessage);
           setSyncStatus('error');
           setStats(INITIAL_STATS_STATE);
@@ -324,7 +326,7 @@ export function DashboardPage() {
         setLoading(false);
       }
     },
-    [navigate]
+    [user?.id]
   );
 
   useEffect(() => {
@@ -414,7 +416,7 @@ export function DashboardPage() {
         <StatCard
           icon={<DollarSign className="w-6 h-6 text-cyber-dark" />}
           label="Saldo Total"
-          value={formatCurrency(stats.totalBalance)}
+          value={formatCurrency(stats.balance)}
           valueClass="text-cyber-primary"
           borderClass="border-cyber-primary/30"
           gradientClass="bg-gradient-to-br from-cyber-primary to-cyber-secondary"
@@ -423,8 +425,8 @@ export function DashboardPage() {
         />
         <StatCard
           icon={<TrendingUp className="w-6 h-6 text-cyber-dark" />}
-          label="Receita Mensal"
-          value={formatCurrency(stats.monthlyIncome)}
+          label="Receitas"
+          value={formatCurrency(stats.income)}
           valueClass="text-cyber-accent"
           borderClass="border-cyber-accent/30"
           gradientClass="bg-gradient-to-br from-cyber-accent to-cyber-primary"
@@ -433,8 +435,8 @@ export function DashboardPage() {
         />
         <StatCard
           icon={<TrendingDown className="w-6 h-6 text-cyber-dark" />}
-          label="Gastos Mensais"
-          value={formatCurrency(stats.monthlyExpenses)}
+          label="Despesas"
+          value={formatCurrency(stats.expenses)}
           valueClass="text-cyber-danger"
           borderClass="border-cyber-danger/30"
           gradientClass="bg-gradient-to-br from-cyber-danger to-cyber-secondary"
@@ -468,7 +470,7 @@ export function DashboardPage() {
 
       {/* System Status */}
       <SysStatus
-        transactionsCount={stats.transactions}
+        transactionsCount={stats.transactionCount}
         syncStatus={syncStatus}
         lastSyncTime={lastSyncTime}
       />
