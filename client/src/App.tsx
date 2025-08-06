@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { ToastContainer } from 'react-toastify';
 import { motion } from 'framer-motion';
 import { useAuthStore } from './stores/authStore';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -13,6 +14,9 @@ import { ReportsPage } from './pages/Reports/ReportsPage';
 import { SettingsPage } from './pages/Settings/SettingsPage';
 import ImportExportPage from './pages/ImportExport/ImportExportPage';
 import { AuthCallback } from './components/auth/AuthCallback';
+
+// Importar estilos do react-toastify
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const { isAuthenticated, user, initializeAuth } = useAuthStore();
@@ -112,6 +116,27 @@ function App() {
                   secondary: 'var(--color-bg-primary)',
                 },
               },
+            }}
+          />
+
+          {/* React Toastify para notificações aprimoradas */}
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark"
+            toastStyle={{
+              backgroundColor: 'var(--background-secondary, #1A1A2E)',
+              color: 'var(--foreground, #FFFFFF)',
+              border: '1px solid var(--cyber-primary, #00FFFF)',
+              borderRadius: '8px',
+              boxShadow: '0 0 10px rgba(0, 255, 255, 0.3)',
             }}
           />
         </div>

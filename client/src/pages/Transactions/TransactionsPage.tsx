@@ -1,468 +1,406 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { toast } from 'react-hot-toast';
+import { useAuthStore } from '../../stores/authStore';
+import { useMasterUser } from '../../hooks/useMasterUser';
 import { 
   Plus, 
   Search, 
-  TrendingUp, 
-  TrendingDown, 
+  Filter, 
+  Download, 
+  Upload, 
+  CreditCard,
+  TrendingUp,
+  TrendingDown,
   Calendar,
-  DollarSign,
-  Tag,
-  ArrowUpCircle,
-  ArrowDownCircle,
-  RefreshCw,
-  AlertCircle,
-  Edit,
-  Trash2
+  DollarSign
 } from 'lucide-react';
-import { TransactionModal, TransactionData } from '../../components/Modal/TransactionModal';
-import { useAuthStore } from '../../stores/authStore';
 
+// Types para melhor type safety
 interface Transaction {
   id: string;
   description: string;
   amount: number;
-  type: 'income' | 'expense';
+  type: 'INCOME' | 'EXPENSE';
   category: string;
   date: string;
-  status: 'completed' | 'pending' | 'cancelled';
+  account?: string;
 }
+
+interface TransactionFilters {
+  search: string;
+  type: 'ALL' | 'INCOME' | 'EXPENSE';
+  category: string;
+  dateFrom: string;
+  dateTo: string;
+}
+
+// Utility function melhorada
+function getUserDisplayName(user?: { name?: string; email?: string; displayName?: string }) {
+  if (!user) return 'Usuário';
+  return user.displayName || user.name || user.email?.split('@')[0] || 'Usuário';
+}
+
+// Mock transactions removido - apenas para referência de tipos
 
 export function TransactionsPage() {
   const { user, token } = useAuthStore();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { isMaster, databases } = useMasterUser();
+  
+  // Estados otimizados
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [filters, setFilters] = useState<TransactionFilters>({
+    search: '',
+    type: 'ALL',
+    category: '',
+    dateFrom: '',
+    dateTo: ''
+  });
 
-  // Dados mockados para demonstração
-  const mockTransactions: Transaction[] = [
-    {
-      id: '1',
-      description: 'Salário - Empresa XYZ',
-      amount: 8500.00,
-      type: 'income',
-      category: 'Salário',
-      date: '2025-08-01',
-      status: 'completed'
-    },
-    {
-      id: '2', 
-      description: 'Supermercado Central',
-      amount: 350.75,
-      type: 'expense',
-      category: 'Alimentação',
-      date: '2025-07-30',
-      status: 'completed'
-    },
-    {
-      id: '3',
-      description: 'Freelance - Projeto Web',
-      amount: 2500.00,
-      type: 'income',
-      category: 'Freelance',
-      date: '2025-07-28',
-      status: 'completed'
-    },
-    {
-      id: '4',
-      description: 'Conta de Luz',
-      amount: 180.45,
-      type: 'expense',
-      category: 'Utilidades',
-      date: '2025-07-25',
-      status: 'pending'
-    }
-  ];
+  // Fetch transactions com dados reais do banco
+  const fetchTransactions = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-  // Buscar transações do usuário
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Por enquanto usar dados mockados
-        setTransactions(mockTransactions);
-        
-        // TODO: Integrar com API quando estiver pronta
-        /*
-        if (!user || !token) {
-          setError('Token de autenticação não encontrado');
-          return;
-        }
+      const response = await fetch('/api/transactions', {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-        const response = await fetch('/api/transactions', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+      if (!response.ok) {
+        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setTransactions(data.transactions || []);
+
+      // Mostrar toast apenas na primeira carga
+      if (transactions.length === 0) {
+        const welcomeMessage = isMaster
+          ? `Bem-vindo! Acesso Master ativado.`
+          : `${data.transactions?.length || 0} transações carregadas.`;
+
+        toast.success(welcomeMessage, {
+          duration: 2000,
+          position: 'top-right',
         });
+      }
 
-        if (!response.ok) {
-          throw new Error('Erro ao carregar transações');
-        }
+    } catch (err) {
+      console.error('Erro ao carregar transações:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar transações';
+      setError(errorMessage);
+      setTransactions([]);
+      
+      // Mostrar toast de erro apenas se não for problema de rede comum
+      if (!errorMessage.includes('Failed to fetch')) {
+        toast.error(errorMessage, {
+          duration: 4000,
+          position: 'top-right',
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [isMaster, databases, transactions.length]);
 
-        const data = await response.json();
-        setTransactions(data);
-        */
-      } catch (err) {
-        setError('Erro ao carregar transações');
-        setTransactions(mockTransactions);
-      } finally {
-        setLoading(false);
+  // Effect otimizado para evitar loops - carrega apenas uma vez
+  useEffect(() => {
+    let isMounted = true;
+    let hasLoaded = false;
+    
+    const loadTransactions = async () => {
+      if (isMounted && !hasLoaded) {
+        hasLoaded = true;
+        await fetchTransactions();
       }
     };
 
-    fetchTransactions();
-  }, [user, token]);
-  
-  // Handler para abrir modal de nova transação
-  const handleNewTransaction = () => {
-    setEditingTransaction(null);
-    setIsModalOpen(true);
+    loadTransactions();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Dependências removidas para evitar loops
+
+  // Transações filtradas
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(transaction => {
+      const matchesSearch = !filters.search || 
+        transaction.description.toLowerCase().includes(filters.search.toLowerCase()) ||
+        transaction.category.toLowerCase().includes(filters.search.toLowerCase());
+      
+      const matchesType = filters.type === 'ALL' || transaction.type === filters.type;
+      
+      const matchesCategory = !filters.category || transaction.category === filters.category;
+      
+      const transactionDate = new Date(transaction.date);
+      const matchesDateFrom = !filters.dateFrom || transactionDate >= new Date(filters.dateFrom);
+      const matchesDateTo = !filters.dateTo || transactionDate <= new Date(filters.dateTo);
+      
+      return matchesSearch && matchesType && matchesCategory && matchesDateFrom && matchesDateTo;
+    });
+  }, [transactions, filters]);
+
+  // Estatísticas calculadas
+  const stats = useMemo(() => {
+    const income = filteredTransactions
+      .filter(t => t.type === 'INCOME')
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    
+    const expenses = filteredTransactions
+      .filter(t => t.type === 'EXPENSE')  
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    
+    return {
+      income,
+      expenses,
+      balance: income - expenses,
+      total: filteredTransactions.length
+    };
+  }, [filteredTransactions]);
+
+  // Formatação de moeda
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(Math.abs(amount));
   };
 
-  // Handler para editar transação
-  const handleEditTransaction = (transaction: Transaction) => {
-    setEditingTransaction(transaction);
-    setIsModalOpen(true);
+  // Formatação de data
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
-
-  // Handler para salvar transação
-  const handleSaveTransaction = (transactionData: TransactionData) => {
-    if (editingTransaction) {
-      // Atualizar transação existente
-      setTransactions(prev => prev.map(t => 
-        t.id === editingTransaction.id 
-          ? { ...transactionData, id: editingTransaction.id } as Transaction
-          : t
-      ));
-    } else {
-      // Criar nova transação
-      const newTransaction: Transaction = {
-        ...transactionData,
-        id: Date.now().toString(),
-        status: 'completed'
-      } as Transaction;
-      setTransactions(prev => [newTransaction, ...prev]);
-    }
-    setIsModalOpen(false);
-  };
-
-  const filteredTransactions = transactions.filter(transaction => {
-    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterType === 'all' || transaction.type === filterType;
-    return matchesSearch && matchesFilter;
-  });
-
-  const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-  const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-  const netBalance = totalIncome - totalExpenses;
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <RefreshCw className="w-8 h-8 animate-spin text-cyber-primary mx-auto mb-4" />
-          <p className="text-foreground-muted">Carregando transações...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="flex flex-col lg:flex-row lg:items-center lg:justify-between"
-      >
-        <div>
-          <h1 className="text-4xl font-cyber text-cyber-primary mb-2 text-glow">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="transactions-page p-6"
+    >
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold text-cyber-primary flex items-center gap-3">
+            <CreditCard className="w-8 h-8" />
             Transações
           </h1>
-          <p className="text-foreground-muted font-mono">
-            Controle total de suas movimentações financeiras
+          <p className="text-foreground-muted mt-2">
+            Gerenciamento Financeiro Avançado
           </p>
-        </div>
-        
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleNewTransaction}
-          className="btn-primary mt-4 lg:mt-0 self-start lg:self-auto"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          <span className="font-mono">Nova Transação</span>
-        </motion.button>
-      </motion.div>
+        </header>
 
-      {/* Error Message */}
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass p-4 rounded-xl border border-cyber-danger/30 bg-cyber-danger/10"
-        >
-          <div className="flex items-center">
-            <AlertCircle className="w-5 h-5 text-cyber-danger mr-3" />
-            <p className="text-cyber-danger font-mono">{error}</p>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <motion.div
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="glass p-6 rounded-xl border border-cyber-accent/30 hover:shadow-[0_0_20px_#39FF14] transition-all duration-300"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-cyber-accent to-cyber-primary rounded-lg flex items-center justify-center">
-              <ArrowUpCircle className="w-6 h-6 text-background" />
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <motion.div 
+            className="glass p-6 rounded-lg"
+            whileHover={{ scale: 1.02 }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-foreground-muted text-sm">Receitas</p>
+                <p className="text-2xl font-bold text-green-400">
+                  {formatCurrency(stats.income)}
+                </p>
+              </div>
+              <TrendingUp className="w-8 h-8 text-green-400" />
             </div>
-            <TrendingUp className="w-5 h-5 text-cyber-accent" />
-          </div>
-          <h3 className="text-sm font-mono text-foreground-muted mb-1">Total de Receitas</h3>
-          <p className="text-2xl font-bold text-cyber-accent">
-            R$ {totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-          </p>
-        </motion.div>
+          </motion.div>
 
-        <motion.div
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="glass p-6 rounded-xl border border-cyber-danger/30 hover:shadow-[0_0_20px_#FF0040] transition-all duration-300"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-cyber-danger to-cyber-secondary rounded-lg flex items-center justify-center">
-              <ArrowDownCircle className="w-6 h-6 text-background" />
+          <motion.div 
+            className="glass p-6 rounded-lg"
+            whileHover={{ scale: 1.02 }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-foreground-muted text-sm">Despesas</p>
+                <p className="text-2xl font-bold text-red-400">
+                  {formatCurrency(stats.expenses)}
+                </p>
+              </div>
+              <TrendingDown className="w-8 h-8 text-red-400" />
             </div>
-            <TrendingDown className="w-5 h-5 text-cyber-danger" />
-          </div>
-          <h3 className="text-sm font-mono text-foreground-muted mb-1">Total de Gastos</h3>
-          <p className="text-2xl font-bold text-cyber-danger">
-            R$ {totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-          </p>
-        </motion.div>
+          </motion.div>
 
-        <motion.div
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className={`glass p-6 rounded-xl border transition-all duration-300 ${
-            netBalance >= 0 
-              ? 'border-cyber-primary/30 hover:shadow-glow' 
-              : 'border-cyber-danger/30 hover:shadow-[0_0_20px_#FF0040]'
-          }`}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-              netBalance >= 0 
-                ? 'bg-gradient-cyber' 
-                : 'bg-gradient-to-br from-cyber-danger to-cyber-secondary'
-            }`}>
-              <DollarSign className="w-6 h-6 text-background" />
+          <motion.div 
+            className="glass p-6 rounded-lg"
+            whileHover={{ scale: 1.02 }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-foreground-muted text-sm">Saldo</p>
+                <p className={`text-2xl font-bold ${stats.balance >= 0 ? 'text-cyber-primary' : 'text-red-400'}`}>
+                  {formatCurrency(stats.balance)}
+                </p>
+              </div>
+              <DollarSign className="w-8 h-8 text-cyber-primary" />
             </div>
-            <RefreshCw className={`w-5 h-5 ${netBalance >= 0 ? 'text-cyber-primary' : 'text-cyber-danger'}`} />
-          </div>
-          <h3 className="text-sm font-mono text-foreground-muted mb-1">Saldo Líquido</h3>
-          <p className={`text-2xl font-bold ${netBalance >= 0 ? 'text-cyber-primary' : 'text-cyber-danger'}`}>
-            R$ {netBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-          </p>
-        </motion.div>
-      </div>
+          </motion.div>
 
-      {/* Filters */}
-      <motion.div
-        variants={cardVariants}
-        initial="hidden"
-        animate="visible"
-        transition={{ duration: 0.6, delay: 0.4 }}
-        className="glass p-6 rounded-xl border border-cyber-primary/20"
-      >
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-4">
-          {/* Search */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-cyber-primary w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Buscar transações..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="input-glow pl-12 pr-4 py-3 w-full bg-background-secondary/50 border border-cyber-primary/30 rounded-lg text-foreground placeholder:text-foreground-muted focus:border-cyber-primary focus:shadow-glow-sm transition-all duration-300"
-            />
-          </div>
-
-          {/* Filter Buttons */}
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setFilterType('all')}
-              className={`px-4 py-2 rounded-lg font-mono text-sm transition-all duration-200 ${
-                filterType === 'all'
-                  ? 'bg-cyber-primary text-background'
-                  : 'bg-background-secondary text-foreground-muted hover:text-cyber-primary'
-              }`}
-            >
-              Todas
-            </button>
-            <button
-              onClick={() => setFilterType('income')}
-              className={`px-4 py-2 rounded-lg font-mono text-sm transition-all duration-200 ${
-                filterType === 'income'
-                  ? 'bg-cyber-accent text-background'
-                  : 'bg-background-secondary text-foreground-muted hover:text-cyber-accent'
-              }`}
-            >
-              Receitas
-            </button>
-            <button
-              onClick={() => setFilterType('expense')}
-              className={`px-4 py-2 rounded-lg font-mono text-sm transition-all duration-200 ${
-                filterType === 'expense'
-                  ? 'bg-cyber-danger text-background'
-                  : 'bg-background-secondary text-foreground-muted hover:text-cyber-danger'
-              }`}
-            >
-              Gastos
-            </button>
-          </div>
+          <motion.div 
+            className="glass p-6 rounded-lg"
+            whileHover={{ scale: 1.02 }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-foreground-muted text-sm">Total</p>
+                <p className="text-2xl font-bold text-cyber-primary">
+                  {stats.total}
+                </p>
+              </div>
+              <Calendar className="w-8 h-8 text-cyber-primary" />
+            </div>
+          </motion.div>
         </div>
-      </motion.div>
 
-      {/* Transactions List */}
-      <motion.div
-        variants={cardVariants}
-        initial="hidden"
-        animate="visible"
-        transition={{ duration: 0.6, delay: 0.5 }}
-        className="glass rounded-xl border border-cyber-primary/20 overflow-hidden"
-      >
-        <div className="p-6 border-b border-cyber-primary/20">
-          <h3 className="text-lg font-cyber text-cyber-primary">
-            Histórico de Transações ({filteredTransactions.length})
-          </h3>
-        </div>
-        
-        {filteredTransactions.length > 0 ? (
-          <div className="divide-y divide-cyber-primary/10">
-            {filteredTransactions.map((transaction, index) => (
-              <motion.div
-                key={transaction.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                className="p-6 hover:bg-background-secondary/30 transition-colors duration-200 group"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                      transaction.type === 'income' 
-                        ? 'bg-cyber-accent/20 text-cyber-accent' 
-                        : 'bg-cyber-danger/20 text-cyber-danger'
-                    }`}>
-                      {transaction.type === 'income' ? (
-                        <ArrowUpCircle className="w-6 h-6" />
-                      ) : (
-                        <ArrowDownCircle className="w-6 h-6" />
-                      )}
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium text-foreground group-hover:text-cyber-primary transition-colors">
-                        {transaction.description}
-                      </h4>
-                      <div className="flex items-center space-x-3 mt-1">
-                        <span className="flex items-center text-sm text-foreground-muted font-mono">
-                          <Tag className="w-4 h-4 mr-1" />
-                          {transaction.category}
-                        </span>
-                        <span className="flex items-center text-sm text-foreground-muted font-mono">
-                          <Calendar className="w-4 h-4 mr-1" />
-                          {new Date(transaction.date).toLocaleDateString('pt-BR')}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-4">
-                    <div className="text-right">
-                      <p className={`text-xl font-bold ${
-                        transaction.type === 'income' ? 'text-cyber-accent' : 'text-cyber-danger'
-                      }`}>
-                        {transaction.type === 'income' ? '+' : '-'}R$ {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </p>
-                      <span className={`inline-flex px-2 py-1 rounded-full text-xs font-mono mt-1 ${
-                        transaction.status === 'completed' 
-                          ? 'bg-cyber-accent/20 text-cyber-accent'
-                          : transaction.status === 'pending'
-                          ? 'bg-yellow-500/20 text-yellow-400'
-                          : 'bg-cyber-danger/20 text-cyber-danger'
-                      }`}>
-                        {transaction.status === 'completed' ? 'Concluída' : 
-                         transaction.status === 'pending' ? 'Pendente' : 'Cancelada'}
-                      </span>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={() => handleEditTransaction(transaction)}
-                        className="p-2 text-cyber-primary hover:bg-cyber-primary/20 rounded-lg transition-colors"
-                        title="Editar transação"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+        {/* Actions Bar */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground-muted w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Buscar transações..."
+                value={filters.search}
+                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                className="input pl-10 w-full"
+              />
+            </div>
           </div>
-        ) : (
-          <div className="p-12 text-center">
-            <AlertCircle className="w-12 h-12 text-foreground-muted mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">Nenhuma transação encontrada</h3>
-            <p className="text-foreground-muted mb-6">
-              {searchTerm || filterType !== 'all' 
-                ? 'Tente ajustar os filtros de busca' 
-                : 'Comece criando sua primeira transação'}
-            </p>
-            <button
-              onClick={handleNewTransaction}
-              className="btn-primary"
-            >
-              <Plus className="w-4 h-4 mr-2" />
+          
+          <div className="flex gap-3">
+            <button className="btn btn-secondary flex items-center gap-2">
+              <Filter className="w-4 h-4" />
+              Filtros
+            </button>
+            <button className="btn btn-secondary flex items-center gap-2">
+              <Upload className="w-4 h-4" />
+              Importar
+            </button>
+            <button className="btn btn-secondary flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              Exportar
+            </button>
+            <button className="btn btn-primary flex items-center gap-2">
+              <Plus className="w-4 h-4" />
               Nova Transação
             </button>
           </div>
-        )}
-      </motion.div>
+        </div>
 
-      {/* Transaction Modal */}
-      <TransactionModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveTransaction}
-        transaction={editingTransaction}
-      />
-    </div>
+        {/* Content */}
+        <div className="glass rounded-lg overflow-hidden">
+          {loading ? (
+            <div className="flex items-center justify-center p-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyber-primary"></div>
+              <span className="ml-3 text-foreground-muted">Carregando transações...</span>
+            </div>
+          ) : error ? (
+            <div className="p-8 text-center">
+              <div className="text-red-400 mb-4">⚠️ {error}</div>
+              <button 
+                onClick={fetchTransactions}
+                className="btn btn-primary"
+              >
+                Tentar Novamente
+              </button>
+            </div>
+          ) : filteredTransactions.length === 0 ? (
+            <div className="p-12 text-center">
+              <CreditCard className="w-16 h-16 text-foreground-muted mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground-primary mb-2">
+                Nenhuma Transação Encontrada
+              </h3>
+              <p className="text-foreground-muted mb-6">
+                Comece adicionando sua primeira transação
+              </p>
+              <button className="btn btn-primary">
+                <Plus className="w-4 h-4 mr-2" />
+                Adicionar Transação
+              </button>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-background-secondary/50">
+                  <tr>
+                    <th className="text-left p-4 text-foreground-secondary font-medium">Data</th>
+                    <th className="text-left p-4 text-foreground-secondary font-medium">Descrição</th>
+                    <th className="text-left p-4 text-foreground-secondary font-medium">Categoria</th>
+                    <th className="text-left p-4 text-foreground-secondary font-medium">Conta</th>
+                    <th className="text-right p-4 text-foreground-secondary font-medium">Valor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTransactions.map((transaction, index) => (
+                    <motion.tr
+                      key={transaction.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="border-t border-border-muted hover:bg-background-secondary/30 transition-colors"
+                    >
+                      <td className="p-4 text-foreground-muted text-sm">
+                        {formatDate(transaction.date)}
+                      </td>
+                      <td className="p-4">
+                        <div className="font-medium text-foreground-primary">
+                          {transaction.description}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-cyber-primary/10 text-cyber-primary">
+                          {transaction.category}
+                        </span>
+                      </td>
+                      <td className="p-4 text-foreground-muted text-sm">
+                        {transaction.account || 'N/A'}
+                      </td>
+                      <td className="p-4 text-right">
+                        <span className={`font-bold ${
+                          transaction.type === 'INCOME' 
+                            ? 'text-green-400' 
+                            : 'text-red-400'
+                        }`}>
+                          {transaction.type === 'INCOME' ? '+' : '-'}
+                          {formatCurrency(transaction.amount)}
+                        </span>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Status Bar */}
+        <div className="mt-6 flex justify-between items-center text-sm text-foreground-muted">
+          <div>
+            Sistema Online • {formatDate(new Date().toISOString())}
+          </div>
+          <div>
+            {isMaster && (
+              <span className="text-cyber-primary font-medium">
+                Modo Master Ativo • Bancos: {databases.join(', ')}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
   );
 }

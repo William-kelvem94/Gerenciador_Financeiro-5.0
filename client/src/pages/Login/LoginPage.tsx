@@ -207,11 +207,13 @@ export function LoginPage() {
                     <UserPlus className="absolute left-3 top-1/2 transform -translate-y-1/2 text-cyan-400 w-4 h-4" />
                     <input
                       id="name"
+                      name="name"
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 bg-gray-800/60 border border-gray-600 rounded-lg text-white text-sm placeholder:text-gray-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all"
                       placeholder="Seu nome completo"
+                      autoComplete="name"
                       required={isRegisterMode}
                     />
                   </div>
@@ -227,11 +229,13 @@ export function LoginPage() {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-cyan-400 w-4 h-4" />
                   <input
                     id="email"
+                    name="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-800/60 border border-gray-600 rounded-lg text-white text-sm placeholder:text-gray-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all"
                     placeholder="seu.email@exemplo.com"
+                    autoComplete="email"
                     required
                   />
                 </div>
@@ -246,11 +250,13 @@ export function LoginPage() {
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-cyan-400 w-4 h-4" />
                   <input
                     id="password"
+                    name="password"
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-10 pr-10 py-3 bg-gray-800/60 border border-gray-600 rounded-lg text-white text-sm placeholder:text-gray-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all"
                     placeholder="••••••••••••"
+                    autoComplete={isRegisterMode ? "new-password" : "current-password"}
                     required
                   />
                   <button

@@ -4,7 +4,5 @@
  * Exports centralizados do módulo de transações
  */
 
-export { TransactionModule } from './transaction.module';
 export { TransactionController } from './controllers/transaction.controller';
-export { TransactionService } from './services/transaction.service';
-export * from './dtos/transaction.dtos';
+export { default as transactionRoutes } from './routes/transactionSimpleRoutes';

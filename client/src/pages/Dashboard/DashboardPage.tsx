@@ -274,12 +274,6 @@ export function DashboardPage() {
 
   const fetchDashboardData = useCallback(
     async (signal?: AbortSignal) => {
-      if (!user?.id) {
-        console.warn('🚫 Usuário não identificado para carregar dados');
-        setStats(INITIAL_STATS_STATE);
-        return;
-      }
-
       try {
         setLoading(true);
         setError(null);
@@ -289,9 +283,9 @@ export function DashboardPage() {
           throw new Error('Sem conexão com a internet');
         }
 
-        console.log('📊 Carregando dados do dashboard para usuário:', user.id);
+        console.log('📊 Carregando dados do dashboard...');
 
-        const response = await fetch(`http://localhost:8080/api/dashboard/stats?userId=${user.id}`, {
+        const response = await fetch(`http://localhost:8080/api/dashboard/stats`, {
           headers: {
             'Content-Type': 'application/json',
           },
@@ -336,7 +330,9 @@ export function DashboardPage() {
     }
 
     let isMounted = true;
+    let hasLoaded = false;
     const controller = new AbortController();
+    
     const timeoutId = setTimeout(() => {
       if (isMounted && loading) {
         controller.abort();
@@ -346,11 +342,14 @@ export function DashboardPage() {
     }, TIMEOUT_DURATION);
 
     const fetchData = async () => {
-      try {
-        await fetchDashboardData(controller.signal);
-      } catch (err: any) {
-        if (err?.name !== 'AbortError') {
-          // Outros erros já tratados em fetchDashboardData
+      if (!hasLoaded && isMounted) {
+        hasLoaded = true;
+        try {
+          await fetchDashboardData(controller.signal);
+        } catch (err: any) {
+          if (err?.name !== 'AbortError') {
+            // Outros erros já tratados em fetchDashboardData
+          }
         }
       }
     };
@@ -362,7 +361,7 @@ export function DashboardPage() {
       clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [user, navigate, fetchDashboardData, loading]);
+  }, [navigate]); // Remover user das dependências
 
   if (loading) {
     return (

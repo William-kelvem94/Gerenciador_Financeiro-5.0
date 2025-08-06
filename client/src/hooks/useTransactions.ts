@@ -17,7 +17,7 @@ interface CreateTransactionData {
 interface UpdateTransactionData extends Partial<CreateTransactionData> {}
 
 export const useTransactions = () => {
-  const { token } = useAuthStore();
+  const { user } = useAuthStore();
   const {
     transactions,
     isLoading,
@@ -34,12 +34,11 @@ export const useTransactions = () => {
 
   const getAuthHeaders = useCallback(() => ({
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  }), [token]);
+  }), []);
 
   const fetchTransactions = useCallback(async (filters: TransactionFilters = {}) => {
-    if (!token) {
-      setError('Authentication required');
+    if (!user?.id) {
+      setError('Usuário não identificado');
       return;
     }
 
@@ -48,6 +47,7 @@ export const useTransactions = () => {
 
     try {
       const queryParams = new URLSearchParams();
+      queryParams.append('userId', user.id);
       
       if (filters.page) queryParams.append('page', filters.page.toString());
       if (filters.limit) queryParams.append('limit', filters.limit.toString());
@@ -77,11 +77,11 @@ export const useTransactions = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, getAuthHeaders, setTransactions, setPagination, setLoading, setError]);
+  }, [user?.id, getAuthHeaders, setTransactions, setPagination, setLoading, setError]);
 
   const createTransaction = useCallback(async (data: CreateTransactionData) => {
-    if (!token) {
-      toast.error('Authentication required');
+    if (!user?.id) {
+      toast.error('Usuário não identificado');
       return null;
     }
 
@@ -91,7 +91,10 @@ export const useTransactions = () => {
       const response = await fetch(`${API_BASE}/transactions`, {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          userId: user.id,
+        }),
       });
 
       if (!response.ok) {
@@ -111,11 +114,11 @@ export const useTransactions = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, getAuthHeaders, addTransaction, setLoading, setError]);
+  }, [user?.id, getAuthHeaders, addTransaction, setLoading, setError]);
 
   const updateTransactionById = useCallback(async (id: string, data: UpdateTransactionData) => {
-    if (!token) {
-      toast.error('Authentication required');
+    if (!user?.id) {
+      toast.error('Usuário não identificado');
       return null;
     }
 
@@ -125,7 +128,10 @@ export const useTransactions = () => {
       const response = await fetch(`${API_BASE}/transactions/${id}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          userId: user.id,
+        }),
       });
 
       if (!response.ok) {
@@ -145,18 +151,18 @@ export const useTransactions = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, getAuthHeaders, updateTransaction, setLoading, setError]);
+  }, [user?.id, getAuthHeaders, updateTransaction, setLoading, setError]);
 
   const deleteTransaction = useCallback(async (id: string) => {
-    if (!token) {
-      toast.error('Authentication required');
+    if (!user?.id) {
+      toast.error('Usuário não identificado');
       return false;
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE}/transactions/${id}`, {
+      const response = await fetch(`${API_BASE}/transactions/${id}?userId=${user.id}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
       });
@@ -178,7 +184,7 @@ export const useTransactions = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, getAuthHeaders, removeTransaction, setLoading, setError]);
+  }, [user?.id, getAuthHeaders, removeTransaction, setLoading, setError]);
 
   return {
     transactions,

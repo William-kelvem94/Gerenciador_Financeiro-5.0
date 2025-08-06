@@ -27,7 +27,38 @@ interface AuthState {
   setUser: (user: User, token: string) => void;
   clearError: () => void;
   initializeAuth: () => void;
+  syncUserWithDatabase: (user: User) => Promise<void>;
 }
+
+// Função para sincronizar usuário com banco de dados
+const syncUserWithDatabase = async (user: User): Promise<void> => {
+  try {
+    console.log('🔄 Sincronizando usuário com banco de dados:', user.email);
+    
+    const response = await fetch('http://localhost:8080/api/users/sync', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        avatar: user.avatar || null,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro na sincronização: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('✅ Usuário sincronizado com sucesso:', result);
+  } catch (error) {
+    console.error('❌ Erro ao sincronizar usuário:', error);
+    // Não falha o login por causa da sincronização
+  }
+};
 
 export const useAuthStore = create<AuthState>()(
   devtools(
@@ -56,6 +87,9 @@ export const useAuthStore = create<AuthState>()(
               avatar: firebaseUser.photoURL || '',
               createdAt: firebaseUser.metadata.creationTime || new Date().toISOString()
             };
+
+            // Sincronizar com banco de dados local
+            await syncUserWithDatabase(user);
 
             set({
               user,
@@ -109,6 +143,9 @@ export const useAuthStore = create<AuthState>()(
               createdAt: firebaseUser.metadata.creationTime || new Date().toISOString()
             };
 
+            // Sincronizar com banco de dados local
+            await syncUserWithDatabase(user);
+
             set({
               user,
               token,
@@ -153,6 +190,9 @@ export const useAuthStore = create<AuthState>()(
               avatar: firebaseUser.photoURL || '',
               createdAt: firebaseUser.metadata.creationTime || new Date().toISOString()
             };
+
+            // Sincronizar com banco de dados local
+            await syncUserWithDatabase(user);
 
             set({
               user,
@@ -226,6 +266,9 @@ export const useAuthStore = create<AuthState>()(
                   createdAt: firebaseUser.metadata.creationTime || new Date().toISOString()
                 };
 
+                // Sincronizar com banco de dados local
+                await syncUserWithDatabase(user);
+
                 set({
                   user,
                   token,
@@ -248,6 +291,8 @@ export const useAuthStore = create<AuthState>()(
             }
           });
         },
+
+        syncUserWithDatabase: syncUserWithDatabase,
       }),
       {
         name: 'auth-storage',

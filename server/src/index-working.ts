@@ -38,14 +38,19 @@ app.use(
 app.use(compression());
 
 // Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: { error: 'Too many requests, please try again later' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-app.use(limiter);
+if (process.env.NODE_ENV !== 'production') {
+  // Desativa rate limit em dev
+  logger.info('Rate limit desativado para desenvolvimento');
+} else {
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: { error: 'Too many requests, please try again later' },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+  app.use(limiter);
+}
 
 // CORS configuration
 app.use(
@@ -62,7 +67,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -72,7 +77,7 @@ app.get('/health', (req, res) => {
 });
 
 // API root endpoint
-app.get('/api', (req, res) => {
+app.get('/api', (_req, res) => {
   res.json({
     message: 'Will Finance 5.1 API - Full Version',
     version: '1.0.0',
@@ -255,7 +260,7 @@ app.get('/api/dashboard/stats', async (req, res) => {
 });
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use('*', (_req, res) => {
   res.status(404).json({
     error: 'Route not found',
     message: 'The requested endpoint does not exist',
@@ -269,7 +274,7 @@ app.use('*', (req, res) => {
 });
 
 // Error handler
-app.use((error: Error, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+app.use((error: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   logger.error('Global error handler:', { error: error.message, stack: error.stack });
   res.status(500).json({
     success: false,

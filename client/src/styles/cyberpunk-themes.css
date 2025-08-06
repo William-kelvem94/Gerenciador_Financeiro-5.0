@@ -78,7 +78,7 @@ body {
   content: '';
   position: absolute;
   top: 0;
-  left: -100%;
+  left: 0;
   width: 100%;
   height: 100%;
   background: linear-gradient(
@@ -87,6 +87,7 @@ body {
     rgba(255, 255, 255, 0.1),
     transparent
   );
+  transform: translateX(-100%);
   animation: scan calc(var(--animation-speed) * 3) infinite;
 }
 
@@ -197,7 +198,7 @@ body {
   content: '';
   position: absolute;
   top: 0;
-  left: -100%;
+  left: 0;
   width: 100%;
   height: 100%;
   background: linear-gradient(
@@ -206,11 +207,12 @@ body {
     rgba(255, 255, 255, 0.2),
     transparent
   );
-  transition: left 0.5s ease;
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
 }
 
 .cyberpunk-btn:hover::before {
-  left: 100%;
+  transform: translateX(100%);
 }
 
 /* Data visualization enhancements */
@@ -271,22 +273,21 @@ body {
   transition: opacity var(--animation-speed), transform var(--animation-speed);
 }
 
-/* Keyframe animations */
+/* Keyframe animations - Otimizadas para performance */
 @keyframes neon-pulse {
   0% {
-    text-shadow: 
-      0 0 5px var(--color-neon-glow),
-      0 0 10px var(--color-neon-glow),
-      0 0 15px var(--color-neon-glow),
-      0 0 20px var(--color-neon-glow);
+    filter: 
+      drop-shadow(0 0 5px var(--color-neon-glow))
+      drop-shadow(0 0 10px var(--color-neon-glow))
+      drop-shadow(0 0 15px var(--color-neon-glow));
+    transform: scale(1);
   }
   100% {
-    text-shadow: 
-      0 0 2px var(--color-neon-glow),
-      0 0 5px var(--color-neon-glow),
-      0 0 8px var(--color-neon-glow),
-      0 0 12px var(--color-neon-glow),
-      0 0 15px var(--color-neon-pulse);
+    filter: 
+      drop-shadow(0 0 2px var(--color-neon-glow))
+      drop-shadow(0 0 8px var(--color-neon-glow))
+      drop-shadow(0 0 15px var(--color-neon-pulse));
+    transform: scale(1.02);
   }
 }
 
@@ -309,8 +310,8 @@ body {
 }
 
 @keyframes scan {
-  0% { left: -100%; }
-  100% { left: 100%; }
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 @keyframes scanlines-move {

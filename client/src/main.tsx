@@ -4,6 +4,9 @@ import App from './App.tsx'
 import './index.css'
 import './styles/cyberpunk-themes.css'
 
+// Inicializar serviço de backup automático
+import './services/storageService.ts'
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />

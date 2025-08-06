@@ -78,10 +78,16 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
 
     if (!formData.name.trim()) {
       newErrors.name = 'Nome do orçamento é obrigatório';
+    } else if (formData.name.trim().length < 3) {
+      newErrors.name = 'Nome deve ter pelo menos 3 caracteres';
     }
 
     if (formData.amount <= 0) {
       newErrors.amount = 'Valor deve ser maior que zero';
+    } else if (isNaN(formData.amount)) {
+      newErrors.amount = 'Valor deve ser um número válido';
+    } else if (formData.amount > 999999999.99) {
+      newErrors.amount = 'Valor máximo permitido é R$ 999.999.999,99';
     }
 
     if (!formData.category) {
@@ -96,8 +102,30 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
       newErrors.endDate = 'Data de fim é obrigatória';
     }
 
-    if (formData.startDate && formData.endDate && new Date(formData.startDate) >= new Date(formData.endDate)) {
-      newErrors.endDate = 'Data de fim deve ser posterior à data de início';
+    if (formData.startDate && formData.endDate) {
+      const startDate = new Date(formData.startDate);
+      const endDate = new Date(formData.endDate);
+      
+      if (startDate >= endDate) {
+        newErrors.endDate = 'Data de fim deve ser posterior à data de início';
+      }
+      
+      const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays > 365) {
+        newErrors.endDate = 'Período do orçamento não pode exceder 1 ano';
+      }
+      
+      if (diffDays < 1) {
+        newErrors.endDate = 'Período mínimo é de 1 dia';
+      }
+    }
+
+    if (formData.spent < 0) {
+      newErrors.spent = 'Valor gasto não pode ser negativo';
+    } else if (formData.spent > formData.amount) {
+      newErrors.spent = 'Valor gasto não pode ser maior que o orçamento';
     }
 
     setErrors(newErrors);

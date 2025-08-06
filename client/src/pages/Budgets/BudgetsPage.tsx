@@ -81,58 +81,24 @@ export function BudgetsPage() {
     setIsModalOpen(false);
   };
 
-  const [budgets, setBudgets] = useState<Budget[]>([
-    {
-      id: '1',
-      name: 'Alimentação',
-      category: 'Essenciais',
-      allocated: 1500,
-      spent: 890,
-      icon: ShoppingCart,
-      color: 'cyber-accent',
-      status: 'healthy'
-    },
-    {
-      id: '2',
-      name: 'Moradia',
-      category: 'Essenciais',
-      allocated: 2500,
-      spent: 2500,
-      icon: Home,
-      color: 'cyber-primary',
-      status: 'warning'
-    },
-    {
-      id: '3',
-      name: 'Transporte',
-      category: 'Essenciais',
-      allocated: 800,
-      spent: 950,
-      icon: Car,
-      color: 'cyber-danger',
-      status: 'danger'
-    },
-    {
-      id: '4',
-      name: 'Entretenimento',
-      category: 'Lifestyle',
-      allocated: 600,
-      spent: 320,
-      icon: Coffee,
-      color: 'cyber-secondary',
-      status: 'healthy'
-    },
-    {
-      id: '5',
-      name: 'Investimentos',
-      category: 'Poupança',
-      allocated: 2000,
-      spent: 1500,
-      icon: PiggyBank,
-      color: 'cyber-accent',
-      status: 'healthy'
-    }
-  ]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
+
+  // Busca dados reais do backend
+  React.useEffect(() => {
+    const fetchBudgets = async () => {
+      try {
+        const response = await fetch('/api/budgets', {
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (!response.ok) throw new Error('Erro ao buscar orçamentos');
+        const data = await response.json();
+        setBudgets(data.budgets || []);
+      } catch (err) {
+        setBudgets([]);
+      }
+    };
+    fetchBudgets();
+  }, []);
 
   const totalAllocated = budgets.reduce((sum, budget) => sum + budget.allocated, 0);
   const totalSpent = budgets.reduce((sum, budget) => sum + budget.spent, 0);

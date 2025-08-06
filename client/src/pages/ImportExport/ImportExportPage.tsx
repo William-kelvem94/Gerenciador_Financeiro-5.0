@@ -18,7 +18,7 @@ interface PreviewData {
     expenses: number;
     balance: number;
   };
-  sampleTransactions: Array<{
+  sampleTransactions?: Array<{
     date: string;
     description: string;
     amount: number;
@@ -74,9 +74,6 @@ const ImportExportPage: React.FC = () => {
 
       const response = await fetch('/api/import-export/preview', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
         body: formData
       });
 
@@ -121,11 +118,8 @@ const ImportExportPage: React.FC = () => {
       formData.append('file', fileInput.files[0]);
       formData.append('accountName', accountName.trim());
 
-      const response = await fetch('/api/import-export/import', {
+      const response = await fetch('/api/import-export/process', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
         body: formData
       });
 
@@ -136,12 +130,12 @@ const ImportExportPage: React.FC = () => {
       }
 
       if (result.success) {
-        setImportStats(result.import);
+        setImportStats(result.stats);
         setPreviewData(null);
-        toast.success(`✅ ${result.import.importedCount} transações importadas com sucesso!`);
+        toast.success(`✅ ${result.stats.importedCount} transações importadas com sucesso!`);
         
-        if (result.import.duplicateCount > 0) {
-          toast(`ℹ️ ${result.import.duplicateCount} transações duplicadas foram ignoradas`, {
+        if (result.stats.duplicateCount > 0) {
+          toast(`ℹ️ ${result.stats.duplicateCount} transações duplicadas foram ignoradas`, {
             duration: 4000,
             icon: '📋'
           });
@@ -169,10 +163,7 @@ const ImportExportPage: React.FC = () => {
       });
 
       const response = await fetch(`/api/import-export/export?${params}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        method: 'GET'
       });
 
       if (!response.ok) {
@@ -273,9 +264,8 @@ const ImportExportPage: React.FC = () => {
         {activeTab === 'import' && (
           <div className="space-y-6">
             {/* Upload Area */}
-            <button
-              type="button"
-              className={`w-full border-2 border-dashed rounded-lg p-8 text-center transition-all bg-transparent ${
+            <div
+              className={`w-full border-2 border-dashed rounded-lg p-8 text-center transition-all ${
                 isDragOver
                   ? 'border-cyan-400 bg-cyan-400/10'
                   : 'border-gray-600 hover:border-gray-500'
@@ -283,13 +273,19 @@ const ImportExportPage: React.FC = () => {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
             >
               <input
                 ref={fileInputRef}
                 type="file"
                 accept=".csv,.txt,.pdf,.xlsx,.ofx"
-                onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleFileSelect(file);
+                    // Reset input to allow selecting the same file again if needed
+                    e.target.value = '';
+                  }
+                }}
                 className="hidden"
                 aria-label="Selecionar arquivo para importação"
               />
@@ -308,13 +304,12 @@ const ImportExportPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
+                className="px-6 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 transition-colors"
                 disabled={isProcessing}
-                className="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg 
-                          disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isProcessing ? 'Processando...' : 'Selecionar Arquivo'}
               </button>
-            </button>
+            </div>
 
             {/* Bancos Suportados */}
             <div className="bg-gray-800 rounded-lg p-6">
@@ -364,19 +359,23 @@ const ImportExportPage: React.FC = () => {
                 <div className="mb-6">
                   <h4 className="text-md font-semibold mb-3">Primeiras 5 Transações:</h4>
                   <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {previewData.sampleTransactions.map((transaction, index) => (
-                      <div key={`transaction-${transaction.date}-${index}`} className="bg-gray-700 p-3 rounded flex justify-between">
-                        <div>
-                          <div className="font-medium">{transaction.description}</div>
-                          <div className="text-sm text-gray-400">{formatDate(transaction.date)}</div>
+                    {previewData.sampleTransactions && previewData.sampleTransactions.length > 0 ? (
+                      previewData.sampleTransactions.map((transaction, index) => (
+                        <div key={`transaction-${transaction.date}-${index}`} className="bg-gray-700 p-3 rounded flex justify-between">
+                          <div>
+                            <div className="font-medium">{transaction.description}</div>
+                            <div className="text-sm text-gray-400">{formatDate(transaction.date)}</div>
+                          </div>
+                          <div className={`font-bold ${
+                            transaction.type === 'INCOME' ? 'text-green-400' : 'text-red-400'
+                          }`}>
+                            {transaction.type === 'INCOME' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                          </div>
                         </div>
-                        <div className={`font-bold ${
-                          transaction.type === 'INCOME' ? 'text-green-400' : 'text-red-400'
-                        }`}>
-                          {transaction.type === 'INCOME' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <div className="text-gray-400">Nenhuma transação de exemplo disponível.</div>
+                    )}
                   </div>
                 </div>
 

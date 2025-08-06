@@ -79,6 +79,10 @@ export function TransactionModal({ isOpen, onClose, onSave, transaction }: Reado
 
     if (formData.amount <= 0) {
       newErrors.amount = 'Valor deve ser maior que zero';
+    } else if (isNaN(formData.amount)) {
+      newErrors.amount = 'Valor deve ser um número válido';
+    } else if (formData.amount > 999999999.99) {
+      newErrors.amount = 'Valor máximo permitido é R$ 999.999.999,99';
     }
 
     if (!formData.category) {
@@ -87,6 +91,15 @@ export function TransactionModal({ isOpen, onClose, onSave, transaction }: Reado
 
     if (!formData.date) {
       newErrors.date = 'Data é obrigatória';
+    } else {
+      const selectedDate = new Date(formData.date);
+      const today = new Date();
+      const maxDate = new Date();
+      maxDate.setFullYear(today.getFullYear() + 1);
+      
+      if (selectedDate > maxDate) {
+        newErrors.date = 'Data não pode ser superior a 1 ano no futuro';
+      }
     }
 
     setErrors(newErrors);
@@ -203,9 +216,14 @@ export function TransactionModal({ isOpen, onClose, onSave, transaction }: Reado
               id="amount"
               type="number"
               step="0.01"
-              min="0"
-              value={formData.amount}
-              onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
+              min="0.01"
+              max="999999999.99"
+              value={formData.amount || ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                const numValue = parseFloat(value);
+                handleInputChange('amount', isNaN(numValue) ? 0 : numValue);
+              }}
               placeholder="0,00"
               className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 
                          focus:outline-none focus:border-cyan-400 transition-colors ${

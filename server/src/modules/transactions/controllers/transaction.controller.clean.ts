@@ -15,21 +15,17 @@ export class TransactionController {
    */
   async getTransactions(req: Request, res: Response): Promise<void> {
     try {
-      const { page = 1, limit = 50, type, search, userId } = req.query;
-      
-      // Para desenvolvimento, usar userId padrão se não fornecido
-      const currentUserId = userId as string || 'dev-user-001';
+      const { page = 1, limit = 50, type, search } = req.query;
       
       const skip = (Number(page) - 1) * Number(limit);
       
-      const where: Record<string, unknown> = { userId: currentUserId };
+      const where: import('@prisma/client').Prisma.TransactionWhereInput = {};
       if (type && (type === 'INCOME' || type === 'EXPENSE')) {
         where.type = type;
       }
       if (search) {
         where.description = {
           contains: search as string,
-          mode: 'insensitive',
         };
       }
 
@@ -71,17 +67,27 @@ export class TransactionController {
    */
   async createTransaction(req: Request, res: Response): Promise<void> {
     try {
-      const { description, amount, type, categoryId, accountId, date, userId } = req.body;
-
-      // Para desenvolvimento, usar userId padrão se não fornecido
-      const currentUserId = userId || 'dev-user-001';
+      const { description, amount, type, categoryId, accountId, date } = req.body;
 
       // Validation
-      if (!description || !amount || !type || !date) {
+      if (!description || !amount || !type || !categoryId || !accountId || !date) {
         res.status(400).json({
           success: false,
           error: 'Missing required fields',
-          required: ['description', 'amount', 'type', 'date'],
+          required: ['description', 'amount', 'type', 'categoryId', 'accountId', 'date'],
+        });
+        return;
+      }
+
+      // Get default user
+      const defaultUser = await prisma.user.findFirst({
+        where: { email: 'admin@willfinance.com' },
+      });
+
+      if (!defaultUser) {
+        res.status(400).json({
+          success: false,
+          error: 'Default user not found',
         });
         return;
       }
@@ -92,9 +98,9 @@ export class TransactionController {
           amount: parseFloat(amount),
           type: type.toUpperCase(),
           date: new Date(date),
-          userId: currentUserId,
-          accountId: accountId || null,
-          categoryId: categoryId || null,
+          userId: defaultUser.id,
+          accountId,
+          categoryId,
           status: 'COMPLETED',
         },
         include: {
