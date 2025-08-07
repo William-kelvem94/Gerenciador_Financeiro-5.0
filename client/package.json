@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-<<<<<<< HEAD
     "lint": "eslint . --ext .ts,.tsx --max-warnings 4",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write .",
@@ -15,15 +14,11 @@
     "check:all": "npm run lint && npm run style:lint && npm run type-check",
     "fix:all": "npm run lint:fix && npm run style:fix && npm run format",
     "type-check": "tsc --noEmit",
-=======
-    "lint": "eslint . --max-warnings 0",
->>>>>>> 19ae9cf82eb63c5cfccf5974311e9c254540a7d3
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-<<<<<<< HEAD
     "@hookform/resolvers": "^3.3.2",
     "@react-pdf/renderer": "^4.3.0",
     "@tanstack/react-query": "^4.40.1",
@@ -45,28 +40,13 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
     "lucide-react": "^0.294.0",
-    "react": "^18.3.1",
-    "react-chartjs-2": "^5.3.0",
-    "react-dom": "^18.3.1",
-=======
-    "@eslint/js": "^9.31.0",
-    "@hookform/resolvers": "^3.3.2",
-    "axios": "^1.6.2",
-    "clsx": "^2.0.0",
-    "date-fns": "^2.30.0",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-react": "^7.37.5",
-    "framer-motion": "^10.16.12",
-    "lucide-react": "^0.294.0",
     "react": "^18.2.0",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.2.0",
->>>>>>> 19ae9cf82eb63c5cfccf5974311e9c254540a7d3
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.48.2",
     "react-hot-toast": "^2.4.1",
     "react-intersection-observer": "^9.5.3",
-<<<<<<< HEAD
     "react-pdf": "^10.0.1",
     "react-router-dom": "^6.26.1",
     "react-toastify": "^11.0.5",
@@ -77,14 +57,6 @@
     "uuid": "^11.1.0",
     "workbox-window": "^7.0.0",
     "zod": "^3.25.76",
-=======
-    "react-query": "^3.39.3",
-    "react-router-dom": "^6.26.1",
-    "recharts": "^2.8.0",
-    "tailwind-merge": "^2.0.0",
-    "workbox-window": "^7.0.0",
-    "zod": "^3.22.4",
->>>>>>> 19ae9cf82eb63c5cfccf5974311e9c254540a7d3
     "zustand": "^4.4.7"
   },
   "devDependencies": {
@@ -98,7 +70,6 @@
     "@typescript-eslint/eslint-plugin": "^8.36.0",
     "@typescript-eslint/parser": "^8.36.0",
     "@vitejs/plugin-react": "^4.1.1",
-<<<<<<< HEAD
     "@vitest/ui": "^3.2.4",
     "autoprefixer": "^10.4.16",
     "cypress": "^14.5.3",
@@ -108,11 +79,6 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
-=======
-    "@vitest/ui": "^1.0.4",
-    "autoprefixer": "^10.4.16",
-    "eslint": "^8.53.0",
->>>>>>> 19ae9cf82eb63c5cfccf5974311e9c254540a7d3
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.4",
     "globals": "^16.3.0",
@@ -123,19 +89,10 @@
     "stylelint": "^16.23.0",
     "stylelint-config-standard": "^39.0.0",
     "tailwindcss": "^3.3.5",
-<<<<<<< HEAD
     "typescript": "^5.8.3",
     "vite": "^7.0.6",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-pwa": "^1.0.2",
     "vitest": "^3.2.4"
-=======
-    "typescript": "^5.2.2",
-    "vite": "^5.0.0",
-    "vite-plugin-eslint": "^1.8.1",
-    "vite-plugin-pwa": "^0.17.4",
-    "vitest": "^1.0.4",
-    "@typescript-eslint/utils": "^8.38.0"
->>>>>>> 19ae9cf82eb63c5cfccf5974311e9c254540a7d3
   }
 }
