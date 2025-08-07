@@ -10,6 +10,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+<<<<<<< HEAD
 # Environment Variables
 .env
 .env.local
@@ -44,6 +45,17 @@ server/logs/
 client/logs/
 lerna-debug.log*
 lerna-debug.log*
+=======
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+>>>>>>> 19ae9cf82eb63c5cfccf5974311e9c254540a7d3
 
 # Runtime data
 pids/

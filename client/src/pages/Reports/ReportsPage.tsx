@@ -1,52 +1,166 @@
-import React, { useState, useEffect, useCallback } from 'react';
+<<<<<<< HEAD
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { toast } from 'react-hot-toast';
-import { useAuthStore } from '../../stores/authStore';
-import { BarChart3, TrendingUp, Download, Activity, Zap, DollarSign, Target, Eye, Settings } from 'lucide-react';
+import { BarChart3, TrendingUp, Calendar, Download } from 'lucide-react';
 import { LoadingScreen } from '../../components/ui/LoadingScreen';
 
-interface ReportData {
-  overview: {
-    totalIncome: number;
-    totalExpenses: number;
-    netIncome: number;
-    transactionCount: number;
-  };
-  monthlyTrends: {
-    month: string;
-    income: number;
-    expenses: number;
-  }[];
-  categories: {
-    name: string;
-    amount: number;
-    percentage: number;
-    color: string;
-  }[];
-}
-
-const INITIAL_REPORT_DATA: ReportData = {
-  overview: {
-    totalIncome: 0,
-    totalExpenses: 0,
-    netIncome: 0,
-    transactionCount: 0
-  },
-  monthlyTrends: [],
-  categories: []
-};
-
 export const ReportsPage: React.FC = () => {
-  const { user, token } = useAuthStore();
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');
-  const [analysisMode, setAnalysisMode] = useState('overview');
-  const [reports, setReports] = useState<ReportData>(INITIAL_REPORT_DATA);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [_dateRange, _setDateRange] = useState({
+    startDate: '',
+    endDate: '',
+  });
 
-  const fetchReports = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  // This would be implemented with a reports store
+  const isLoading = false;
+  const mockReports = {
+    overview: {
+      totalIncome: 15000,
+      totalExpenses: 8500,
+      netIncome: 6500,
+      transactionCount: 45,
+    },
+    monthlyTrends: [
+      { month: '2024-01', income: 12000, expenses: 7000 },
+      { month: '2024-02', income: 14000, expenses: 8000 },
+      { month: '2024-03', income: 15000, expenses: 8500 },
+    ],
+  };
+
+  if (isLoading) {
+    return <LoadingScreen message="Generating reports..." />;
+  }
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div>
+          <h1 className="text-3xl font-cyber text-cyber-primary mb-2">
+            Financial Reports
+          </h1>
+          <p className="text-foreground-secondary">
+            Analyze your financial data and trends
+          </p>
+        </div>
+
+        <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+          <select
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value)}
+            className="px-4 py-2 bg-background-secondary border border-border rounded-lg focus:ring-2 focus:ring-cyber-primary"
+          >
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+          
+          <button className="flex items-center space-x-2 px-4 py-2 bg-cyber-primary text-cyber-dark rounded-lg hover:bg-cyber-secondary transition-colors">
+            <Download className="w-4 h-4" />
+            <span>Export</span>
+          </button>
+        </div>
+      </motion.div>
+
+      {/* Summary Cards */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
+        <div className="bg-background-secondary border border-border rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-foreground">Total Income</h3>
+            <TrendingUp className="w-6 h-6 text-cyber-accent" />
+          </div>
+          <div className="text-3xl font-cyber text-cyber-accent mb-2">
+            ${mockReports.overview.totalIncome.toLocaleString()}
+          </div>
+          <p className="text-sm text-foreground-secondary">+12% from last period</p>
+        </div>
+
+        <div className="bg-background-secondary border border-border rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-foreground">Total Expenses</h3>
+            <BarChart3 className="w-6 h-6 text-cyber-danger" />
+          </div>
+          <div className="text-3xl font-cyber text-cyber-danger mb-2">
+            ${mockReports.overview.totalExpenses.toLocaleString()}
+          </div>
+          <p className="text-sm text-foreground-secondary">-5% from last period</p>
+        </div>
+
+        <div className="bg-background-secondary border border-border rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-foreground">Net Income</h3>
+            <TrendingUp className="w-6 h-6 text-cyber-primary" />
+          </div>
+          <div className="text-3xl font-cyber text-cyber-primary mb-2">
+            ${mockReports.overview.netIncome.toLocaleString()}
+          </div>
+          <p className="text-sm text-foreground-secondary">+25% from last period</p>
+        </div>
+
+        <div className="bg-background-secondary border border-border rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-foreground">Transactions</h3>
+            <Calendar className="w-6 h-6 text-cyber-warning" />
+          </div>
+          <div className="text-3xl font-cyber text-cyber-warning mb-2">
+            {mockReports.overview.transactionCount}
+          </div>
+          <p className="text-sm text-foreground-secondary">This period</p>
+        </div>
+      </motion.div>
+
+      {/* Chart Placeholders */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-background-secondary border border-border rounded-xl p-6"
+        >
+          <h3 className="text-xl font-semibold text-foreground mb-6">Income vs Expenses</h3>
+          <div className="h-64 flex items-center justify-center border border-border-secondary rounded-lg">
+            <p className="text-foreground-muted">Chart will be implemented here</p>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-background-secondary border border-border rounded-xl p-6"
+        >
+          <h3 className="text-xl font-semibold text-foreground mb-6">Category Breakdown</h3>
+          <div className="h-64 flex items-center justify-center border border-border-secondary rounded-lg">
+            <p className="text-foreground-muted">Pie chart will be implemented here</p>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Monthly Trends */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="bg-background-secondary border border-border rounded-xl p-6"
+      >
+        <h3 className="text-xl font-semibold text-foreground mb-6">Monthly Trends</h3>
+        <div className="h-80 flex items-center justify-center border border-border-secondary rounded-lg">
+          <p className="text-foreground-muted">Line chart will be implemented here</p>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
     try {
       const response = await fetch('/api/reports', {
         headers: {
@@ -374,3 +488,167 @@ export const ReportsPage: React.FC = () => {
 };
 
 export default ReportsPage;
+=======
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { BarChart3, TrendingUp, Calendar, Download } from 'lucide-react';
+import { LoadingScreen } from '../../components/ui/LoadingScreen';
+
+export const ReportsPage: React.FC = () => {
+  const [selectedPeriod, setSelectedPeriod] = useState('monthly');
+  const [_dateRange, _setDateRange] = useState({
+    startDate: '',
+    endDate: '',
+  });
+
+  // This would be implemented with a reports store
+  const isLoading = false;
+  const mockReports = {
+    overview: {
+      totalIncome: 15000,
+      totalExpenses: 8500,
+      netIncome: 6500,
+      transactionCount: 45,
+    },
+    monthlyTrends: [
+      { month: '2024-01', income: 12000, expenses: 7000 },
+      { month: '2024-02', income: 14000, expenses: 8000 },
+      { month: '2024-03', income: 15000, expenses: 8500 },
+    ],
+  };
+
+  if (isLoading) {
+    return <LoadingScreen message="Generating reports..." />;
+  }
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div>
+          <h1 className="text-3xl font-cyber text-cyber-primary mb-2">
+            Financial Reports
+          </h1>
+          <p className="text-foreground-secondary">
+            Analyze your financial data and trends
+          </p>
+        </div>
+
+        <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+          <select
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value)}
+            className="px-4 py-2 bg-background-secondary border border-border rounded-lg focus:ring-2 focus:ring-cyber-primary"
+          >
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+          
+          <button className="flex items-center space-x-2 px-4 py-2 bg-cyber-primary text-cyber-dark rounded-lg hover:bg-cyber-secondary transition-colors">
+            <Download className="w-4 h-4" />
+            <span>Export</span>
+          </button>
+        </div>
+      </motion.div>
+
+      {/* Summary Cards */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
+        <div className="bg-background-secondary border border-border rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-foreground">Total Income</h3>
+            <TrendingUp className="w-6 h-6 text-cyber-accent" />
+          </div>
+          <div className="text-3xl font-cyber text-cyber-accent mb-2">
+            ${mockReports.overview.totalIncome.toLocaleString()}
+          </div>
+          <p className="text-sm text-foreground-secondary">+12% from last period</p>
+        </div>
+
+        <div className="bg-background-secondary border border-border rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-foreground">Total Expenses</h3>
+            <BarChart3 className="w-6 h-6 text-cyber-danger" />
+          </div>
+          <div className="text-3xl font-cyber text-cyber-danger mb-2">
+            ${mockReports.overview.totalExpenses.toLocaleString()}
+          </div>
+          <p className="text-sm text-foreground-secondary">-5% from last period</p>
+        </div>
+
+        <div className="bg-background-secondary border border-border rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-foreground">Net Income</h3>
+            <TrendingUp className="w-6 h-6 text-cyber-primary" />
+          </div>
+          <div className="text-3xl font-cyber text-cyber-primary mb-2">
+            ${mockReports.overview.netIncome.toLocaleString()}
+          </div>
+          <p className="text-sm text-foreground-secondary">+25% from last period</p>
+        </div>
+
+        <div className="bg-background-secondary border border-border rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-foreground">Transactions</h3>
+            <Calendar className="w-6 h-6 text-cyber-warning" />
+          </div>
+          <div className="text-3xl font-cyber text-cyber-warning mb-2">
+            {mockReports.overview.transactionCount}
+          </div>
+          <p className="text-sm text-foreground-secondary">This period</p>
+        </div>
+      </motion.div>
+
+      {/* Chart Placeholders */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-background-secondary border border-border rounded-xl p-6"
+        >
+          <h3 className="text-xl font-semibold text-foreground mb-6">Income vs Expenses</h3>
+          <div className="h-64 flex items-center justify-center border border-border-secondary rounded-lg">
+            <p className="text-foreground-muted">Chart will be implemented here</p>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-background-secondary border border-border rounded-xl p-6"
+        >
+          <h3 className="text-xl font-semibold text-foreground mb-6">Category Breakdown</h3>
+          <div className="h-64 flex items-center justify-center border border-border-secondary rounded-lg">
+            <p className="text-foreground-muted">Pie chart will be implemented here</p>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Monthly Trends */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="bg-background-secondary border border-border rounded-xl p-6"
+      >
+        <h3 className="text-xl font-semibold text-foreground mb-6">Monthly Trends</h3>
+        <div className="h-80 flex items-center justify-center border border-border-secondary rounded-lg">
+          <p className="text-foreground-muted">Line chart will be implemented here</p>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+>>>>>>> 19ae9cf82eb63c5cfccf5974311e9c254540a7d3

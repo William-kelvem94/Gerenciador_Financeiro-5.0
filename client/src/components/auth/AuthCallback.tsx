@@ -1,5 +1,9 @@
 import React, { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
+<<<<<<< HEAD
+=======
+// import { LoadingScreen } from '../ui/LoadingScreen';
+>>>>>>> 19ae9cf82eb63c5cfccf5974311e9c254540a7d3
 import { useAuthStore } from '../../stores/authStore';
 
 export const AuthCallback: React.FC = () => {
