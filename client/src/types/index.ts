@@ -131,7 +131,7 @@ export interface Notification {
   message: string;
   type: NotificationType;
   isRead: boolean;
-  data?: any;
+  data?: Record<string, unknown>;
   userId: string;
   createdAt: string;
   readAt?: string;
@@ -143,7 +143,7 @@ export interface AiInsight {
   type: InsightType;
   title: string;
   description: string;
-  data: any;
+  data: Record<string, unknown>;
   confidence: number;
   isViewed: boolean;
   userId: string;
@@ -203,7 +203,7 @@ export type InsightType =
   | 'EXPENSE_CATEGORY_ANALYSIS';
 
 // API Response types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message?: string;
   data?: T;

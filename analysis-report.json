@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "data": {
+    "summary": "Relatório de análise financeira",
+    "totalIncome": 12000,
+    "totalExpense": 8000,
+    "balance": 4000,
+    "categories": [
+      { "name": "Salário", "amount": 10000 },
+      { "name": "Freelance", "amount": 2000 },
+      { "name": "Alimentação", "amount": 3000 },
+      { "name": "Transporte", "amount": 1000 },
+      { "name": "Lazer", "amount": 4000 }
+    ]
+  },
+  "message": "Relatório gerado com sucesso",
+  "timestamp": "2024-06-11T12:00:00Z"
+}

@@ -1,15 +1,11 @@
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
-import { api } from '../lib/api';
-import toast from 'react-hot-toast';
+import { persist } from 'zustand/middleware';
 
 export interface Budget {
   id: string;
   name: string;
   amount: number;
   spent: number;
-  remaining: number;
-  percentageUsed: number;
   period: 'monthly' | 'yearly';
   startDate: string;
   endDate: string;
@@ -18,154 +14,66 @@ export interface Budget {
   updatedAt: string;
 }
 
-export interface BudgetOverview {
-  totalBudget: number;
-  totalSpent: number;
-  totalRemaining: number;
-  overBudgetCount: number;
-  activeBudgets: number;
-  totalBudgets: number;
+export interface BudgetState {
   budgets: Budget[];
-}
-
-interface BudgetState {
-  budgets: Budget[];
-  overview: BudgetOverview | null;
   isLoading: boolean;
   error: string | null;
-
+  
   // Actions
-  fetchBudgets: () => Promise<void>;
-  fetchOverview: () => Promise<void>;
-  createBudget: (budget: Omit<Budget, 'id' | 'spent' | 'remaining' | 'percentageUsed' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  updateBudget: (id: string, budget: Partial<Budget>) => Promise<void>;
-  deleteBudget: (id: string) => Promise<void>;
-  clearError: () => void;
+  setBudgets: (budgets: Budget[]) => void;
+  addBudget: (budget: Budget) => void;
+  updateBudget: (id: string, budget: Partial<Budget>) => void;
+  removeBudget: (id: string) => void;
+  setLoading: (isLoading: boolean) => void;
+  setError: (error: string | null) => void;
+  clearBudgets: () => void;
 }
 
 export const useBudgetStore = create<BudgetState>()(
-  devtools(
-    (set, get) => ({
+  persist(
+    (set) => ({
       budgets: [],
-      overview: null,
       isLoading: false,
       error: null,
 
-      fetchBudgets: async () => {
-        try {
-          set({ isLoading: true, error: null });
-          
-          const response = await api.get('/budgets');
-          
-          set({
-            budgets: response.data,
-            isLoading: false,
-          });
-        } catch (error: any) {
-          const message = error.response?.data?.message || 'Failed to fetch budgets';
-          set({
-            error: message,
-            isLoading: false,
-          });
-          toast.error(message);
-        }
-      },
+      setBudgets: (budgets) => 
+        set({ budgets, error: null }),
 
-      fetchOverview: async () => {
-        try {
-          const response = await api.get('/budgets/overview');
-          set({ overview: response.data });
-        } catch (error: any) {
-          console.error('Failed to fetch budget overview:', error);
-        }
-      },
+      addBudget: (budget) => 
+        set((state) => ({ 
+          budgets: [budget, ...state.budgets],
+          error: null,
+        })),
 
-      createBudget: async (budgetData) => {
-        try {
-          set({ isLoading: true, error: null });
-          
-          const response = await api.post('/budgets', budgetData);
-          const newBudget = response.data;
+      updateBudget: (id, updatedData) => 
+        set((state) => ({
+          budgets: state.budgets.map((b) =>
+            b.id === id ? { ...b, ...updatedData } : b
+          ),
+          error: null,
+        })),
 
-          set(state => ({
-            budgets: [newBudget, ...state.budgets],
-            isLoading: false,
-          }));
+      removeBudget: (id) => 
+        set((state) => ({
+          budgets: state.budgets.filter((b) => b.id !== id),
+          error: null,
+        })),
 
-          // Refresh overview
-          get().fetchOverview();
-          
-          toast.success('Budget created successfully');
-        } catch (error: any) {
-          const message = error.response?.data?.message || 'Failed to create budget';
-          set({
-            error: message,
-            isLoading: false,
-          });
-          toast.error(message);
-          throw error;
-        }
-      },
+      setLoading: (isLoading) => 
+        set({ isLoading }),
 
-      updateBudget: async (id, budgetData) => {
-        try {
-          set({ isLoading: true, error: null });
-          
-          const response = await api.patch(`/budgets/${id}`, budgetData);
-          const updatedBudget = response.data;
+      setError: (error) => 
+        set({ error, isLoading: false }),
 
-          set(state => ({
-            budgets: state.budgets.map(b => 
-              b.id === id ? updatedBudget : b
-            ),
-            isLoading: false,
-          }));
-
-          // Refresh overview
-          get().fetchOverview();
-          
-          toast.success('Budget updated successfully');
-        } catch (error: any) {
-          const message = error.response?.data?.message || 'Failed to update budget';
-          set({
-            error: message,
-            isLoading: false,
-          });
-          toast.error(message);
-          throw error;
-        }
-      },
-
-      deleteBudget: async (id) => {
-        try {
-          set({ isLoading: true, error: null });
-          
-          await api.delete(`/budgets/${id}`);
-
-          set(state => ({
-            budgets: state.budgets.filter(b => b.id !== id),
-            isLoading: false,
-          }));
-
-          // Refresh overview
-          get().fetchOverview();
-          
-          toast.success('Budget deleted successfully');
-        } catch (error: any) {
-          const message = error.response?.data?.message || 'Failed to delete budget';
-          set({
-            error: message,
-            isLoading: false,
-          });
-          toast.error(message);
-          throw error;
-        }
-      },
-
-      clearError: () => {
-        set({ error: null });
-      },
+      clearBudgets: () => 
+        set({ budgets: [], error: null }),
     }),
-    { name: 'budget-store' }
+    {
+      name: 'budget-storage',
+      partialize: (state) => ({ 
+        // Don't persist loading states and errors
+        budgets: state.budgets,
+      }),
+    }
   )
 );

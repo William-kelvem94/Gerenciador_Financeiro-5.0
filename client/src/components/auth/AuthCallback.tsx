@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-// import { LoadingScreen } from '../ui/LoadingScreen';
 import { useAuthStore } from '../../stores/authStore';
 
 export const AuthCallback: React.FC = () => {
@@ -10,7 +9,6 @@ export const AuthCallback: React.FC = () => {
     // Get token from URL params (Google OAuth callback)
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
-
     if (token) {
       // Decode JWT to get user info (simplified)
       try {
@@ -22,13 +20,11 @@ export const AuthCallback: React.FC = () => {
           avatar: payload.avatar,
           createdAt: new Date().toISOString(),
         };
-        
         setUser(user, token);
       } catch (error) {
         console.error('Failed to parse token:', error);
       }
     }
   }, [setUser]);
-
   return <Navigate to="/dashboard" replace />;
 };

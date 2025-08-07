@@ -1,304 +1,333 @@
-# 🚀 Guia de Desenvolvimento - Will Finance 5.0
+# Will Finance 5.0 - Guia de Desenvolvimento Atualizado
 
-## 📋 Pré-requisitos
+Este guia fornece informações detalhadas para desenvolvedores que desejam contribuir ou entender o projeto.
 
-- **Node.js 18+** (https://nodejs.org/)
-- **npm 8+** ou **pnpm** (recomendado)
-- **Git** (opcional)
+## 🏗️ Arquitetura do Sistema
 
-## 🎯 Configuração Rápida
-
-### 1. **Comando Principal (Recomendado)**
-```bash
-# Instala tudo e inicia desenvolvimento
-npm run install:all
-npm run db:migrate
-npm run db:seed
-npm run dev
+### **Visão Geral**
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   React Client  │◄──►│  Express API    │◄──►│  SQLite/Postgres│
+│  (Frontend)     │    │   (Backend)     │    │   (Database)    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+        │                       │                       │
+        │              ┌─────────────────┐               │
+        └──────────────►│   Prisma ORM   │◄──────────────┘
+                       │  (Data Layer)   │
+                       └─────────────────┘
 ```
 
-### 2. **Configuração Manual**
+### **Stack Tecnológico Atual**
+
+#### **Frontend (Client)**
+- **React 18** - Biblioteca de UI
+- **TypeScript** - Tipagem estática
+- **Vite** - Build tool e dev server
+- **Tailwind CSS** - Framework CSS utilitário
+- **Zustand** - Gerenciamento de estado
+- **React Router** - Roteamento
+- **Axios** - Cliente HTTP
+- **React Hook Form** - Formulários
+- **Recharts** - Gráficos e visualizações
+
+#### **Backend (Server)**
+- **Node.js 20** - Runtime JavaScript
+- **Express** - Framework web
+- **TypeScript** - Tipagem estática
+- **Prisma 6.12.0** - ORM e gerador de cliente
+- **SQLite/PostgreSQL** - Banco de dados
+- **bcryptjs** - Hash de senhas
+- **jsonwebtoken** - Autenticação JWT
+- **Winston** - Sistema de logs
+- **Helmet** - Segurança HTTP
+
+#### 1. **Pré-requisitos Obrigatórios**
+- ✅ **Node.js 18+** (https://nodejs.org/)
+- ✅ **npm 8+** (incluído com Node.js)
+- ✅ **Git** (https://git-scm.com/)
+
+#### 2. **Pré-requisitos Opcionais**
+- 🐳 **Docker Desktop** (para containerização)
+- 📊 **PostgreSQL 15+** (para desenvolvimento sem Docker)
+- ⚡ **Redis** (para cache local)
+
+#### 3. **Instalação Completa**
 ```bash
-# 1. Instalar dependências
-npm install
+# 1. Clonar repositório
+git clone [url-do-repositorio]
+cd will-finance-5.0
 
-# 2. Frontend
-cd client
-npm install
-cd ..
+# 2. Instalar dependências (todas as pastas)
+npm run install:all
 
-# 3. Backend
-cd server
-npm install
+# 3. Configurar ambiente
+cp .env.example .env
+# Edite o arquivo .env conforme necessário
 
-# 4. Configurar banco
-npx prisma generate
-npx prisma migrate dev
-npx prisma db seed
-cd ..
+# 4. Configurar banco de dados
+npm run db:setup
 
 # 5. Iniciar desenvolvimento
 npm run dev
+```
+## 🐳 Docker Unificado
+Agora existe apenas **UM Dockerfile** e **UM docker-compose.yml** para todo o sistema!
+
+```bash
+docker-compose up --build
+```
+Isso sobe backend, frontend, banco e redis em um único comando.
+
+## 🛠️ Comandos de Desenvolvimento
+
+### 🚀 Desenvolvimento Diário
+```bash
+# Iniciar tudo (frontend + backend)
+npm run dev
+
+# Apenas frontend (porta 5173)
+npm run dev:client
+
+# Apenas backend (porta 8080)
+npm run dev:server
+
+# Com IA integrada
+npm run dev:ai
+
+# Desenvolvimento local com Docker
+npm run dev:local
+```
+
+### 🗄️ Banco de Dados
+```bash
+# Setup completo do banco
+npm run db:setup
+
+# Executar migrações
+npm run db:migrate
+
+# Gerar cliente Prisma
+npm run db:generate
+
+# Popular com dados de exemplo
+npm run db:seed
+
+# Visualizar dados (Prisma Studio)
+npm run db:studio
+
+# Resetar banco (cuidado!)
+npm run db:reset
+
+# Backup do banco
+npm run db:backup
+```
+
+### 🧪 Testes
+```bash
+# Todos os testes
+npm run test
+
+# Apenas frontend
+npm run test:client
+
+# Apenas backend
+npm run test:server
+
+# Testes E2E
+npm run test:e2e
+
+# Testes em modo watch
+npm run test:watch
+
+# Cobertura de testes
+npm run test:coverage
+
+# Testes de sistema
+npm run test:system
+```
+
+### 🐳 Docker
+```bash
+# Desenvolvimento com Docker
+npm run docker:dev
+
+# Produção
+npm run docker:up
+
+# Parar containers
+npm run docker:down
+
+# Ver logs
+npm run docker:logs
+
+# Rebuild completo
+npm run docker:rebuild
+```
+
+## 🎛️ Estrutura de Desenvolvimento
+
+### 📁 Frontend (client/)
+```
+client/
+├── src/
+│   ├── components/        # Componentes reutilizáveis
+│   │   ├── ui/           # Componentes de UI básicos
+│   │   ├── forms/        # Formulários
+│   │   ├── charts/       # Gráficos
+│   │   └── layout/       # Layout e navegação
+│   ├── pages/            # Páginas da aplicação
+│   ├── hooks/            # Hooks customizados
+│   ├── contexts/         # Contextos React
+│   ├── services/         # Serviços e APIs
+│   ├── utils/            # Utilitários
+│   ├── types/            # Tipos TypeScript
+│   └── styles/           # Estilos globais
+├── public/               # Assets estáticos
+└── tests/                # Testes do frontend
+```
+
+### 🛡️ Backend (server/)
+```
+server/
+├── src/
+│   ├── modules/          # Módulos do NestJS
+│   │   ├── auth/        # Autenticação
+│   │   ├── users/       # Usuários
+│   │   ├── transactions/ # Transações
+│   │   └── dashboard/   # Dashboard
+│   ├── common/          # Código compartilhado
+│   │   ├── guards/      # Guards de autenticação
+│   │   ├── interceptors/ # Interceptadores
+│   │   └── filters/     # Filtros de exceção
+│   ├── database/        # Configuração do banco
+│   └── config/          # Configurações
+├── prisma/              # Schema e migrações
+└── tests/               # Testes do backend
 ```
 
 ## 🌐 URLs de Desenvolvimento
 
 | Serviço | URL | Descrição |
 |---------|-----|-----------|
-| **Frontend** | http://localhost:5173 | Interface React + Vite |
-| **Backend API** | http://localhost:3001 | API REST + WebSocket |
-| **Prisma Studio** | http://localhost:5555 | Interface do banco |
+| **Frontend** | http://localhost:5173 | Interface principal |
+| **Backend API** | http://localhost:8080 | API REST + WebSocket |
+| **Prisma Studio** | http://localhost:5555 | Admin do banco de dados |
+| **PostgreSQL** | localhost:5432 | Banco de dados |
+| **Redis** | localhost:6379 | Cache em memória |
+| **PgAdmin** | http://localhost:8081 | Interface web do PostgreSQL |
+| **Adminer** | http://localhost:8082 | Interface leve do banco |
+| **MailHog** | http://localhost:8025 | Interface de emails |
 
-## 📁 Estrutura Organizada
+## ⚡ Dicas de Produtividade
 
-```
-Will Finance 5.0/
-├── client/                     # 🎨 Frontend (React + TypeScript)
-│   ├── src/
-│   │   ├── components/         # Componentes reutilizáveis
-│   │   │   ├── Header.tsx      # Header cyberpunk
-│   │   │   ├── Sidebar.tsx     # Navegação lateral
-│   │   │   └── ui/             # Componentes de UI base
-│   │   ├── pages/              # Páginas da aplicação
-│   │   │   ├── DashboardPage.tsx    # Dashboard principal
-│   │   │   ├── TransactionsPage.tsx # Gestão de transações
-│   │   │   ├── BudgetsPage.tsx      # Orçamentos
-│   │   │   ├── GoalsPage.tsx        # Metas financeiras
-│   │   │   └── ReportsPage.tsx      # Relatórios
-│   │   ├── hooks/              # Custom hooks
-│   │   │   ├── useApi.ts       # Hook para API
-│   │   │   └── useAuth.ts      # Hook de autenticação
-│   │   ├── services/           # Serviços
-│   │   │   ├── api.ts          # Cliente HTTP
-│   │   │   └── websocket.ts    # WebSocket client
-│   │   ├── stores/             # Zustand stores
-│   │   ├── utils/              # Utilitários
-│   │   └── types/              # Tipos TypeScript
-│   ├── public/                 # Assets públicos
-│   ├── tailwind.config.js      # Config Tailwind
-│   ├── vite.config.ts          # Config Vite
-│   └── package.json            # Dependências client
-│
-├── server/                     # 🔧 Backend (Node.js + Express)
-│   ├── src/
-│   │   ├── routes/             # Rotas da API
-│   │   │   ├── auth.ts         # Autenticação
-│   │   │   ├── transactions.ts # CRUD transações
-│   │   │   ├── accounts.ts     # Contas
-│   │   │   ├── budgets.ts      # Orçamentos
-│   │   │   ├── goals.ts        # Metas
-│   │   │   ├── analytics.ts    # Relatórios
-│   │   │   └── ai.ts           # IA endpoints
-│   │   ├── middleware/         # Middlewares
-│   │   │   ├── auth.ts         # Middleware auth
-│   │   │   ├── validate.ts     # Validação Zod
-│   │   │   └── cors.ts         # CORS config
-│   │   ├── config/             # Configurações
-│   │   │   ├── database.ts     # Config Prisma
-│   │   │   └── env.ts          # Variáveis ambiente
-│   │   ├── services/           # Serviços de negócio
-│   │   ├── utils/              # Utilitários
-│   │   └── index.ts            # Entry point
-│   ├── prisma/                 # Prisma ORM
-│   │   ├── schema.prisma       # Schema do banco
-│   │   ├── migrations/         # Migrações
-│   │   └── seed.ts             # Dados iniciais
-│   ├── uploads/                # Arquivos upload
-│   └── package.json            # Dependências server
-│
-├── database/                   # 🗄️ Banco de dados
-│   └── dev.db                  # SQLite desenvolvimento
-│
-├── backup_old_files/           # 📦 Backup arquivos antigos
-│   ├── frontend/               # Frontend antigo
-│   ├── backend/                # Backend antigo
-│   └── WILL-FINANCE/           # Estrutura original
-│
-├── docker-compose.yml          # 🐳 Docker config
-├── .env.example                # 📝 Variáveis exemplo
-├── package.json                # 📦 Scripts principais
-└── README.md                   # 📚 Documentação
-```
+### 🔥 Hot Reload
+- **Frontend**: Mudanças são refletidas instantaneamente
+- **Backend**: Reinicialização automática com NestJS
+- **Database**: Sincronização automática do schema
 
-## 🛠️ Scripts Disponíveis
+### 🛠️ Ferramentas Recomendadas
+- **VS Code** com extensões:
+  - Prisma
+  - TypeScript
+  - ES7+ React Snippets
+  - Tailwind CSS IntelliSense
+  - Thunder Client (API testing)
 
-### **Desenvolvimento**
+### 📊 Debugging
 ```bash
-npm run dev              # Inicia client + server
-npm run dev:client       # Apenas frontend (porta 5173)
-npm run dev:server       # Apenas backend (porta 3001)
+# Backend debug mode
+cd server && npm run start:debug
+
+# Frontend com source maps
+cd client && npm run dev -- --sourcemap
+
+# Database queries debug
+DEBUG=prisma:query npm run dev:server
 ```
 
-### **Banco de Dados**
+### 🧹 Limpeza e Manutenção
 ```bash
-npm run db:migrate       # Aplicar migrações
-npm run db:seed          # Popular com dados teste
-npm run db:generate      # Gerar cliente Prisma
-npm run db:studio        # Interface visual (porta 5555)
-```
+# Limpar node_modules
+npm run clean
 
-### **Build & Deploy**
-```bash
-npm run build            # Build completo
-npm run build:client     # Build apenas frontend
-npm run build:server     # Build apenas backend
-npm run start            # Iniciar produção
-```
+# Limpar cache
+npm run clean:cache
 
-### **Utilitários**
-```bash
-npm run install:all      # Instalar todas dependências
-npm run lint             # Verificar código
-npm run test             # Executar testes
-npm run clean            # Limpar node_modules
-npm run reset            # Reset completo
-```
+# Limpar Docker
+npm run clean:docker
 
-## 🎨 Tema Cyberpunk
-
-### **Cores Principais**
-```css
-/* Primárias */
---cyan: #00FFFF
---magenta: #FF00FF
---neon-green: #39FF14
---gold: #FFD700
-
-/* Backgrounds */
---deep-black: #0A0A0A
---dark-surface: #1A1A1A
---border: #333333
-
-/* Text */
---text-primary: #FFFFFF
---text-secondary: #CCCCCC
---text-muted: #888888
-```
-
-### **Componentes UI**
-- **Glass Morphism**: Transparência + blur
-- **Neon Effects**: Box-shadow com cores vibrantes
-- **Gradients**: Degradês cyberpunk
-- **Animations**: Framer Motion suaves
-
-## 🔧 Configurações Específicas
-
-### **Frontend (Vite + React)**
-```json
-// vite.config.ts
-{
-  "server": {
-    "port": 5173,
-    "proxy": {
-      "/api": "http://localhost:3001"
-    }
-  }
-}
-```
-
-### **Backend (Express + Prisma)**
-```typescript
-// .env
-DATABASE_URL="file:../database/dev.db"
-JWT_SECRET="seu-jwt-secret"
-PORT=3001
-NODE_ENV="development"
-```
-
-### **Banco (SQLite → PostgreSQL)**
-```prisma
-// Para produção, altere em schema.prisma:
-datasource db {
-  provider = "postgresql"  // ao invés de "sqlite"
-  url      = env("DATABASE_URL")
-}
-```
-
-## 📊 Funcionalidades Principais
-
-### ✅ **Implementadas**
-- **Dashboard**: Cards com métricas + gráficos
-- **Transações**: CRUD completo com filtros
-- **Contas**: Múltiplas contas bancárias
-- **Categorias**: Sistema dinâmico
-- **Orçamentos**: Tracking em tempo real
-- **Metas**: Objetivos financeiros
-- **Relatórios**: Análises detalhadas
-- **IA Chat**: Assistente financeiro
-- **Notificações**: Alertas personalizados
-- **PWA**: Funciona offline
-
-### 🔄 **Em Desenvolvimento**
-- Integração Open Banking
-- OCR para comprovantes
-- Machine Learning
-- Apps mobile/desktop
-
-## 🚨 Resolução de Problemas
-
-### **Porta em uso**
-```bash
-# Matar processo na porta
-npx kill-port 3001
-npx kill-port 5173
-```
-
-### **Erro de dependências**
-```bash
 # Reset completo
+npm run reset
+```
+
+## 🔧 Configuração Avançada
+
+### 🔐 Variáveis de Ambiente
+```env
+# Desenvolvimento
+NODE_ENV=development
+DATABASE_URL=postgresql://will_finance:cyberpunk2077@localhost:5432/will_finance_dev
+JWT_SECRET=your-development-secret
+CLIENT_URL=http://localhost:5173
+
+# Recursos opcionais
+ENABLE_AI_FEATURES=true
+ENABLE_WEBSOCKETS=true
+ENABLE_ANALYTICS=false
+```
+
+### 🎨 Personalização do Tema
+```css
+/* client/src/styles/theme.css */
+:root {
+  --primary-neon: #00ff9f;
+  --secondary-neon: #ff00ff;
+  --bg-dark: #0a0a0a;
+  --text-light: #ffffff;
+}
+```
+
+## 🚨 Solução de Problemas
+
+### Problemas Comuns
+
+#### 🔧 Erro de Dependências
+```bash
+# Limpar e reinstalar
 npm run clean
 npm run install:all
 ```
 
-### **Erro no banco**
+#### 🗄️ Erro no Banco de Dados
 ```bash
-# Reset do banco
-cd server
-npx prisma migrate reset
-npx prisma db seed
+# Resetar banco
+npm run db:reset
+npm run db:setup
 ```
 
-### **Build falha**
+#### 🐳 Erro no Docker
 ```bash
-# Verificar versões
-node --version  # >= 18
-npm --version   # >= 8
-
-# Limpar cache
-npm cache clean --force
+# Rebuild containers
+npm run docker:rebuild
 ```
 
-## 🐳 Docker (Opcional)
-
+#### ⚡ Porta em Uso
 ```bash
-# Subir ambiente completo
-docker-compose up -d
+# Verificar portas em uso
+netstat -an | findstr :5173
+netstat -an | findstr :8080
 
-# Ver logs
-docker-compose logs -f
-
-# Parar tudo
-docker-compose down
+# Matar processo
+taskkill /F /PID [PID]
 ```
 
-## 📱 PWA (Progressive Web App)
+## 📞 Suporte
 
-O app funciona como aplicativo nativo:
-- **Instalável** via navegador
-- **Offline** com Service Worker
-- **Push Notifications**
-- **App Shell** cached
-
-## 🎯 Próximos Passos
-
-1. **Configurar ambiente** seguindo este guia
-2. **Testar funcionalidades** existentes
-3. **Personalizar** tema e componentes
-4. **Adicionar** novas features
-5. **Deploy** para produção
+- 📧 **Email**: william@willfinance.com
+- 🐛 **Issues**: [GitHub Issues](https://github.com/william/will-finance-5.0/issues)
+- 📖 **Docs**: [Documentação Completa](./docs/)
+- 💬 **Chat**: Discord/Slack (se disponível)
 
 ---
 
-**Agora está tudo organizado e funcionando! 🚀**
-
-A interface cyberpunk que você viu está preservada e todas as duplicatas foram removidas.
+**🎉 Divirta-se desenvolvendo com Will Finance 5.0!**

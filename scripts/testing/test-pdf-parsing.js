@@ -93,73 +93,73 @@ async function testPDFParsing() {
   console.log('- ✅ Parsing de transações preciso');
 }
 
+function isHeaderOrEmpty(line) {
+  return (
+    !line ||
+    line.includes('Bradesco') ||
+    line.includes('Nome:') ||
+    line.includes('Data:') ||
+    line.includes('Extrato') ||
+    line.includes('Histórico') ||
+    line.includes('Débito') ||
+    line.includes('Crédito')
+  );
+}
+
+function extractMonetaryValues(line) {
+  return line.match(/\d{1,3}(?:\.\d{3})*(?:,\d{2})/g) || [];
+}
+
+function extractDescription(afterDate) {
+  const firstNumberIndex = afterDate.search(/\d{1,3}(?:\.\d{3})*(?:,\d{2})/);
+  return firstNumberIndex > 0
+    ? afterDate.substring(0, firstNumberIndex).trim()
+    : 'Transação';
+}
+
+function extractTransactionFields(monetaryValues) {
+  let debit = '';
+  let credit = '';
+  let saldo = '';
+  if (monetaryValues.length >= 2) {
+    debit = monetaryValues[0];
+    saldo = monetaryValues[monetaryValues.length - 1];
+  } else if (monetaryValues.length === 1) {
+    saldo = monetaryValues[0];
+  }
+  return { debit, credit, saldo };
+}
+
 function processPDFTextToCSV(pdfText) {
   const lines = pdfText.split('\n');
   const csvLines = ['Data;Histórico;Débito;Crédito;Saldo'];
-  
+
   console.log('🔍 Processando texto PDF linha por linha...');
-  
+
   for (const line of lines) {
     const trimmedLine = line.trim();
-    
-    // Ignorar linhas vazias e cabeçalhos
-    if (!trimmedLine || 
-        trimmedLine.includes('Bradesco') ||
-        trimmedLine.includes('Nome:') ||
-        trimmedLine.includes('Data:') ||
-        trimmedLine.includes('Extrato') ||
-        trimmedLine.includes('Histórico') ||
-        trimmedLine.includes('Débito') ||
-        trimmedLine.includes('Crédito')) {
-      continue;
-    }
-    
-    // Buscar linhas com padrão de data DD/MM/YYYY
+
+    if (isHeaderOrEmpty(trimmedLine)) continue;
+
     const dateMatch = trimmedLine.match(/(\d{2}\/\d{2}\/\d{4})/);
-    if (dateMatch) {
-      const dateStr = dateMatch[1];
-      
-      console.log(`📅 Linha com data encontrada: "${trimmedLine}"`);
-      
-      // Extrair valores numéricos (incluindo vírgulas decimais)
-      // Padrão mais específico para valores monetários
-      const monetaryValues = trimmedLine.match(/\d{1,3}(?:\.\d{3})*(?:,\d{2})/g) || [];
-      
-      console.log(`💰 Valores monetários encontrados: ${JSON.stringify(monetaryValues)}`);
-      
-      if (monetaryValues.length > 0) {
-        // Extrair descrição (texto entre data e primeiro valor)
-        const afterDate = trimmedLine.substring(trimmedLine.indexOf(dateStr) + dateStr.length).trim();
-        
-        // Encontrar onde começam os números
-        const firstNumberIndex = afterDate.search(/\d{1,3}(?:\.\d{3})*(?:,\d{2})/);
-        
-        const description = firstNumberIndex > 0 ? 
-          afterDate.substring(0, firstNumberIndex).trim() : 
-          'Transação';
-        
-        // Para extratos do Bradesco, assumir padrão: débito, saldo
-        // (pode ter crédito também)
-        let debit = '';
-        let credit = '';
-        let saldo = '';
-        
-        if (monetaryValues.length >= 2) {
-          // Primeiro valor é geralmente o débito/crédito
-          debit = monetaryValues[0];
-          // Último valor é geralmente o saldo
-          saldo = monetaryValues[monetaryValues.length - 1];
-        } else if (monetaryValues.length === 1) {
-          // Apenas um valor - pode ser saldo ou transação
-          saldo = monetaryValues[0];
-        }
-        
-        console.log(`✅ Transação: ${dateStr} | ${description} | D:${debit} | C:${credit} | S:${saldo}`);
-        csvLines.push(`${dateStr};${description};${debit};${credit};${saldo}`);
-      }
-    }
+    if (!dateMatch) continue;
+
+    const dateStr = dateMatch[1];
+    console.log(`📅 Linha com data encontrada: "${trimmedLine}"`);
+
+    const monetaryValues = extractMonetaryValues(trimmedLine);
+    console.log(`💰 Valores monetários encontrados: ${JSON.stringify(monetaryValues)}`);
+
+    if (monetaryValues.length === 0) continue;
+
+    const afterDate = trimmedLine.substring(trimmedLine.indexOf(dateStr) + dateStr.length).trim();
+    const description = extractDescription(afterDate);
+    const { debit, credit, saldo } = extractTransactionFields(monetaryValues);
+
+    console.log(`✅ Transação: ${dateStr} | ${description} | D:${debit} | C:${credit} | S:${saldo}`);
+    csvLines.push(`${dateStr};${description};${debit};${credit};${saldo}`);
   }
-  
+
   console.log(`📝 CSV final gerado com ${csvLines.length - 1} transações`);
   return csvLines.join('\n');
 }

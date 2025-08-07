@@ -1,9 +1,0 @@
-node_modules
-**/node_modules
-dist
-**/dist
-.git
-*.log
-backend/node_modules
-backend/dist
-frontend/node_modules

@@ -6,6 +6,7 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ) => {
+  // eslint-disable-next-line no-console
   console.error('Error:', error);
 
   const statusCode = error.statusCode || 500;

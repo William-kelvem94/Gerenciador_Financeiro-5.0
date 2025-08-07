@@ -1,21 +1,25 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
 
-// Create axios instance
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// Configuração base da API
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
+// Instância do axios com configurações padrão
 export const api = axios.create({
-  baseURL: API_URL,
+  baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor
+// Interceptor para incluir token de autenticação
 api.interceptors.request.use(
   (config) => {
-    // You can add loading states here if needed
+    const token = localStorage.getItem('auth-token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
@@ -23,58 +27,45 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor
+// Interceptor para tratar respostas e erros
 api.interceptors.response.use(
   (response: AxiosResponse) => {
-    // Any status code that lies within the range of 2xx causes this function to trigger
     return response;
   },
   (error: AxiosError) => {
-    // Any status codes that fall outside the range of 2xx causes this function to trigger
     const { response } = error;
 
     if (response) {
       switch (response.status) {
         case 401:
-          // Unauthorized - redirect to login or refresh token
-          toast.error('Your session has expired. Please login again.');
-          // Clear auth store if available
-          localStorage.removeItem('auth-storage');
+          toast.error('Sua sessão expirou. Faça login novamente.');
+          localStorage.removeItem('auth-token');
           window.location.href = '/login';
           break;
-        
         case 403:
-          toast.error('You do not have permission to perform this action.');
+          toast.error('Você não tem permissão para esta ação.');
           break;
-        
         case 404:
-          toast.error('The requested resource was not found.');
+          toast.error('Recurso não encontrado.');
           break;
-        
         case 422: {
-          // Validation errors
-          const message = (response.data as any)?.message || 'Validation error';
+          const message = (response.data as any)?.message || 'Erro de validação';
           toast.error(message);
           break;
         }
-        
         case 429:
-          toast.error('Too many requests. Please try again later.');
+          toast.error('Muitas requisições. Tente novamente mais tarde.');
           break;
-        
         case 500:
-          toast.error('Internal server error. Please try again later.');
+          toast.error('Erro interno do servidor. Tente novamente mais tarde.');
           break;
-        
         default:
-          toast.error('An unexpected error occurred.');
+          toast.error('Ocorreu um erro inesperado.');
       }
     } else if (error.request) {
-      // Network error
-      toast.error('Network error. Please check your connection.');
+      toast.error('Erro de rede. Verifique sua conexão.');
     } else {
-      // Something else happened
-      toast.error('An unexpected error occurred.');
+      toast.error('Ocorreu um erro inesperado.');
     }
 
     return Promise.reject(error);

@@ -1,5 +1,5 @@
 import React from 'react';
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { readonly children: React.ReactNode }) {
   return <>{children}</>;
 }

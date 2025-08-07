@@ -12,6 +12,15 @@
     @apply border-border;
   }
   
+  html,
+  :host {
+    /* Compatibilidade para text-size-adjust */
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
   body {
     @apply bg-background text-foreground font-sans;
     @apply selection:bg-cyber-primary selection:text-cyber-dark;
@@ -19,7 +28,11 @@
 
   html {
     scroll-behavior: smooth;
+    
+    /* Compatibilidade para scrollbar - ordem correta dos prefixes */
+    -webkit-scrollbar-width: thin;
     scrollbar-width: thin;
+    -webkit-scrollbar-color: #00FFFF #1A1A1A;
     scrollbar-color: #00FFFF #1A1A1A;
   }
 
@@ -546,4 +559,165 @@
 @keyframes shimmer {
   0% { transform: translateX(-100%) rotate(35deg); }
   100% { transform: translateX(200%) rotate(35deg); }
+}
+
+/* Responsividade aprimorada para formulários e componentes */
+@layer utilities {
+  .responsive-grid {
+    @apply grid grid-cols-1 gap-4;
+    @apply sm:grid-cols-2 sm:gap-6;
+    @apply lg:grid-cols-3 lg:gap-8;
+  }
+
+  .responsive-form {
+    @apply space-y-4;
+    @apply sm:space-y-6;
+  }
+
+  .responsive-card {
+    @apply p-4 rounded-lg;
+    @apply sm:p-6 sm:rounded-xl;
+    @apply lg:p-8;
+  }
+
+  .responsive-text {
+    @apply text-sm;
+    @apply sm:text-base;
+    @apply lg:text-lg;
+  }
+
+  .responsive-heading {
+    @apply text-xl font-bold;
+    @apply sm:text-2xl;
+    @apply lg:text-3xl;
+    @apply xl:text-4xl;
+  }
+
+  .responsive-button {
+    @apply px-4 py-2 text-sm;
+    @apply sm:px-6 sm:py-3 sm:text-base;
+    @apply lg:px-8 lg:py-4;
+  }
+
+  .responsive-modal {
+    @apply w-full max-w-sm mx-4;
+    @apply sm:max-w-md sm:mx-0;
+    @apply lg:max-w-lg;
+    @apply xl:max-w-xl;
+  }
+
+  .responsive-table {
+    @apply text-xs;
+    @apply sm:text-sm;
+    @apply lg:text-base;
+  }
+
+  .responsive-spacing {
+    @apply space-y-2;
+    @apply sm:space-y-4;
+    @apply lg:space-y-6;
+  }
+
+  .mobile-first-flex {
+    @apply flex flex-col space-y-2;
+    @apply sm:flex-row sm:space-y-0 sm:space-x-4;
+  }
+
+  .hide-mobile {
+    @apply hidden;
+    @apply sm:block;
+  }
+
+  .show-mobile-only {
+    @apply block;
+    @apply sm:hidden;
+  }
+
+  .container-responsive {
+    @apply container mx-auto px-4;
+    @apply sm:px-6;
+    @apply lg:px-8;
+    @apply xl:px-12;
+    @apply 2xl:px-16;
+  }
+
+  /* Classes específicas para componentes financeiros */
+  .transaction-list-item {
+    @apply flex flex-col space-y-2 p-3;
+    @apply sm:flex-row sm:space-y-0 sm:space-x-4 sm:items-center sm:justify-between sm:p-4;
+    @apply lg:p-6;
+  }
+
+  .financial-summary-grid {
+    @apply grid grid-cols-1 gap-4;
+    @apply sm:grid-cols-2 sm:gap-6;
+    @apply xl:grid-cols-4;
+  }
+
+  .form-field-responsive {
+    @apply w-full min-w-0;
+    @apply sm:min-w-[200px];
+    @apply lg:min-w-[250px];
+  }
+
+  .button-group-responsive {
+    @apply flex flex-col space-y-2 w-full;
+    @apply sm:flex-row sm:space-y-0 sm:space-x-3 sm:w-auto;
+  }
+
+  /* Melhorias de acessibilidade em dispositivos móveis */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  .focus-visible-enhanced {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyber-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  /* Estados de loading responsivos */
+  .loading-skeleton {
+    @apply animate-pulse bg-background-secondary rounded;
+    @apply h-4 w-full;
+    @apply sm:h-5;
+    @apply lg:h-6;
+  }
+
+  /* Optimizações para telas pequenas */
+  @media (width <= 640px) {
+    .modal-full-screen {
+      @apply fixed inset-0 m-0 max-w-none max-h-none rounded-none;
+    }
+    
+    .table-stack {
+      @apply block;
+    }
+    
+    .table-stack thead {
+      @apply hidden;
+    }
+    
+    .table-stack tr {
+      @apply block border-b border-cyber-primary/10 pb-4 mb-4;
+    }
+    
+    .table-stack td {
+      @apply block text-right border-none;
+      @apply before:content-[attr(data-label)] before:float-left before:font-bold before:text-cyber-primary;
+    }
+  }
+
+  /* Animações otimizadas para dispositivos móveis */
+  @media (prefers-reduced-motion: reduce) {
+    .motion-safe-only {
+      @apply transform-none;
+      animation: none;
+    }
+  }
+
+  /* Melhorias de contraste para acessibilidade */
+  @media (prefers-contrast: high) {
+    .high-contrast {
+      @apply border-2 border-white;
+    }
+  }
 }

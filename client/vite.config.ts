@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -66,9 +67,19 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/tests/setup.ts'],
+  },
   server: {
     port: 5173,
     host: true,
+    headers: {
+      'Cache-Control': 'no-cache, no-store, max-age=0',
+      'X-Content-Type-Options': 'nosniff',
+    },
+    middlewareMode: false,
     proxy: {
       '/api': {
         target: 'http://localhost:8080',

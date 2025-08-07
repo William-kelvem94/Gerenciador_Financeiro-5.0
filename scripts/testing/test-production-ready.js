@@ -40,6 +40,125 @@ const adminUser = {
   password: 'admin123'
 };
 
+async function healthCheck() {
+  console.log('🏥 1. Testando Health Check...');
+  const healthResponse = await axios.get(`${baseURL}/health`);
+  console.log('✅ Health Check OK:', healthResponse.data.status);
+}
+
+async function registerOrLoginUser() {
+  console.log('\n👤 2. Registrando usuário teste...');
+  try {
+    const registerResponse = await axios.post(`${baseURL}/api/admin/register`, testUser);
+    console.log('✅ Usuário registrado:', registerResponse.data.data.user.email);
+    return registerResponse.data.data.token;
+  } catch (error) {
+    if (error.response?.status === 400) {
+      console.log('ℹ️ Usuário já existe, fazendo login...');
+      const loginResponse = await axios.post(`${baseURL}/api/admin/login`, {
+        email: testUser.email,
+        password: testUser.password
+      });
+      console.log('✅ Login do usuário realizado');
+      return loginResponse.data.data.token;
+    } else {
+      throw error;
+    }
+  }
+}
+
+async function loginAdmin() {
+  console.log('\n👑 3. Fazendo login como admin...');
+  const adminLoginResponse = await axios.post(`${baseURL}/api/admin/login`, adminUser);
+  console.log('✅ Login admin realizado:', adminLoginResponse.data.data.user.role);
+  return adminLoginResponse.data.data.token;
+}
+
+async function testImportRealBankData() {
+  console.log('\n📊 4. Testando importação de dados reais (usuário)...');
+  for (const [bank, data] of Object.entries(realBankData)) {
+    console.log(`\n🏦 Testando ${bank.toUpperCase()}...`);
+    const filename = `extrato-real-${bank}-${Date.now()}.csv`;
+    const filePath = path.join(__dirname, filename);
+    fs.writeFileSync(filePath, data);
+
+    try {
+      const FormData = require('form-data');
+      const previewForm = new FormData();
+      previewForm.append('file', fs.createReadStream(filePath));
+
+      const previewResponse = await axios.post(`${baseURL}/api/import-export/debug-preview`, previewForm, {
+        headers: { ...previewForm.getHeaders() }
+      });
+
+      console.log(`  ✅ Preview: ${previewResponse.data.preview.totalTransactions} transações detectadas`);
+      console.log(`  ✅ Banco: ${previewResponse.data.preview.bankDetected}`);
+      console.log(`  ✅ Primeira transação: ${previewResponse.data.preview.sampleTransactions[0]?.description || 'N/A'}`);
+
+      console.log(`  📤 Importação simulada para usuário teste`);
+    } catch (error) {
+      console.log(`  ❌ Erro no ${bank}:`, error.response?.data?.message || error.message);
+    } finally {
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+  }
+}
+
+async function testAdminFeatures(adminToken) {
+  console.log('\n👑 5. Testando funcionalidades admin...');
+  try {
+    const statsResponse = await axios.get(`${baseURL}/api/admin/system-stats`, {
+      headers: { Authorization: `Bearer ${adminToken}` }
+    });
+
+    console.log('✅ Estatísticas do sistema obtidas:');
+    console.log(`  📊 Total de usuários: ${statsResponse.data.data.totalUsers}`);
+    console.log(`  💰 Total de transações: ${statsResponse.data.data.totalTransactions}`);
+    console.log(`  🏦 Total de contas: ${statsResponse.data.data.totalAccounts}`);
+
+    const usersResponse = await axios.get(`${baseURL}/api/admin/users`, {
+      headers: { Authorization: `Bearer ${adminToken}` }
+    });
+
+    console.log(`✅ Lista de usuários obtida: ${usersResponse.data.data.users.length} usuários`);
+  } catch (error) {
+    console.log('❌ Erro nas funcionalidades admin:', error.response?.data?.message || error.message);
+  }
+}
+
+async function testDataIsolation(userToken) {
+  console.log('\n🔒 6. Testando isolamento de dados...');
+  try {
+    await axios.get(`${baseURL}/api/admin/system-stats`, {
+      headers: { Authorization: `Bearer ${userToken}` }
+    });
+    console.log('❌ FALHA: Usuário comum conseguiu acessar dados admin!');
+  } catch (error) {
+    if (error.response?.status === 403) {
+      console.log('✅ Isolamento funcionando: usuário comum não acessa dados admin');
+    } else {
+      console.log('⚠️ Erro inesperado no teste de isolamento:', error.message);
+    }
+  }
+}
+
+async function testDataManagement(userToken) {
+  console.log('\n📋 7. Testando gerenciamento de dados...');
+  try {
+    const dataModeResponse = await axios.get(`${baseURL}/api/data-mode/stats`, {
+      headers: { Authorization: `Bearer ${userToken}` }
+    });
+
+    console.log('✅ Estatísticas de dados obtidas:');
+    console.log(`  📊 Transações reais: ${dataModeResponse.data.data.realTransactions}`);
+    console.log(`  🎭 Transações demo: ${dataModeResponse.data.data.demoTransactions}`);
+  } catch (error) {
+    console.log('⚠️ Gerenciamento de dados:', error.response?.data?.message || error.message);
+  }
+}
+
 async function runCompleteSystemTest() {
   console.log('🚀 WILL FINANCE - TESTE COMPLETO DO SISTEMA REAL\n');
   console.log('==================================================\n');
@@ -48,124 +167,13 @@ async function runCompleteSystemTest() {
   let adminToken = '';
 
   try {
-    // 1. Testar Health Check
-    console.log('🏥 1. Testando Health Check...');
-    const healthResponse = await axios.get(`${baseURL}/health`);
-    console.log('✅ Health Check OK:', healthResponse.data.status);
-
-    // 2. Registrar usuário teste
-    console.log('\n👤 2. Registrando usuário teste...');
-    try {
-      const registerResponse = await axios.post(`${baseURL}/api/admin/register`, testUser);
-      console.log('✅ Usuário registrado:', registerResponse.data.data.user.email);
-      userToken = registerResponse.data.data.token;
-    } catch (error) {
-      if (error.response?.status === 400) {
-        console.log('ℹ️ Usuário já existe, fazendo login...');
-        const loginResponse = await axios.post(`${baseURL}/api/admin/login`, {
-          email: testUser.email,
-          password: testUser.password
-        });
-        userToken = loginResponse.data.data.token;
-        console.log('✅ Login do usuário realizado');
-      } else {
-        throw error;
-      }
-    }
-
-    // 3. Login admin
-    console.log('\n👑 3. Fazendo login como admin...');
-    const adminLoginResponse = await axios.post(`${baseURL}/api/admin/login`, adminUser);
-    adminToken = adminLoginResponse.data.data.token;
-    console.log('✅ Login admin realizado:', adminLoginResponse.data.data.user.role);
-
-    // 4. Testar importação de dados reais - Usuário
-    console.log('\n📊 4. Testando importação de dados reais (usuário)...');
-    for (const [bank, data] of Object.entries(realBankData)) {
-      console.log(`\n🏦 Testando ${bank.toUpperCase()}...`);
-      
-      const filename = `extrato-real-${bank}-${Date.now()}.csv`;
-      const filePath = path.join(__dirname, filename);
-      fs.writeFileSync(filePath, data);
-
-      try {
-        // Preview
-        const FormData = require('form-data');
-        const previewForm = new FormData();
-        previewForm.append('file', fs.createReadStream(filePath));
-
-        const previewResponse = await axios.post(`${baseURL}/api/import-export/debug-preview`, previewForm, {
-          headers: { ...previewForm.getHeaders() }
-        });
-
-        console.log(`  ✅ Preview: ${previewResponse.data.preview.totalTransactions} transações detectadas`);
-        console.log(`  ✅ Banco: ${previewResponse.data.preview.bankDetected}`);
-        console.log(`  ✅ Primeira transação: ${previewResponse.data.preview.sampleTransactions[0]?.description || 'N/A'}`);
-
-        // Importação (seria com token real)
-        console.log(`  📤 Importação simulada para usuário teste`);
-
-      } catch (error) {
-        console.log(`  ❌ Erro no ${bank}:`, error.response?.data?.message || error.message);
-      } finally {
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
-      }
-    }
-
-    // 5. Testar funcionalidades admin
-    console.log('\n👑 5. Testando funcionalidades admin...');
-    try {
-      const statsResponse = await axios.get(`${baseURL}/api/admin/system-stats`, {
-        headers: { Authorization: `Bearer ${adminToken}` }
-      });
-      
-      console.log('✅ Estatísticas do sistema obtidas:');
-      console.log(`  📊 Total de usuários: ${statsResponse.data.data.totalUsers}`);
-      console.log(`  💰 Total de transações: ${statsResponse.data.data.totalTransactions}`);
-      console.log(`  🏦 Total de contas: ${statsResponse.data.data.totalAccounts}`);
-      
-      const usersResponse = await axios.get(`${baseURL}/api/admin/users`, {
-        headers: { Authorization: `Bearer ${adminToken}` }
-      });
-      
-      console.log(`✅ Lista de usuários obtida: ${usersResponse.data.data.users.length} usuários`);
-      
-    } catch (error) {
-      console.log('❌ Erro nas funcionalidades admin:', error.response?.data?.message || error.message);
-    }
-
-    // 6. Testar isolamento de dados
-    console.log('\n🔒 6. Testando isolamento de dados...');
-    try {
-      // Tentar acessar estatísticas admin com token de usuário
-      await axios.get(`${baseURL}/api/admin/system-stats`, {
-        headers: { Authorization: `Bearer ${userToken}` }
-      });
-      console.log('❌ FALHA: Usuário comum conseguiu acessar dados admin!');
-    } catch (error) {
-      if (error.response?.status === 403) {
-        console.log('✅ Isolamento funcionando: usuário comum não acessa dados admin');
-      } else {
-        console.log('⚠️ Erro inesperado no teste de isolamento:', error.message);
-      }
-    }
-
-    // 7. Testar gerenciamento de dados
-    console.log('\n📋 7. Testando gerenciamento de dados...');
-    try {
-      const dataModeResponse = await axios.get(`${baseURL}/api/data-mode/stats`, {
-        headers: { Authorization: `Bearer ${userToken}` }
-      });
-      
-      console.log('✅ Estatísticas de dados obtidas:');
-      console.log(`  📊 Transações reais: ${dataModeResponse.data.data.realTransactions}`);
-      console.log(`  🎭 Transações demo: ${dataModeResponse.data.data.demoTransactions}`);
-      
-    } catch (error) {
-      console.log('⚠️ Gerenciamento de dados:', error.response?.data?.message || error.message);
-    }
+    await healthCheck();
+    userToken = await registerOrLoginUser();
+    adminToken = await loginAdmin();
+    await testImportRealBankData();
+    await testAdminFeatures(adminToken);
+    await testDataIsolation(userToken);
+    await testDataManagement(userToken);
 
     console.log('\n🎉 TESTE COMPLETO FINALIZADO!');
     console.log('\n📋 RESUMO DOS RESULTADOS:');
