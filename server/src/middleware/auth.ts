@@ -28,17 +28,23 @@ export function authenticateToken(
     });
   }
 
-  jwt.verify(token, JWT_SECRET, (err, decoded: { userId?: string } | undefined) => {
-    if (err || !decoded?.userId) {
+  jwt.verify(token, JWT_SECRET, (err, decoded: jwt.JwtPayload | string | undefined) => {
+    if (
+      err ||
+      typeof decoded !== 'object' ||
+      !decoded ||
+      !('userId' in decoded) ||
+      typeof (decoded as jwt.JwtPayload).userId !== 'string'
+    ) {
       return res.status(403).json({ 
         success: false, 
         message: 'Token inválido' 
       });
     }
-    // Função auxiliar para buscar usuário
+    const userId = (decoded as jwt.JwtPayload).userId as string;
     (async () => {
       const user = await prisma.user.findUnique({
-        where: { id: decoded.userId },
+        where: { id: userId },
         select: { id: true, email: true, name: true }
       });
       if (!user) {

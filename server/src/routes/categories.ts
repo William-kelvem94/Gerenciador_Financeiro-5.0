@@ -18,7 +18,7 @@ const createCategorySchema = z.object({
 const updateCategorySchema = createCategorySchema.partial();
 
 // Corrigir uso do middleware para Express
-router.use(authenticateToken as any);
+router.use(authenticateToken as express.RequestHandler);
 
 router.get('/', async (req, res) => {
   try {
@@ -51,6 +51,7 @@ router.get('/', async (req, res) => {
     });
     res.json({ success: true, data: categories });
   } catch {
+    // log removido para produção
     res.status(500).json({ success: false, message: 'Erro ao buscar categorias' });
   }
 });
