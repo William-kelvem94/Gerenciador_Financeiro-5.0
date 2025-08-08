@@ -1,43 +1,7 @@
-# Will Finance 5.0 - Sistema Profissional de Gerenciamento Financeiro
 
-<div align="center">
+# Arquivo obsoleto: toda a documentação e informações históricas foram migradas para `README-archive.md`.
 
-![Will Finance 5.0](./imagem_gerada%20(2).png)
-
-[![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue.svg)](https://www.typescriptlang.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-6+-purple.svg)](https://www.prisma.io/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-
-Sistema completo e profissional de gerenciamento financeiro com frontend React moderno e backend robusto.
-
-[🚀 Demo](#demo) • [📖 Documentação](#documentação) • [⚡ Início Rápido](#início-rápido) • [🤝 Contribuir](#contribuindo)
-
-</div>
-
----
-
-## 🎯 Características Principais
-
-### 🛡️ **Segurança e Confiabilidade**
-- ✅ **0 vulnerabilidades críticas** em produção
-- 🔐 Autenticação JWT segura + Google OAuth
-- 🛡️ Headers de segurança (Helmet, CORS, CSP)
-- 🚦 Rate limiting e validação rigorosa
-- 🔒 Senhas criptografadas com bcrypt
-
-### ⚡ **Performance e Tecnologia**
-- ⚡ **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
-- 🚀 **Backend**: Express + Prisma ORM + SQLite/PostgreSQL
-- 📱 **PWA Ready**: Instalação como app nativo
-- 🐳 **Dockerizado**: Ambiente completo de produção
-- 🔄 **Real-time**: Atualizações instantâneas
-
-### 🎨 **Interface Moderna**
-- 🌙 Tema dark cyberpunk com cores neon
-- 📱 Design responsivo para todos os dispositivos
-- 🎭 Animações suaves e transições elegantes
+Consulte `archive/README-archive.md` para informações completas e atualizadas sobre arquivos históricos.
 - 📊 Gráficos interativos (barras, pizza, linha)
 - 🎯 UX otimizada para produtividade
 

@@ -155,3 +155,4 @@ if ($serverInstallResult -and $clientInstallResult) {
     Write-Host ""
     exit 1
 }
+Script migrado para scripts/development/start-complete.ps1 em 08/08/2025. Utilize a nova versão para inicialização.

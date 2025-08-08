@@ -1,43 +1,7 @@
-# 🚀 Will Finance - Gerenciador Financeiro 5.0
 
-Sistema de gerenciamento financeiro completo com interface cyberpunk, usando React + TypeScript + Vite no frontend e Node.js + Express + Prisma no backend.
+# Arquivo obsoleto: toda a documentação e informações técnicas foram migradas para `README-docs.md`.
 
-## 🎯 Características
-
-- **Interface Cyberpunk**: Design futurista com cores neon e tema dark
-- **Frontend Moderno**: React 18 + TypeScript + Vite + Tailwind CSS
-- **Backend Robusto**: Node.js + Express + Prisma + SQLite/PostgreSQL
-- **Real-time**: WebSocket para atualizações em tempo real
-- **PWA Ready**: Progressive Web App com suporte offline
-- **Multiplataforma**: Pronto para Electron e React Native
-
-## 🚀 Inicialização Rápida
-
-```bash
-# Instalar dependências
-npm run install:all
-
-# Configurar banco de dados
-npm run db:migrate
-npm run db:seed
-
-# Iniciar desenvolvimento
-npm run dev
-```
-
-## 📁 Estrutura do Projeto
-
-```
-Will Finance/
-├── client/          # Frontend React + TypeScript
-├── server/          # Backend Node.js + Express
-├── database/        # Configurações do banco
-└── scripts/         # Scripts utilitários
-```
-
-## 🌐 URLs
-
-- **Frontend**: http://localhost:5173
+Consulte `docs/README-docs.md` para informações completas e atualizadas sobre documentação técnica do projeto.
 - **Backend API**: http://localhost:8080
 - **Prisma Studio**: http://localhost:5555
 - **Banco de Dados**: SQLite local

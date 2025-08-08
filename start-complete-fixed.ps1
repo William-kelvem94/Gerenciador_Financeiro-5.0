@@ -159,3 +159,4 @@ try {
     Write-Host "❌ ERRO CRÍTICO: $_" -ForegroundColor Red
     exit 1
 }
+Script migrado para scripts/development/start-complete-fixed.ps1 em 08/08/2025. Utilize a nova versão para inicialização.

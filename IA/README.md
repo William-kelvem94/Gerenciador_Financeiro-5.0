@@ -1,43 +1,8 @@
 <<<<<<< HEAD
-# 🤖 Will Finance 5.0 - AI Environment (Otimizado)
 
-## 📋 Visão Geral
+# Arquivo obsoleto: toda a documentação e informações de IA foram migradas para `README-IA.md`.
 
-Este ambiente Docker foi completamente otimizado para executar modelos de IA e machine learning do sistema Will Finance 5.0. A otimização foi baseada em análise automatizada e melhores práticas de segurança e performance.
-
-Esta pasta é dedicada a todos os códigos, modelos, datasets e experimentos relacionados à Inteligência Artificial do Gerenciador Financeiro.
-
-### 🗂️ Estrutura do Projeto
-- `/datasets`: arquivos de treino, exemplos de extratos, etc.
-- `/notebooks`: experimentos e protótipos em Jupyter/Colab.
-- `/models`: modelos treinados, checkpoints, scripts de treinamento.
-- `/src`: código-fonte da IA (pré-processamento, OCR, NLP, etc).
-
-## 🚀 Melhorias Implementadas
-
-### 🔒 Segurança
-- ✅ Execução como usuário não-root (`appuser`)
-- ✅ Variáveis de ambiente seguras
-- ✅ Cópia de arquivos com ownership adequado
-- ✅ Limpeza completa de cache e arquivos temporários
-- ✅ Healthcheck implementado para monitoramento
-- ✅ Labels informativos para metadados
-
-### ⚡ Performance
-- ✅ Comandos RUN consolidados (redução de camadas)
-- ✅ Cache apt otimizado com limpeza automática
-- ✅ Instalação sem pacotes recomendados desnecessários
-- ✅ Separação de instalação de pacotes por frequência de mudança
-- ✅ `.dockerignore` abrangente para builds mais rápidos
-
-### 🔧 Manutenibilidade
-- ✅ ARGs para configuração flexível
-- ✅ Comentários explicativos detalhados
-- ✅ Estrutura modular e organizada
-- ✅ Versões fixadas para reprodutibilidade
-- ✅ Scripts de teste automatizados
-
-## 📊 Métricas de Melhoria
+Consulte `IA/README-IA.md` para informações completas e atualizadas sobre o ambiente de IA.
 
 | Métrica | Original | Otimizado | Melhoria |
 |---------|----------|-----------|----------|

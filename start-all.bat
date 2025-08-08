@@ -1,4 +1,6 @@
 @echo off
+REM Script movido para scripts/development/start-all.bat
+@echo off
 setlocal enabledelayedexpansion
 
 echo.
@@ -78,3 +80,4 @@ exit /b 0
 echo ❌ Erro na configuração do banco de dados. Verifique os logs acima.
 pause
 exit /b 1
+Script migrado para scripts/development/start-all.bat em 08/08/2025. Utilize a nova versão para inicialização.

@@ -1,3 +1,102 @@
+
+# 🚀 Will Finance 5.0 - Enterprise Financial Management
+
+Bem-vindo ao sistema financeiro mais avançado, seguro e escalável do mercado!
+
+---
+
+## 📋 Contextualização Completa
+
+Will Finance 5.0 é uma plataforma enterprise para gerenciamento financeiro pessoal e corporativo, com arquitetura distribuída, segurança militar, analytics avançado, IA integrada e interface cyberpunk premium.
+
+### Principais Diferenciais
+- **Frontend moderno:** React 18, Vite, Tailwind, Framer Motion, Zustand, React Query
+- **Backend robusto:** Node.js, Express/NestJS, Prisma ORM, PostgreSQL, Redis, Socket.IO
+- **Segurança:** JWT, Firebase Auth, 2FA, criptografia, rate limiting, sanitização
+- **Analytics & IA:** Charts.js, D3.js, OpenAI GPT, insights automáticos, predições
+- **Arquitetura distribuída:** Microserviços, Docker, Kubernetes, CI/CD, monitoramento
+- **Experiência cyberpunk:** UI neon, dark mode, animações premium, responsivo, PWA
+
+### Módulos e Funcionalidades
+- Gestão de transações, orçamentos, relatórios, categorias, contas bancárias
+- Dashboard interativo, widgets customizáveis, filtros avançados
+- Importação/exportação de dados, bulk actions, notificações push
+- Sistema de permissões, multiusuário, logs estruturados, auditoria
+- Integração com IA para insights, chat, previsões e automação
+
+---
+
+## 🗂️ Estrutura Detalhada do Projeto
+
+```
+Gerenciador_Financeiro-5.0/
+├── client/         # Frontend React + Vite + TypeScript
+│   ├── src/        # Componentes, páginas, hooks, stores, types, utils
+│   ├── public/     # Assets públicos
+│   └── ...         # Configs, testes, Dockerfile
+├── server/         # Backend Node.js + Express/NestJS + Prisma
+│   ├── src/        # Módulos, controllers, services, DTOs, middlewares
+│   ├── prisma/     # Schema, migrations, seeds
+│   └── ...         # Configs, testes, Dockerfile
+├── docs/           # Documentação técnica centralizada
+│   ├── README-docs.md
+│   ├── api/, auth/, guides/, reports/, setup/
+│   └── ...         # Arquivos técnicos
+├── archive/        # Arquivos históricos, backups, versões antigas
+│   ├── README-archive.md
+│   ├── old-docs/, old-transactions/
+│   └── ...
+├── IA/             # Módulos, scripts, modelos e documentação de IA
+│   ├── README-IA.md
+│   ├── models/, scripts/, datasets/, notebooks/
+│   └── ...
+├── scripts/        # Scripts de automação, desenvolvimento e testes
+│   ├── README-scripts.md
+│   ├── development/, testing/, maintenance/
+│   └── ...
+├── data/           # Dados de exemplo, extratos, arquivos CSV
+├── database/       # Scripts, backups, init.sql
+├── docker/         # Dockerfiles, docker-compose para dev/prod
+├── configs/        # Arquivos de configuração de ambiente
+├── .github/        # Workflows CI/CD
+├── README.md       # Este arquivo (sumário e contextualização)
+├── LICENSE         # Licença do projeto
+└── ...             # Arquivos auxiliares
+```
+
+---
+
+## 📚 Documentação
+- [Documentação Técnica Completa](docs/README-docs.md)
+- [API Reference](docs/api/api-reference.md)
+- [Arquitetura](docs/ARCHITECTURE.md)
+- [Roadmap](docs/ROADMAP_FUNCIONALIDADES.md)
+- [Relatórios de Testes](docs/reports/RELATORIO_FINAL_COMPLETO.md)
+- [Guia de Instalação](docs/setup/QUICK_START.md)
+- [Scripts de Automação](scripts/README-scripts.md)
+- [Ambiente de IA](IA/README-IA.md)
+- [Histórico do Projeto](archive/README-archive.md)
+
+---
+
+## 🚀 Instalação Rápida
+```bash
+npm run setup # Instala dependências, configura banco e build
+npm run dev   # Inicia cliente e servidor
+```
+Mais comandos em [scripts/README-scripts.md](scripts/README-scripts.md).
+
+---
+
+## 🛡️ Qualidade e Segurança
+- Cobertura de testes: 80%+ (meta 90%)
+- Performance: FCP < 2s, backend < 100ms (95th percentile)
+- Segurança: JWT, 2FA, sanitização, CORS, rate limiting
+- CI/CD, Docker, monitoramento, backup automatizado
+
+---
+
+**Desenvolvido por Will Finance Team — Para dúvidas, consulte a documentação ou abra uma issue!**
 <<<<<<< HEAD
 # 🚀 Will Finance 5.0 - Sistema de Gerenciamento Financeiro
 
