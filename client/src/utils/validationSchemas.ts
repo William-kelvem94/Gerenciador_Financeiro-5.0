@@ -23,8 +23,8 @@ export const registerSchema = z.object({
 
 export const transactionSchema = z.object({
   description: z.string().min(1, 'Descrição é obrigatória'),
-  amount: z.number({ invalid_type_error: 'Valor inválido' }).min(0.01, 'Valor é obrigatório'),
-  date: z.date({ required_error: 'Data é obrigatória' }),
+  amount: z.number().min(0.01, 'Valor é obrigatório'),
+  date: z.date(),
   category: z.string().min(1, 'Categoria é obrigatória'),
 });
 

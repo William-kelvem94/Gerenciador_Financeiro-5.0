@@ -13,11 +13,11 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
-export const authenticateToken = async (
+export function authenticateToken(
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-) => {
+) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
@@ -28,29 +28,31 @@ export const authenticateToken = async (
     });
   }
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
-    
-    // Buscar usuário no banco para verificar se ainda existe
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: { id: true, email: true, name: true }
-    });
-
-    if (!user) {
-      return res.status(401).json({ 
+  jwt.verify(token, JWT_SECRET, (err, decoded: { userId?: string } | undefined) => {
+    if (err || !decoded?.userId) {
+      return res.status(403).json({ 
         success: false, 
-        message: 'Usuário não encontrado' 
+        message: 'Token inválido' 
       });
     }
-
-    req.user = user;
-    next();
-  } catch (error) {
-    console.error('JWT Error:', error);
-    return res.status(403).json({ 
-      success: false, 
-      message: 'Token inválido' 
-    });
-  }
-};
+    // Função auxiliar para buscar usuário
+    (async () => {
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
+        select: { id: true, email: true, name: true }
+      });
+      if (!user) {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Usuário não encontrado' 
+        });
+      }
+      req.user = {
+        id: user.id,
+        email: user.email,
+        name: user.name
+      };
+      next();
+    })();
+  });
+}

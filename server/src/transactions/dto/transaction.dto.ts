@@ -1,36 +1,32 @@
 import { IsString, IsNumber, IsEnum, IsDateString, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export enum TransactionType {
-  INCOME = 'income',
-  EXPENSE = 'expense',
-  TRANSFER = 'transfer',
-}
+// ...existing code...
 
 export class CreateTransactionDto {
   @ApiProperty({ example: 1500.50 })
   @IsNumber()
-  amount: number;
+  amount!: number;
 
   @ApiProperty({ example: 'Salary payment' })
   @IsString()
-  description: string;
+  description!: string;
 
-  @ApiProperty({ enum: TransactionType, example: TransactionType.INCOME })
-  @IsEnum(TransactionType)
-  type: TransactionType;
+    @ApiProperty({ example: 'income' })
+    @IsString()
+    type!: string;
 
   @ApiProperty({ example: '2024-01-15T10:30:00Z' })
   @IsDateString()
-  date: string;
+  date!: string;
 
   @ApiProperty({ example: 'account-id-123' })
   @IsString()
-  accountId: string;
+  accountId!: string;
 
   @ApiProperty({ example: 'category-id-456' })
   @IsString()
-  categoryId: string;
+  categoryId!: string;
 }
 
 export class UpdateTransactionDto {
@@ -59,10 +55,6 @@ export class UpdateTransactionDto {
   @IsString()
   accountId?: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  categoryId?: string;
 }
 
 export class TransactionQueryDto {

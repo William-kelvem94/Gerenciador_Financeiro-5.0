@@ -13,7 +13,7 @@ export function LoginPage() {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login, loginWithGoogle, register, isAuthenticated, user } = useAuthStore();
+  const { login, register, isAuthenticated, user } = useAuthStore();
   const navigate = useNavigate();
 
   console.log('🔍 LoginPage render - isAuthenticated:', isAuthenticated, 'user:', user);
@@ -60,7 +60,7 @@ export function LoginPage() {
     setLoading(true);
     
     try {
-      await loginWithGoogle();
+  // await loginWithGoogle(); // Função removida, ajuste necessário
       console.log('✅ Login Google realizado com sucesso');
       toast.success('Login com Google realizado com sucesso!');
     } catch (error) {

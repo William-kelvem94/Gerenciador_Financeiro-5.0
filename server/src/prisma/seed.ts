@@ -5,8 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seeding...');
 
-<<<<<<< HEAD
-  // Create default user
+  // Criação do usuário padrão
   let defaultUser;
   try {
     defaultUser = await prisma.user.upsert({
@@ -15,32 +14,11 @@ async function main() {
       create: {
         email: 'admin@willfinance.com',
         name: 'Admin User',
-        password: '$2b$10$dummyhashedpassword', // This would be properly hashed in real scenario
+        password: '$2b$10$dummyhashedpassword', // Hash real em produção
         role: 'ADMIN',
         isActive: true,
         emailVerified: true,
       },
-=======
-  // Create default categories
-  const categories = [
-    { name: 'Food & Dining', icon: 'utensils', color: '#ef4444', type: 'expense' },
-    { name: 'Transportation', icon: 'car', color: '#f97316', type: 'expense' },
-    { name: 'Shopping', icon: 'shopping-bag', color: '#eab308', type: 'expense' },
-    { name: 'Entertainment', icon: 'film', color: '#8b5cf6', type: 'expense' },
-    { name: 'Bills & Utilities', icon: 'file-text', color: '#06b6d4', type: 'expense' },
-    { name: 'Healthcare', icon: 'heart', color: '#ec4899', type: 'expense' },
-    { name: 'Education', icon: 'book', color: '#10b981', type: 'expense' },
-    { name: 'Travel', icon: 'plane', color: '#3b82f6', type: 'expense' },
-    { name: 'Salary', icon: 'dollar-sign', color: '#22c55e', type: 'income' },
-    { name: 'Freelance', icon: 'briefcase', color: '#059669', type: 'income' },
-    { name: 'Investment', icon: 'trending-up', color: '#0d9488', type: 'income' },
-    { name: 'Gift', icon: 'gift', color: '#8b5cf6', type: 'income' },
-  ];
-
-  for (const category of categories) {
-    await prisma.category.create({
-      data: category,
->>>>>>> 19ae9cf82eb63c5cfccf5974311e9c254540a7d3
     });
     console.log('✅ Default user created/updated');
   } catch (error) {
@@ -48,7 +26,7 @@ async function main() {
     return;
   }
 
-  // Create default account
+  // Criação da conta padrão
   let defaultAccount;
   try {
     defaultAccount = await prisma.account.upsert({
@@ -73,7 +51,7 @@ async function main() {
     return;
   }
 
-  // Create default categories
+  // Criação das categorias padrão
   const categories = [
     { name: 'Alimentação', icon: 'utensils', color: '#ef4444', type: 'EXPENSE' },
     { name: 'Transporte', icon: 'car', color: '#f97316', type: 'EXPENSE' },
@@ -94,16 +72,14 @@ async function main() {
     { name: 'Outros', icon: 'more-horizontal', color: '#6b7280', type: 'INCOME' },
   ];
 
-  // Create categories
-  const createdCategories: any[] = [];
   for (const category of categories) {
     try {
-      const createdCategory = await prisma.category.upsert({
-        where: { 
-          name_userId: { 
-            name: category.name, 
-            userId: defaultUser.id 
-          } 
+      await prisma.category.upsert({
+        where: {
+          name_userId: {
+            name: category.name,
+            userId: defaultUser.id,
+          },
         },
         update: {},
         create: {
@@ -112,17 +88,13 @@ async function main() {
           isSystem: true,
         },
       });
-      createdCategories.push(createdCategory);
     } catch (error) {
       console.log(`Category ${category.name} already exists or creation failed`);
     }
   }
-
   console.log('✅ Default categories created/updated');
 
-  // Note: Sample transactions removed for production environment
-  // Only essential structure is created (user, account, categories)
-
+  // Estrutura essencial criada (usuário, conta, categorias)
   console.log('🎉 Seeding completed successfully!');
 }
 

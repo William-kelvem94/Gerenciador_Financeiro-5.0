@@ -1,7 +1,7 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
-import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -17,29 +17,26 @@ const createCategorySchema = z.object({
 
 const updateCategorySchema = createCategorySchema.partial();
 
-// Apply authentication to all routes
-router.use(authenticateToken);
+// Corrigir uso do middleware para Express
+router.use(authenticateToken as any);
 
-// GET /api/categories - Lista todas as categorias
-router.get('/', async (req: AuthenticatedRequest, res) => {
+router.get('/', async (req, res) => {
   try {
     const { type, includeDefault = 'true' } = req.query;
-    
-    const where: any = {};
-
-    // Se includeDefault for true, busca categorias do usuário + categorias padrão (userId null)
-    // Se for false, busca apenas categorias do usuário
+    const userId = (req.user as { id: string })?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Usuário não autenticado' });
+    }
+    const where: Record<string, unknown> = {};
     if (includeDefault === 'true') {
       where.OR = [
-        { userId: req.user!.id },
-        { userId: null } // categorias padrão do sistema
+        { userId },
+        { userId: null }
       ];
     } else {
-      where.userId = req.user!.id;
+      where.userId = userId;
     }
-
     if (type) where.type = type;
-
     const categories = await prisma.category.findMany({
       where,
       include: {
@@ -48,33 +45,24 @@ router.get('/', async (req: AuthenticatedRequest, res) => {
         }
       },
       orderBy: [
-        { userId: 'asc' }, // categorias padrão primeiro
+        { userId: 'asc' },
         { name: 'asc' }
       ],
     });
-
-    res.json({
-      success: true,
-      data: categories,
-    });
-  } catch (error) {
-    console.error('Get categories error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao buscar categorias' 
-    });
+    res.json({ success: true, data: categories });
+  } catch {
+    res.status(500).json({ success: false, message: 'Erro ao buscar categorias' });
   }
 });
 
-// GET /api/categories/:id - Busca uma categoria específica
-router.get('/:id', async (req: AuthenticatedRequest, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const category = await prisma.category.findFirst({
       where: {
         id: req.params.id,
         OR: [
-          { userId: req.user!.id },
-          { userId: null } // categoria padrão
+            { userId: (req.user as { id: string })?.id },
+          { userId: null }
         ]
       },
       include: {
@@ -82,7 +70,7 @@ router.get('/:id', async (req: AuthenticatedRequest, res) => {
           select: { transactions: true }
         },
         transactions: {
-          where: { userId: req.user!.id }, // apenas transações do usuário
+            where: { userId: (req.user as { id: string })?.id },
           take: 10,
           orderBy: { date: 'desc' },
           include: {
@@ -91,20 +79,17 @@ router.get('/:id', async (req: AuthenticatedRequest, res) => {
         },
       },
     });
-
     if (!category) {
       return res.status(404).json({
         success: false,
         message: 'Categoria não encontrada',
       });
     }
-
     res.json({
       success: true,
       data: category,
     });
-  } catch (error) {
-    console.error('Get category error:', error);
+  } catch {
     res.status(500).json({ 
       success: false, 
       message: 'Erro ao buscar categoria' 
@@ -113,7 +98,7 @@ router.get('/:id', async (req: AuthenticatedRequest, res) => {
 });
 
 // POST /api/categories - Cria nova categoria
-router.post('/', async (req: AuthenticatedRequest, res) => {
+router.post('/', async (req, res) => {
   try {
     const validatedData = createCategorySchema.parse(req.body);
 
@@ -122,7 +107,7 @@ router.post('/', async (req: AuthenticatedRequest, res) => {
       where: {
         name: validatedData.name,
         type: validatedData.type,
-        userId: req.user!.id,
+  userId: (req.user as { id: string })?.id,
       },
     });
 
@@ -136,7 +121,7 @@ router.post('/', async (req: AuthenticatedRequest, res) => {
     const category = await prisma.category.create({
       data: {
         ...validatedData,
-        userId: req.user!.id,
+  userId: (req.user as { id: string })?.id,
       },
     });
 
@@ -153,24 +138,19 @@ router.post('/', async (req: AuthenticatedRequest, res) => {
         errors: error.issues,
       });
     }
-
-    console.error('Create category error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao criar categoria' 
-    });
+    res.status(500).json({ success: false, message: 'Erro ao criar categoria' });
   }
 });
 
 // PUT /api/categories/:id - Atualiza categoria
-router.put('/:id', async (req: AuthenticatedRequest, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const validatedData = updateCategorySchema.parse(req.body);
 
     const category = await prisma.category.findFirst({
       where: {
         id: req.params.id,
-        userId: req.user!.id, // apenas categorias do usuário podem ser editadas
+  userId: (req.user as { id: string })?.id, // apenas categorias do usuário podem ser editadas
       },
     });
 
@@ -188,7 +168,7 @@ router.put('/:id', async (req: AuthenticatedRequest, res) => {
         where: {
           name: validatedData.name || category.name,
           type: validatedData.type || category.type,
-          userId: req.user!.id,
+          userId: (req.user as { id: string })?.id,
           id: { not: req.params.id },
         },
       });
@@ -219,22 +199,17 @@ router.put('/:id', async (req: AuthenticatedRequest, res) => {
         errors: error.issues,
       });
     }
-
-    console.error('Update category error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao atualizar categoria' 
-    });
+    res.status(500).json({ success: false, message: 'Erro ao atualizar categoria' });
   }
 });
 
 // DELETE /api/categories/:id - Remove categoria
-router.delete('/:id', async (req: AuthenticatedRequest, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const category = await prisma.category.findFirst({
       where: {
         id: req.params.id,
-        userId: req.user!.id, // apenas categorias do usuário podem ser removidas
+  userId: (req.user as { id: string })?.id, // apenas categorias do usuário podem ser removidas
       },
       include: {
         _count: {
@@ -267,28 +242,24 @@ router.delete('/:id', async (req: AuthenticatedRequest, res) => {
       message: 'Categoria removida com sucesso',
     });
   } catch (error) {
-    console.error('Delete category error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao remover categoria' 
-    });
+    res.status(500).json({ success: false, message: 'Erro ao remover categoria' });
   }
 });
 
 // GET /api/categories/stats/usage - Estatísticas de uso das categorias
-router.get('/stats/usage', async (req: AuthenticatedRequest, res) => {
+router.get('/stats/usage', async (req, res) => {
   try {
     const { type, startDate, endDate } = req.query;
 
-    const where: any = {
-      userId: req.user!.id,
+    const where: Record<string, unknown> = {
+  userId: (req.user as { id: string })?.id,
     };
 
     if (type) where.type = type;
     if (startDate || endDate) {
-      where.date = {};
-      if (startDate) where.date.gte = new Date(startDate as string);
-      if (endDate) where.date.lte = new Date(endDate as string);
+      where.date = {} as { gte?: Date; lte?: Date };
+      if (startDate) (where.date as { gte?: Date }).gte = new Date(startDate as string);
+      if (endDate) (where.date as { lte?: Date }).lte = new Date(endDate as string);
     }
 
     const categoryStats = await prisma.transaction.groupBy({
@@ -330,12 +301,8 @@ router.get('/stats/usage', async (req: AuthenticatedRequest, res) => {
       success: true,
       data: result,
     });
-  } catch (error) {
-    console.error('Get category stats error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao buscar estatísticas das categorias' 
-    });
+  } catch {
+    res.status(500).json({ success: false, message: 'Erro ao buscar estatísticas das categorias' });
   }
 });
 

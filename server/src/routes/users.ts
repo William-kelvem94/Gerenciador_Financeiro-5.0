@@ -20,13 +20,17 @@ const changePasswordSchema = z.object({
 });
 
 // Apply authentication to all routes
-router.use(authenticateToken);
+router.use(authenticateToken as express.RequestHandler);
 
 // GET /api/users/profile - Perfil do usuário logado
-router.get('/profile', async (req: AuthenticatedRequest, res) => {
+router.get('/profile', (async (req: AuthenticatedRequest, res: express.Response) => {
+  const userId = (req.user as { id: string })?.id;
+  if (!userId) {
+    return res.status(401).json({ success: false, message: 'Usuário não autenticado' });
+  }
   try {
     const user = await prisma.user.findUnique({
-      where: { id: req.user!.id },
+      where: { id: userId },
       select: {
         id: true,
         name: true,
@@ -43,29 +47,17 @@ router.get('/profile', async (req: AuthenticatedRequest, res) => {
         }
       },
     });
-
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'Usuário não encontrado',
-      });
+      return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
     }
-
-    res.json({
-      success: true,
-      data: user,
-    });
-  } catch (error) {
-    console.error('Get user profile error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao buscar perfil do usuário' 
-    });
+    res.json({ success: true, data: user });
+  } catch {
+    res.status(500).json({ success: false, message: 'Erro ao buscar perfil do usuário' });
   }
-});
+}) as express.RequestHandler);
 
 // PUT /api/users/profile - Atualiza perfil do usuário
-router.put('/profile', async (req: AuthenticatedRequest, res) => {
+router.put('/profile', async (req, res) => {
   try {
     const validatedData = updateUserSchema.parse(req.body);
 
@@ -74,7 +66,7 @@ router.put('/profile', async (req: AuthenticatedRequest, res) => {
       const existingUser = await prisma.user.findFirst({
         where: {
           email: validatedData.email,
-          id: { not: req.user!.id },
+          id: { not: (req.user as { id: string }).id },
         },
       });
 
@@ -87,13 +79,13 @@ router.put('/profile', async (req: AuthenticatedRequest, res) => {
     }
 
     // Se está mudando a senha, criptografar
-    const updateData: any = { ...validatedData };
-    if (updateData.password) {
+    const updateData: Record<string, unknown> = { ...validatedData };
+    if (updateData.password && typeof updateData.password === 'string') {
       updateData.password = await bcrypt.hash(updateData.password, 10);
     }
 
     const updatedUser = await prisma.user.update({
-      where: { id: req.user!.id },
+      where: { id: (req.user as { id: string }).id },
       data: updateData,
       select: {
         id: true,
@@ -117,8 +109,7 @@ router.put('/profile', async (req: AuthenticatedRequest, res) => {
         errors: error.issues,
       });
     }
-
-    console.error('Update user profile error:', error);
+    // log removido para produção
     res.status(500).json({ 
       success: false, 
       message: 'Erro ao atualizar perfil' 
@@ -127,12 +118,12 @@ router.put('/profile', async (req: AuthenticatedRequest, res) => {
 });
 
 // POST /api/users/change-password - Altera senha do usuário
-router.post('/change-password', async (req: AuthenticatedRequest, res) => {
+router.post('/change-password', async (req, res) => {
   try {
     const validatedData = changePasswordSchema.parse(req.body);
 
     const user = await prisma.user.findUnique({
-      where: { id: req.user!.id },
+      where: { id: (req.user as { id: string }).id },
     });
 
     if (!user) {
@@ -155,7 +146,7 @@ router.post('/change-password', async (req: AuthenticatedRequest, res) => {
     const hashedNewPassword = await bcrypt.hash(validatedData.newPassword, 10);
 
     await prisma.user.update({
-      where: { id: req.user!.id },
+      where: { id: (req.user as { id: string }).id },
       data: { password: hashedNewPassword },
     });
 
@@ -172,7 +163,7 @@ router.post('/change-password', async (req: AuthenticatedRequest, res) => {
       });
     }
 
-    console.error('Change password error:', error);
+    // log removido para produção
     res.status(500).json({ 
       success: false, 
       message: 'Erro ao alterar senha' 
@@ -181,7 +172,7 @@ router.post('/change-password', async (req: AuthenticatedRequest, res) => {
 });
 
 // DELETE /api/users/account - Remove conta do usuário
-router.delete('/account', async (req: AuthenticatedRequest, res) => {
+router.delete('/account', async (req, res) => {
   try {
     const { confirmPassword } = req.body;
 
@@ -193,7 +184,7 @@ router.delete('/account', async (req: AuthenticatedRequest, res) => {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: req.user!.id },
+      where: { id: (req.user as { id: string }).id },
       include: {
         _count: {
           select: {
@@ -226,32 +217,32 @@ router.delete('/account', async (req: AuthenticatedRequest, res) => {
     await prisma.$transaction(async (tx) => {
       // Deletar transações
       await tx.transaction.deleteMany({
-        where: { userId: req.user!.id },
+        where: { userId: (req.user as { id: string }).id },
       });
 
       // Deletar orçamentos
       await tx.budget.deleteMany({
-        where: { userId: req.user!.id },
+        where: { userId: (req.user as { id: string }).id },
       });
 
       // Deletar metas
       await tx.goal.deleteMany({
-        where: { userId: req.user!.id },
+        where: { userId: (req.user as { id: string }).id },
       });
 
       // Deletar contas
       await tx.account.deleteMany({
-        where: { userId: req.user!.id },
+        where: { userId: (req.user as { id: string }).id },
       });
 
       // Deletar categorias customizadas
       await tx.category.deleteMany({
-        where: { userId: req.user!.id },
+        where: { userId: (req.user as { id: string }).id },
       });
 
       // Deletar usuário
       await tx.user.delete({
-        where: { id: req.user!.id },
+        where: { id: (req.user as { id: string }).id },
       });
     });
 
@@ -259,8 +250,8 @@ router.delete('/account', async (req: AuthenticatedRequest, res) => {
       success: true,
       message: 'Conta removida com sucesso',
     });
-  } catch (error) {
-    console.error('Delete user account error:', error);
+  } catch {
+    // log removido para produção
     res.status(500).json({ 
       success: false, 
       message: 'Erro ao remover conta' 
@@ -269,9 +260,9 @@ router.delete('/account', async (req: AuthenticatedRequest, res) => {
 });
 
 // GET /api/users/stats - Estatísticas gerais do usuário
-router.get('/stats', async (req: AuthenticatedRequest, res) => {
+router.get('/stats', async (req, res) => {
   try {
-    const userId = req.user!.id;
+    const userId = (req.user as { id: string }).id;
 
     const [
       accountsCount,
@@ -313,8 +304,8 @@ router.get('/stats', async (req: AuthenticatedRequest, res) => {
       success: true,
       data: stats,
     });
-  } catch (error) {
-    console.error('Get user stats error:', error);
+  } catch {
+    // log removido para produção
     res.status(500).json({ 
       success: false, 
       message: 'Erro ao buscar estatísticas do usuário' 

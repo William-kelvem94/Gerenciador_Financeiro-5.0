@@ -1,7 +1,7 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
-import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -17,51 +17,42 @@ const createAccountSchema = z.object({
 
 const updateAccountSchema = createAccountSchema.partial();
 
-// Apply authentication to all routes
-router.use(authenticateToken);
+// Corrigir uso do middleware para Express
+router.use(authenticateToken as any);
 
-// GET /api/accounts - Lista todas as contas do usuário
-router.get('/', async (req: AuthenticatedRequest, res) => {
+router.get('/', async (req, res) => {
   try {
     const { includeBalance = 'true', type } = req.query;
-    
-    const where: any = {
-      userId: req.user!.id,
-    };
-
+    const userId = (req.user as { id: string })?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Usuário não autenticado' });
+    }
+    const where: Record<string, unknown> = { userId };
     if (type) where.type = type;
-
     const accounts = await prisma.account.findMany({
       where,
       include: includeBalance === 'true' ? { _count: { select: { transactions: true } } } : undefined,
       orderBy: { name: 'asc' },
     });
-
-    res.json({
-      success: true,
-      data: accounts,
-    });
-  } catch (error) {
-    console.error('Get accounts error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao buscar contas' 
-    });
+    res.json({ success: true, data: accounts });
+  } catch {
+    res.status(500).json({ success: false, message: 'Erro ao buscar contas' });
   }
 });
 
-// GET /api/accounts/:id - Busca uma conta específica
-router.get('/:id', async (req: AuthenticatedRequest, res) => {
+router.get('/:id', async (req, res) => {
   try {
+    const userId = (req.user as { id: string })?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Usuário não autenticado' });
+    }
     const account = await prisma.account.findFirst({
       where: {
         id: req.params.id,
-        userId: req.user!.id,
+        userId,
       },
       include: {
-        _count: {
-          select: { transactions: true }
-        },
+        _count: { select: { transactions: true } },
         transactions: {
           take: 10,
           orderBy: { date: 'desc' },
@@ -71,51 +62,40 @@ router.get('/:id', async (req: AuthenticatedRequest, res) => {
         },
       },
     });
-
     if (!account) {
-      return res.status(404).json({
-        success: false,
-        message: 'Conta não encontrada',
-      });
+      return res.status(404).json({ success: false, message: 'Conta não encontrada' });
     }
-
-    res.json({
-      success: true,
-      data: account,
-    });
-  } catch (error) {
-    console.error('Get account error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao buscar conta' 
-    });
+    res.json({ success: true, data: account });
+  } catch {
+    res.status(500).json({ success: false, message: 'Erro ao buscar conta' });
   }
 });
 
 // POST /api/accounts - Cria nova conta
-router.post('/', async (req: AuthenticatedRequest, res) => {
+router.post('/', async (req, res) => {
   try {
     const validatedData = createAccountSchema.parse(req.body);
-
+    const userId = (req.user as { id: string })?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Usuário não autenticado' });
+    }
     // Verificar se já existe uma conta com esse nome para o usuário
     const existingAccount = await prisma.account.findFirst({
       where: {
         name: validatedData.name,
-        userId: req.user!.id,
+        userId,
       },
     });
-
     if (existingAccount) {
       return res.status(400).json({
         success: false,
         message: 'Já existe uma conta com esse nome',
       });
     }
-
     const account = await prisma.account.create({
       data: {
         ...validatedData,
-        userId: req.user!.id,
+        userId,
       },
     });
 
@@ -132,24 +112,20 @@ router.post('/', async (req: AuthenticatedRequest, res) => {
         errors: error.issues,
       });
     }
-
-    console.error('Create account error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao criar conta' 
-    });
+    res.status(500).json({ success: false, message: 'Erro ao criar conta' });
   }
 });
 
 // PUT /api/accounts/:id - Atualiza conta
-router.put('/:id', async (req: AuthenticatedRequest, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const validatedData = updateAccountSchema.parse(req.body);
 
+  // user não utilizado
     const account = await prisma.account.findFirst({
       where: {
         id: req.params.id,
-        userId: req.user!.id,
+  userId: (req.user as { id: string })?.id,
       },
     });
 
@@ -165,7 +141,7 @@ router.put('/:id', async (req: AuthenticatedRequest, res) => {
       const existingAccount = await prisma.account.findFirst({
         where: {
           name: validatedData.name,
-          userId: req.user!.id,
+          userId: (req.user as { id: string })?.id,
           id: { not: req.params.id },
         },
       });
@@ -196,22 +172,18 @@ router.put('/:id', async (req: AuthenticatedRequest, res) => {
         errors: error.issues,
       });
     }
-
-    console.error('Update account error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao atualizar conta' 
-    });
+    res.status(500).json({ success: false, message: 'Erro ao atualizar conta' });
   }
 });
 
 // DELETE /api/accounts/:id - Remove conta
-router.delete('/:id', async (req: AuthenticatedRequest, res) => {
+router.delete('/:id', async (req, res) => {
   try {
+  // user não utilizado
     const account = await prisma.account.findFirst({
       where: {
         id: req.params.id,
-        userId: req.user!.id,
+  userId: (req.user as { id: string })?.id,
       },
       include: {
         _count: {
@@ -244,19 +216,16 @@ router.delete('/:id', async (req: AuthenticatedRequest, res) => {
       message: 'Conta removida com sucesso',
     });
   } catch (error) {
-    console.error('Delete account error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao remover conta' 
-    });
+    res.status(500).json({ success: false, message: 'Erro ao remover conta' });
   }
 });
 
 // GET /api/accounts/stats/summary - Estatísticas das contas
-router.get('/stats/summary', async (req: AuthenticatedRequest, res) => {
+router.get('/stats/summary', async (req, res) => {
   try {
+  // user não utilizado
     const accounts = await prisma.account.findMany({
-      where: { userId: req.user!.id },
+  where: { userId: (req.user as { id: string })?.id },
       select: {
         id: true,
         name: true,
@@ -282,12 +251,8 @@ router.get('/stats/summary', async (req: AuthenticatedRequest, res) => {
       success: true,
       data: summary,
     });
-  } catch (error) {
-    console.error('Get accounts stats error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao buscar estatísticas das contas' 
-    });
+  } catch {
+    res.status(500).json({ success: false, message: 'Erro ao buscar estatísticas das contas' });
   }
 });
 
