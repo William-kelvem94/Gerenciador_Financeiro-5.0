@@ -101,7 +101,7 @@ export const RegisterPage: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md p-8 relative z-10"
       >
-        <div className="bg-background-secondary border border-border rounded-xl p-8 shadow-glow-lg">
+  <div className="bg-background-secondary border border-cyber-border rounded-xl p-8 shadow-glow-lg">
           <div className="text-center mb-8">
             <motion.div
               initial={{ scale: 0 }}
@@ -134,7 +134,7 @@ export const RegisterPage: React.FC = () => {
                   value={formData.name}
                   onChange={handleChange}
                   className={`w-full pl-10 pr-4 py-3 bg-background border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
-                    errors.name ? 'border-cyber-danger' : 'border-border'
+                    errors.name ? 'border-cyber-danger' : 'border-cyber-border'
                   }`}
                   placeholder="Enter your full name"
                 />
@@ -157,7 +157,7 @@ export const RegisterPage: React.FC = () => {
                   value={formData.email}
                   onChange={handleChange}
                   className={`w-full pl-10 pr-4 py-3 bg-background border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
-                    errors.email ? 'border-cyber-danger' : 'border-border'
+                    errors.email ? 'border-cyber-danger' : 'border-cyber-border'
                   }`}
                   placeholder="Enter your email"
                 />
@@ -180,7 +180,7 @@ export const RegisterPage: React.FC = () => {
                   value={formData.password}
                   onChange={handleChange}
                   className={`w-full pl-10 pr-12 py-3 bg-background border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
-                    errors.password ? 'border-cyber-danger' : 'border-border'
+                    errors.password ? 'border-cyber-danger' : 'border-cyber-border'
                   }`}
                   placeholder="Create a password"
                 />
@@ -210,7 +210,7 @@ export const RegisterPage: React.FC = () => {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   className={`w-full pl-10 pr-12 py-3 bg-background border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
-                    errors.confirmPassword ? 'border-cyber-danger' : 'border-border'
+                    errors.confirmPassword ? 'border-cyber-danger' : 'border-cyber-border'
                   }`}
                   placeholder="Confirm your password"
                 />

@@ -1,6 +1,30 @@
 /* Import fonts */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.goog  /* Enhanced input components */
+  .input {
+    @apply w-full px-4 py-3 bg-background-secondary/50 border border-cyber-border rounded-lg;
+    @apply text-foreground placeholder:text-foreground-muted;
+    @apply transition-all duration-300;
+    backdrop-filter: blur(10px);
+  }
+
+  .input:focus {
+    @apply outline-none border-cyber-primary;
+    box-shadow: 
+      0 0 0 3px rgba(0, 255, 255, 0.1),
+      0 0 20px rgba(0, 255, 255, 0.2);
+    background: rgba(26, 26, 46, 0.7);
+  }
+
+  .input-glow {
+    @apply input;
+  }
+
+  .input-glow:focus {
+    box-shadow: 
+      0 0 0 3px rgba(0, 255, 255, 0.2),
+      0 0 30px rgba(0, 255, 255, 0.3);
+  }ss2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -8,9 +32,7 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  /* Removido @apply border-border pois não existe utilitário gerado pelo Tailwind */
   
   html,
   :host {
@@ -24,9 +46,7 @@
   body {
     @apply bg-background text-foreground font-sans;
     @apply selection:bg-cyber-primary selection:text-cyber-dark;
-  }
-
-  html {
+  }  html {
     scroll-behavior: smooth;
     
     /* Compatibilidade para scrollbar - ordem correta dos prefixes */
@@ -43,7 +63,7 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-background-secondary;
+  @apply bg-background-secondary;
   }
 
   ::-webkit-scrollbar-thumb {
@@ -52,7 +72,7 @@
   }
 
   ::-webkit-scrollbar-corner {
-    @apply bg-background-secondary;
+  @apply bg-background-secondary;
   }
 }
 
@@ -62,23 +82,50 @@
     background: radial-gradient(circle, var(--tw-gradient-stops));
   }
 
-  /* Button variants */
+  /* Enhanced button variants */
   .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+    @apply px-6 py-3 rounded-lg font-semibold transition-all duration-300;
     @apply focus:outline-none focus:ring-2 focus:ring-cyber-primary focus:ring-offset-2 focus:ring-offset-background;
     @apply disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply relative overflow-hidden;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .btn:hover::before {
+    left: 100%;
   }
 
   .btn-primary {
-    @apply btn bg-cyber-primary text-cyber-dark;
-    @apply hover:bg-cyber-primary/90 hover:shadow-glow;
-    @apply active:scale-95;
+    @apply btn text-black font-bold;
+    background: linear-gradient(135deg, #00FFFF 0%, #00CCCC 100%);
+    box-shadow: 
+      0 4px 15px rgba(0, 255, 255, 0.3),
+      0 0 20px rgba(0, 255, 255, 0.2);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 8px 25px rgba(0, 255, 255, 0.4),
+      0 0 30px rgba(0, 255, 255, 0.3);
   }
 
   .btn-secondary {
-    @apply btn bg-cyber-secondary text-white;
-    @apply hover:bg-cyber-secondary/90 hover:shadow-[0_0_10px_#FF00FF];
-    @apply active:scale-95;
+    @apply btn text-white font-semibold;
+    background: linear-gradient(135deg, #FF00FF 0%, #CC0066 100%);
+    box-shadow: 
+      0 4px 15px rgba(255, 0, 255, 0.3),
+      0 0 20px rgba(255, 0, 255, 0.2);
   }
 
   .btn-outline {
@@ -89,7 +136,7 @@
 
   .btn-ghost {
     @apply btn text-foreground bg-transparent;
-    @apply hover:bg-background-secondary;
+  @apply hover:bg-background-secondary;
     @apply active:scale-95;
   }
 
@@ -99,20 +146,37 @@
     @apply active:scale-95;
   }
 
-  /* Card components */
+  /* Enhanced glass effect */
+  .glass {
+    @apply bg-background-secondary/20 backdrop-blur-xl border border-cyber-primary/20 rounded-xl p-6;
+    box-shadow: 
+      0 8px 32px rgba(0, 255, 255, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-strong {
+    @apply bg-background-secondary/40 backdrop-blur-2xl border border-cyber-primary/30 rounded-xl;
+    box-shadow: 
+      0 16px 64px rgba(0, 255, 255, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  /* Enhanced card components */
   .card {
-    @apply bg-background-secondary border border-border rounded-xl p-6;
-    @apply backdrop-blur-sm;
+    @apply glass;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .card-glow {
-    @apply card shadow-glow-sm;
-    @apply hover:shadow-glow transition-shadow duration-300;
-  }
-
-  /* Input components */
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+      0 20px 80px rgba(0, 255, 255, 0.2),
+      0 0 40px rgba(0, 255, 255, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border-color: rgba(0, 255, 255, 0.5);
+  }  /* Input components */
   .input {
-    @apply w-full px-4 py-3 bg-background-secondary border border-border rounded-lg;
+  @apply w-full px-4 py-3 bg-background-secondary border border-cyber-border rounded-lg;
     @apply text-foreground placeholder:text-foreground-muted;
     @apply focus:outline-none focus:ring-2 focus:ring-cyber-primary focus:border-transparent;
     @apply transition-all duration-200;
@@ -123,17 +187,54 @@
     @apply focus:shadow-glow-sm;
   }
 
-  /* Text variants */
+  /* Enhanced text variants */
   .text-gradient {
-    @apply bg-gradient-cyber bg-clip-text text-transparent;
+    background: linear-gradient(135deg, #00FFFF 0%, #FF00FF 50%, #39FF14 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
+  }
+
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
   }
 
   .text-glow {
-    text-shadow: 0 0 10px currentColor;
+    text-shadow: 
+      0 0 10px currentColor,
+      0 0 20px currentColor,
+      0 0 30px currentColor;
   }
 
   .text-cyber {
-    @apply font-cyber text-cyber-primary text-glow;
+    @apply font-cyber text-cyber-primary;
+    text-shadow: 
+      0 0 5px #00FFFF,
+      0 0 10px #00FFFF,
+      0 0 15px #00FFFF;
+  }
+
+  .text-neon {
+    animation: textNeon 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes textNeon {
+    from {
+      text-shadow: 
+        0 0 5px currentColor,
+        0 0 10px currentColor,
+        0 0 15px currentColor;
+    }
+    to {
+      text-shadow: 
+        0 0 10px currentColor,
+        0 0 20px currentColor,
+        0 0 30px currentColor,
+        0 0 40px currentColor;
+    }
   }
 
   /* Layout components */
@@ -153,7 +254,7 @@
   }
 
   .nav-link-active {
-    @apply nav-link text-cyber-primary bg-background-secondary;
+  @apply nav-link text-cyber-primary bg-background-secondary;
     @apply shadow-glow-sm;
   }
 

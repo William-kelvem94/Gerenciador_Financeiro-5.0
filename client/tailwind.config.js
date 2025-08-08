@@ -19,21 +19,16 @@ export default {
           surface: '#1A1A1A',    // Dark Gray
           border: '#333333',     // Medium Gray
         },
-        // Traditional colors with cyberpunk twist
-        background: {
-          DEFAULT: '#0A0A0A',
-          secondary: '#1A1A1A',
-          tertiary: '#2A2A2A',
-        },
-        foreground: {
-          DEFAULT: '#FFFFFF',
-          secondary: '#CCCCCC',
-          muted: '#888888',
-        },
-        border: {
-          DEFAULT: '#333333',
-          secondary: '#444444',
-        }
+        // Traditional colors with cyberpunk twist - Flat structure for proper utility generation
+        background: '#0A0A0A',
+        'background-secondary': '#1A1A1A',
+        'background-tertiary': '#2A2A2A',
+        foreground: '#FFFFFF',
+        'foreground-secondary': '#CCCCCC',
+        'foreground-muted': '#888888',
+        // Border colors - Flat structure
+        border: '#333333',
+        'border-secondary': '#444444',
       },
       fontFamily: {
         'cyber': ['Orbitron', 'monospace'],

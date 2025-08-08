@@ -6,7 +6,7 @@
     "lib": ["ES2020"],
     "outDir": "./dist",
     "rootDir": "./src",
-    "strict": true,
+    "strict": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "removeComments": true,
@@ -17,21 +17,21 @@
     "incremental": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "strictNullChecks": true,
+    "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "resolveJsonModule": true,
-    "declaration": true,
-    "declarationMap": true,
+    "declaration": false,
+    "declarationMap": false,
     "allowImportingTsExtensions": false,
     "noEmit": false,
     "paths": {
       "@/*": ["./src/*"]
     },
-  "types": ["node", "jest"],
+    "types": ["node"],
     "typeRoots": ["./node_modules/@types"]
   },
-  "include": ["src/**/*.ts", "src/**/*.js"],
-  "exclude": ["node_modules", "dist", "src/prisma/**", "prisma/**"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }

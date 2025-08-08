@@ -73,7 +73,7 @@ export default defineConfig({
     setupFiles: ['./src/tests/setup.ts'],
   },
   server: {
-    port: 5173,
+    port: 5174,
     host: true,
     headers: {
       'Cache-Control': 'no-cache, no-store, max-age=0',
@@ -82,7 +82,7 @@ export default defineConfig({
     middlewareMode: false,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
       },

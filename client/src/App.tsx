@@ -42,7 +42,7 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
-        <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+          <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
           <Routes>
             {/* Public routes */}
             <Route 

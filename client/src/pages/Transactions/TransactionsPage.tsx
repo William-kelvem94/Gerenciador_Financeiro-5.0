@@ -351,7 +351,7 @@ export function TransactionsPage() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="border-t border-border-muted hover:bg-background-secondary/30 transition-colors"
+                      className="border-t border-cyber-border-muted hover:bg-background-secondary/30 transition-colors"
                     >
                       <td className="p-4 text-foreground-muted text-sm">
                         {formatDate(transaction.date)}

@@ -414,7 +414,7 @@ export function SettingsPage() {
           )}
 
           {/* Save Button */}
-          <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-border-muted">
+          <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-cyber-border-muted">
             <button
               onClick={handleSaveSettings}
               disabled={!hasChanges || isLoading}

@@ -27,7 +27,7 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+          <div className="min-h-screen flex items-center justify-center bg-background p-4">
           <div className="max-w-md w-full text-center">
             <div className="mb-8">
               <AlertTriangle className="w-16 h-16 text-cyber-warning mx-auto mb-4" />
@@ -39,7 +39,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </p>
             </div>
 
-            <div className="bg-background-secondary border border-border rounded-lg p-4 mb-6 text-left">
+            <div className="bg-background-secondary border border-cyber-border rounded-lg p-4 mb-6 text-left">
               <h3 className="text-sm font-mono text-cyber-accent mb-2">Error Details:</h3>
               <code className="text-xs text-foreground-muted break-all">
                 {this.state.error?.message || 'Unknown error occurred'}
@@ -56,7 +56,7 @@ export class ErrorBoundary extends Component<Props, State> {
               
               <button
                 onClick={() => this.setState({ hasError: false, error: null })}
-                className="w-full px-4 py-2 border border-border text-foreground hover:bg-background-secondary transition-colors rounded-lg"
+                className="w-full px-4 py-2 border border-cyber-border text-foreground hover:bg-background-secondary transition-colors rounded-lg"
               >
                 Try Again
               </button>
