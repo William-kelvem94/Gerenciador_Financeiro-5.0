@@ -8,7 +8,7 @@ import React, {
   useCallback,
 } from 'react';
 import { CyberpunkTheme, ThemeContextType, SoundConfig, AnimationConfig } from '../types/theme';
-import { availableThemes, defaultTheme } from '../themes/cyberpunk';
+import { availableThemes, defaultTheme } from '../themes/cyberpunk/index';
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 

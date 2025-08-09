@@ -1,36 +1,42 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, ForbiddenException } from '@nestjs/common';
-import { Request } from 'express';
-import jwt from 'jsonwebtoken';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req: Request = context.switchToHttp().getRequest();
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    const request = context.switchToHttp().getRequest();
+    const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException('Token de acesso requerido');
+      throw new UnauthorizedException();
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
+      const payload = await this.jwtService.verifyAsync(token);
       const user = await this.prisma.user.findUnique({
-        where: { id: decoded.userId },
-        select: { id: true, email: true, name: true }
+        where: { id: payload.userId },
+        select: { id: true, email: true, name: true },
       });
 
       if (!user) {
-        throw new UnauthorizedException('Usuário não encontrado');
+        throw new UnauthorizedException();
       }
 
-      req['user'] = user;
-      return true;
+      request.user = user;
     } catch {
-      throw new ForbiddenException('Token inválido');
+      throw new UnauthorizedException();
     }
+    return true;
+  }
+
+  private extractTokenFromHeader(request: any): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
   }
 }

@@ -1,55 +1,23 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import helmet from 'helmet';
-import compression from 'compression';
 import { AppModule } from './app.module';
-import { PrismaService } from './prisma/prisma.service';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  // Security middleware
-  app.use(helmet());
-  app.use(compression());
-
+  
   // Enable CORS
   app.enableCors({
     origin: ['http://localhost:5174', 'http://127.0.0.1:5174'],
     credentials: true,
   });
-
+  
   // Global validation pipe
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
-
-  // Swagger API documentation
-  const config = new DocumentBuilder()
-    .setTitle('Will Finance 6.0 API')
-    .setDescription('Complete financial management system API')
-    .setVersion('6.0.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
-
+  app.useGlobalPipes(new ValidationPipe());
+  
   // Global prefix
   app.setGlobalPrefix('api');
-
-  // Enable shutdown hooks
-  const prismaService = app.get(PrismaService);
-  await prismaService.enableShutdownHooks(app);
-
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
   
-  console.log(`🚀 Will Finance 6.0 API is running on: http://localhost:${port}/api`);
-  console.log(`📚 API Documentation: http://localhost:${port}/api/docs`);
+  await app.listen(8080);
+  console.log('🚀 Server is running on http://localhost:8080');
 }
-
 bootstrap();

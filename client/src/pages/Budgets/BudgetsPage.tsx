@@ -140,7 +140,7 @@ export function BudgetsPage() {
           <h1 className="text-4xl font-cyber text-cyber-primary mb-2 text-glow">
             Orçamentos
           </h1>
-          <p className="text-foreground-muted font-mono">
+          <p className="text-white-muted font-mono">
             Controle inteligente de gastos por categoria
           </p>
         </div>
@@ -171,7 +171,7 @@ export function BudgetsPage() {
             </div>
             <Target className="w-5 h-5 text-cyber-primary" />
           </div>
-          <h3 className="text-sm font-mono text-foreground-muted mb-1">Orçamento Total</h3>
+          <h3 className="text-sm font-mono text-white-muted mb-1">Orçamento Total</h3>
           <p className="text-2xl font-bold text-cyber-primary">
             R$ {totalAllocated.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
@@ -190,7 +190,7 @@ export function BudgetsPage() {
             </div>
             <AlertTriangle className="w-5 h-5 text-cyber-danger" />
           </div>
-          <h3 className="text-sm font-mono text-foreground-muted mb-1">Total Gasto</h3>
+          <h3 className="text-sm font-mono text-white-muted mb-1">Total Gasto</h3>
           <p className="text-2xl font-bold text-cyber-danger">
             R$ {totalSpent.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
@@ -221,7 +221,7 @@ export function BudgetsPage() {
               <AlertTriangle className="w-5 h-5 text-cyber-danger" />
             )}
           </div>
-          <h3 className="text-sm font-mono text-foreground-muted mb-1">Saldo Restante</h3>
+          <h3 className="text-sm font-mono text-white-muted mb-1">Saldo Restante</h3>
           <p className={`text-2xl font-bold ${
             remainingBudget >= 0 ? 'text-cyber-accent' : 'text-cyber-danger'
           }`}>
@@ -242,11 +242,11 @@ export function BudgetsPage() {
         
         <div className="space-y-4">
           <div className="flex justify-between text-sm font-mono">
-            <span className="text-foreground-muted">Utilização do Orçamento</span>
+            <span className="text-white-muted">Utilização do Orçamento</span>
             <span className="text-cyber-primary">{((totalSpent / totalAllocated) * 100).toFixed(1)}%</span>
           </div>
           
-          <div className="w-full bg-background-tertiary rounded-full h-4 overflow-hidden">
+          <div className="w-full bg-black-tertiary rounded-full h-4 overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${Math.min((totalSpent / totalAllocated) * 100, 100)}%` }}
@@ -264,7 +264,7 @@ export function BudgetsPage() {
           </div>
           
           <div className="flex justify-between text-sm font-mono">
-            <span className="text-foreground-secondary">
+            <span className="text-white-secondary">
               R$ {totalSpent.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </span>
             <span className="text-cyber-primary">
@@ -296,10 +296,10 @@ export function BudgetsPage() {
                     <Icon className="w-6 h-6 text-background" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-foreground group-hover:text-cyber-primary transition-colors">
+                    <h4 className="font-medium text-white group-hover:text-cyber-primary transition-colors">
                       {budget.name}
                     </h4>
-                    <p className="text-sm text-foreground-muted font-mono">{budget.category}</p>
+                    <p className="text-sm text-white-muted font-mono">{budget.category}</p>
                   </div>
                 </div>
                 {getStatusIcon(budget.status)}
@@ -307,13 +307,13 @@ export function BudgetsPage() {
 
               <div className="space-y-3">
                 <div className="flex justify-between text-sm font-mono">
-                  <span className="text-foreground-muted">Progresso</span>
+                  <span className="text-white-muted">Progresso</span>
                   <span className={`${percentage > 100 ? 'text-cyber-danger' : 'text-cyber-primary'}`}>
                     {percentage.toFixed(1)}%
                   </span>
                 </div>
                 
-                <div className="w-full bg-background-tertiary rounded-full h-2 overflow-hidden">
+                <div className="w-full bg-black-tertiary rounded-full h-2 overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.min(percentage, 100)}%` }}
@@ -325,10 +325,10 @@ export function BudgetsPage() {
                 </div>
                 
                 <div className="flex justify-between text-sm font-mono">
-                  <span className="text-foreground-secondary">
+                  <span className="text-white-secondary">
                     R$ {budget.spent.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </span>
-                  <span className="text-foreground-muted">
+                  <span className="text-white-muted">
                     de R$ {budget.allocated.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </span>
                 </div>

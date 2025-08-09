@@ -87,7 +87,7 @@ function StatCard({
         </div>
         {rightIcon}
       </div>
-      <h3 className="text-sm font-mono text-foreground-muted mb-1">{label}</h3>
+      <h3 className="text-sm font-mono text-white-muted mb-1">{label}</h3>
       <p className={clsx('text-2xl font-bold', valueClass)}>{value}</p>
       <div className="absolute top-0 right-0 w-20 h-20 bg-cyber-primary/10 rounded-full -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-500"></div>
     </motion.div>
@@ -108,10 +108,10 @@ function SavingProgress({ stats, progress }: { stats: DashboardStats; progress: 
       </div>
       <div className="space-y-4">
         <div className="flex justify-between text-sm font-mono">
-          <span className="text-foreground-muted">Progresso</span>
+          <span className="text-white-muted">Progresso</span>
           <span className="text-cyber-primary">{progress.toFixed(1)}%</span>
         </div>
-        <div className="w-full bg-background-tertiary rounded-full h-3 overflow-hidden">
+        <div className="w-full bg-black-tertiary rounded-full h-3 overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
@@ -122,7 +122,7 @@ function SavingProgress({ stats, progress }: { stats: DashboardStats; progress: 
           </motion.div>
         </div>
         <div className="flex justify-between text-sm font-mono">
-          <span className="text-foreground-secondary">
+          <span className="text-white-secondary">
             {formatCurrency(stats.balance)}
           </span>
           <span className="text-cyber-accent">
@@ -238,11 +238,11 @@ function SysStatus({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className={clsx('w-3 h-3 rounded-full', getStatusColor())}></div>
-          <span className="text-sm font-mono text-foreground-secondary">
+          <span className="text-sm font-mono text-white-secondary">
             Sistema Phoenix operacional • {getStatusText()}
           </span>
         </div>
-        <div className="text-xs font-mono text-foreground-muted">
+        <div className="text-xs font-mono text-white-muted">
           {lastSyncTime
             ? `Última sincronização: ${lastSyncTime.toLocaleTimeString('pt-BR')}`
             : 'Aguardando sincronização...'
@@ -388,7 +388,7 @@ export function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background-primary flex items-center justify-center">
+      <div className="min-h-screen bg-black-primary flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -399,7 +399,7 @@ export function DashboardPage() {
             <div className="absolute inset-0 w-20 h-20 border-4 border-cyber-secondary border-b-transparent rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
           </div>
           <h3 className="text-xl font-semibold text-cyber-primary mb-2">Iniciando Sistema Phoenix</h3>
-          <p className="text-foreground-muted animate-pulse">Carregando dados financeiros...</p>
+          <p className="text-white-muted animate-pulse">Carregando dados financeiros...</p>
           <div className="mt-4 flex justify-center space-x-1">
             <div className="w-2 h-2 bg-cyber-primary rounded-full animate-bounce"></div>
             <div className="w-2 h-2 bg-cyber-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -412,15 +412,15 @@ export function DashboardPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen bg-black flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="glass-strong p-8 max-w-md w-full text-center"
         >
           <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-foreground mb-2">Sistema Indisponível</h2>
-          <p className="text-foreground-muted mb-6">{error}</p>
+          <h2 className="text-xl font-semibold text-white mb-2">Sistema Indisponível</h2>
+          <p className="text-white-muted mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-cyber-primary text-cyber-dark rounded-lg hover:bg-cyber-accent transition-colors"
@@ -445,7 +445,7 @@ export function DashboardPage() {
         <h1 className="text-4xl font-cyber text-cyber-primary mb-2 text-glow">
           Centro de Comando Financeiro
         </h1>
-        <p className="text-foreground-muted font-mono">
+        <p className="text-white-muted font-mono">
           Monitoramento em tempo real dos seus ativos digitais
         </p>
       </motion.div>

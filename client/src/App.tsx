@@ -6,8 +6,8 @@ import { motion } from 'framer-motion';
 import { useAuthStore } from './stores/authStore';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Layout } from './components/layout/Layout';
-import { LoginPage } from './pages/Login/LoginPage';
-import { DashboardPage } from './pages/Dashboard/DashboardPage';
+import { CyberLoginPage } from './pages/Login/CyberLoginPage';
+import CyberDashboard from './pages/Dashboard/CyberDashboard';
 import { TransactionsPage } from './pages/Transactions/TransactionsPage';
 import { BudgetsPage } from './pages/Budgets/BudgetsPage';
 import { ReportsPage } from './pages/Reports/ReportsPage';
@@ -42,12 +42,12 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
-          <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+          <div className="min-h-screen bg-black text-white transition-colors duration-300">
           <Routes>
             {/* Public routes */}
             <Route 
               path="/login" 
-              element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} 
+              element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <CyberLoginPage />} 
             />
             {/* <Route 
               path="/register" 
@@ -64,7 +64,7 @@ function App() {
               element={isAuthenticated ? <Layout /> : <Navigate to="/login" replace />}
             >
               <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="dashboard" element={<CyberDashboard />} />
               <Route path="transactions" element={<TransactionsPage />} />
               <Route path="budgets" element={<BudgetsPage />} />
               <Route path="reports" element={<ReportsPage />} />
@@ -79,11 +79,11 @@ function App() {
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="min-h-screen flex items-center justify-center bg-background"
+                  className="min-h-screen flex items-center justify-center bg-black"
                 >
                   <div className="text-center card p-8">
                     <h1 className="text-6xl font-bold text-cyber-primary mb-4 text-glow">404</h1>
-                    <p className="text-foreground-secondary mb-8">Página não encontrada no nexus</p>
+                    <p className="text-white-secondary mb-8">Página não encontrada no nexus</p>
                     <button 
                       onClick={() => window.history.back()}
                       className="btn-primary"

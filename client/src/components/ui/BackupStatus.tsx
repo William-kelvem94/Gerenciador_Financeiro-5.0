@@ -98,14 +98,14 @@ export function BackupStatus({ className = '', showDetails = false }: BackupStat
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           <Shield className="w-5 h-5 text-cyber-primary" />
-          <h3 className="font-mono text-sm font-medium text-foreground">
+          <h3 className="font-mono text-sm font-medium text-white">
             Backup Automático
           </h3>
         </div>
         {!showDetails && (
           <button
             onClick={() => setIsExpanded(false)}
-            className="text-foreground-muted hover:text-foreground transition-colors"
+            className="text-white-muted hover:text-white transition-colors"
           >
             ×
           </button>
@@ -114,7 +114,7 @@ export function BackupStatus({ className = '', showDetails = false }: BackupStat
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-foreground-muted font-mono">Status:</span>
+          <span className="text-sm text-white-muted font-mono">Status:</span>
           <div className={`flex items-center space-x-1 ${getStatusColor()}`}>
             {getStatusIcon()}
             <span className="text-sm font-mono">{getStatusText()}</span>
@@ -123,7 +123,7 @@ export function BackupStatus({ className = '', showDetails = false }: BackupStat
 
         {backupInfo.hasBackup && (
           <div className="flex items-center justify-between">
-            <span className="text-sm text-foreground-muted font-mono">Backups:</span>
+            <span className="text-sm text-white-muted font-mono">Backups:</span>
             <span className="text-sm font-mono text-cyber-accent">
               {backupInfo.backupCount}
             </span>
@@ -132,8 +132,8 @@ export function BackupStatus({ className = '', showDetails = false }: BackupStat
 
         {backupInfo.lastBackup && (
           <div className="flex items-center justify-between">
-            <span className="text-sm text-foreground-muted font-mono">Último:</span>
-            <span className="text-sm font-mono text-foreground">
+            <span className="text-sm text-white-muted font-mono">Último:</span>
+            <span className="text-sm font-mono text-white">
               {backupInfo.lastBackup.toLocaleTimeString('pt-BR')}
             </span>
           </div>

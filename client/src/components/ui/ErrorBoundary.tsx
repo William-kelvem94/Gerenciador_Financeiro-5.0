@@ -27,21 +27,21 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-          <div className="min-h-screen flex items-center justify-center bg-background p-4">
+          <div className="min-h-screen flex items-center justify-center bg-black p-4">
           <div className="max-w-md w-full text-center">
             <div className="mb-8">
               <AlertTriangle className="w-16 h-16 text-cyber-warning mx-auto mb-4" />
               <h1 className="text-2xl font-cyber text-cyber-primary mb-2">
                 System Error
               </h1>
-              <p className="text-foreground-secondary mb-6">
+              <p className="text-white-secondary mb-6">
                 Something went wrong in the financial matrix
               </p>
             </div>
 
-            <div className="bg-background-secondary border border-cyber-border rounded-lg p-4 mb-6 text-left">
+            <div className="bg-black-secondary border border-cyber-border rounded-lg p-4 mb-6 text-left">
               <h3 className="text-sm font-mono text-cyber-accent mb-2">Error Details:</h3>
-              <code className="text-xs text-foreground-muted break-all">
+              <code className="text-xs text-white-muted break-all">
                 {this.state.error?.message || 'Unknown error occurred'}
               </code>
             </div>
@@ -56,13 +56,13 @@ export class ErrorBoundary extends Component<Props, State> {
               
               <button
                 onClick={() => this.setState({ hasError: false, error: null })}
-                className="w-full px-4 py-2 border border-cyber-border text-foreground hover:bg-background-secondary transition-colors rounded-lg"
+                className="w-full px-4 py-2 border border-cyber-border text-white hover:bg-black-secondary transition-colors rounded-lg"
               >
                 Try Again
               </button>
             </div>
 
-            <p className="text-xs text-foreground-muted mt-6">
+            <p className="text-xs text-white-muted mt-6">
               If the problem persists, please contact support.
             </p>
           </div>
