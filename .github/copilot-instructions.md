@@ -2359,12 +2359,6 @@ export class TransactionService {
   }
 }
 ```
-
-### 🔄 GitHub Actions (CI/CD)
-```yaml
-# .github/workflows/ci.yml
-name: CI/CD Pipeline
-
 ---
 
 ## ⚙️ Scripts e Automação Enterprise
@@ -5420,11 +5414,6 @@ export class TransactionService {
   }
 }
 ```
-
-### 🔄 GitHub Actions (CI/CD)
-```yaml
-# .github/workflows/ci.yml
-name: CI/CD Pipeline
 
 ---
 

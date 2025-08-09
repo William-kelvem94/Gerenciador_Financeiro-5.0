@@ -14,7 +14,7 @@ export const TransactionSchema = z.object({
   date: z.string().datetime(),
   userId: z.string().uuid(),
   tags: z.array(z.string()).optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type TransactionDTO = z.infer<typeof TransactionSchema>;

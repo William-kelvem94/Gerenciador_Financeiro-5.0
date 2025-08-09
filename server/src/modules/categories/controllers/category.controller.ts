@@ -6,13 +6,13 @@ const prisma = new PrismaClient();
 const service = new CategoryService(prisma);
 
 interface AuthRequest extends Request {
-  user?: { userId: string };
+  user?: { id: string };
 }
 
 export class CategoryController {
   async create(req: AuthRequest, res: Response) {
     try {
-  const category = await service.create({ ...req.body, userId: req.user!.id });
+      const category = await service.create({ ...req.body, userId: req.user!.id });
       res.status(201).json({ success: true, data: category });
     } catch (error) {
       res.status(400).json({ success: false, error: error.message });
@@ -20,7 +20,7 @@ export class CategoryController {
   }
 
   async findAll(req: AuthRequest, res: Response) {
-  const categories = await service.findAll(req.user!.id);
+    const categories = await service.findAll(req.user!.id);
     res.json({ success: true, data: categories });
   }
 

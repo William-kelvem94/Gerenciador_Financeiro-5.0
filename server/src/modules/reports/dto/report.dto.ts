@@ -8,6 +8,7 @@ export const ReportSchema = z.object({
   params: z.record(z.string(), z.unknown()).optional(),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
+  userId: z.string().uuid('userId obrigatório'),
 });
 
 export type ReportDTO = z.infer<typeof ReportSchema>;
