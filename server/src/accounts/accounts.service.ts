@@ -7,7 +7,10 @@ import { Account } from '@prisma/client';
 export class AccountsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(userId: string, createAccountDto: CreateAccountDto): Promise<Account> {
+  async create(
+    userId: string,
+    createAccountDto: CreateAccountDto,
+  ): Promise<Account> {
     return this.prisma.account.create({
       data: {
         ...createAccountDto,
@@ -29,7 +32,11 @@ export class AccountsService {
     });
   }
 
-  async update(id: string, userId: string, updateData: Partial<CreateAccountDto>): Promise<Account> {
+  async update(
+    id: string,
+    userId: string,
+    updateData: Partial<CreateAccountDto>,
+  ): Promise<Account> {
     return this.prisma.account.update({
       where: { id },
       data: updateData,

@@ -11,10 +11,10 @@ export enum AccountType {
 export class CreateAccountDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsEnum(AccountType)
-  type: AccountType;
+  type!: AccountType;
 
   @IsOptional()
   @IsString()

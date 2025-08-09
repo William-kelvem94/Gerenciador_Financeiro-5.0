@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, UseGuards, Req, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { AuthenticatedRequest } from '../types/user.types';
@@ -19,8 +27,8 @@ export class AccountsController {
   @UseGuards(AuthGuard)
   @Post()
   async createAccount(
-    @Body(ValidationPipe) body: CreateAccountDto, 
-    @Req() req: AuthenticatedRequest
+    @Body(ValidationPipe) body: CreateAccountDto,
+    @Req() req: AuthenticatedRequest,
   ): Promise<Account> {
     const user = req.user;
     return this.accountsService.create(user.id, body);

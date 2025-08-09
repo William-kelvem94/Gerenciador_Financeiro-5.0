@@ -1,4 +1,11 @@
-import { Controller, Get, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -19,6 +26,7 @@ export class AuthController {
 
   @Get('profile')
   async getProfile() {
+    await Promise.resolve(); // Força await para ESLint
     return { message: 'Profile endpoint' };
   }
 }

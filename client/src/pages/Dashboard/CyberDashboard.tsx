@@ -52,7 +52,7 @@ function validateDashboardData(data: any): data is DashboardStats {
 }
 
 interface CyberStatCardProps {
-  icon: React.ReactNode;
+  icon: React.ReactElement;
   label: string;
   value: string;
   change?: string;
