@@ -21,6 +21,7 @@
     "zod": "^4.0.16"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/node": "^24.2.1",
     "eslint": "^8.0.0",
     "prettier": "^3.0.0",

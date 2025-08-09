@@ -8,7 +8,7 @@ export const CreateTransactionSchema = z.object({
   date: z.string().datetime(),
   accountId: z.string().uuid(),
   tags: z.array(z.string()).optional(),
-  metadata: z.record(z.unknown()).optional()
+  metadata: z.record(z.string(), z.unknown()).optional()
 });
 
 export type CreateTransactionDto = z.infer<typeof CreateTransactionSchema>;

@@ -1,8 +1,17 @@
-import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import React, { Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from './contexts/ThemeContext.tsx';
+import { ThemeProvider } from './contexts/ThemeContext';
 import './styles/cyberpunk-themes.css';
+
+
+const LoginPage = React.lazy(() => import('./pages/LoginPage'));
+const DashboardPage = React.lazy(() => import('./pages/DashboardPage'));
+const TransactionsPage = React.lazy(() => import('./pages/TransactionsPage'));
+const GoalsPage = React.lazy(() => import('./pages/GoalsPage'));
+const BudgetsPage = React.lazy(() => import('./pages/BudgetsPage'));
+const ReportsPage = React.lazy(() => import('./pages/ReportsPage'));
+const SettingsPage = React.lazy(() => import('./pages/SettingsPage'));
 
 const queryClient = new QueryClient();
 
@@ -11,11 +20,18 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <BrowserRouter>
-          {/* Rotas e layout principal */}
-          <div className="bg-background-primary min-h-screen text-foreground-primary">
-            <h1 className="text-neon text-3xl font-bold p-8 text-center">Will Finance 5.0</h1>
-            {/* TODO: Adicionar rotas e componentes principais */}
-          </div>
+          <Suspense fallback={<div className="p-8 text-center text-cyber-primary animate-pulse">Carregando...</div>}>
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/transactions" element={<TransactionsPage />} />
+              <Route path="/goals" element={<GoalsPage />} />
+              <Route path="/budgets" element={<BudgetsPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </ThemeProvider>
     </QueryClientProvider>

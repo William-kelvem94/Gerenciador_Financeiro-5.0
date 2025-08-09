@@ -1,6 +1,13 @@
 {
+    // Habilita busca de código na Copilot Chat
     "github.copilot.chat.codesearch.enabled": true,
+
+    // Ativa ferramenta de raciocínio do agente Copilot Chat
     "github.copilot.chat.agent.thinkingTool": true,
+
+    // Contexto temporal para sugestões no editor
     "github.copilot.chat.editor.temporalContext.enabled": true,
+
+    // Contexto temporal para edições inteligentes
     "github.copilot.chat.edits.temporalContext.enabled": true
 }

@@ -1,8 +1,7 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { TransactionDTO, TransactionSchema } from '../dto/transaction.dto';
 import { logger } from '../../../shared/utils/logger.util';
-import { z } from 'zod';
-import { ValidationError, NotFoundError, InternalServerError } from '../../../shared/utils/errors.util';
+import { ValidationError, NotFoundError, InternalServerError } from '../../../shared/errors/error.util';
 
 /**
  * Serviço enterprise de transações financeiras.
@@ -24,12 +23,11 @@ export class TransactionService {
 
         const validation = TransactionSchema.safeParse(data);
         if (!validation.success) {
-            logger.warn('Falha validação transação', { errors: validation.error.errors, data });
-            throw new ValidationError('Dados inválidos', validation.error.errors.map(e => e.message));
+            logger.warn('Falha validação transação', { errors: validation.error.issues, data });
+            throw new ValidationError('Dados inválidos', validation.error.issues.map(e => e.message));
         }
 
-        const autoCategory = await this.autoCategorize(validation.data);
-        const finalData = { ...validation.data, category: autoCategory };
+        const finalData = { ...validation.data, category: await this.autoCategorize(validation.data) };
 
         try {
             const tx = await this.prisma.transaction.create({ data: finalData });
@@ -50,8 +48,8 @@ export class TransactionService {
         const UpdateSchema = TransactionSchema.partial().required({ id: true });
         const validation = UpdateSchema.safeParse({ id, ...data });
         if (!validation.success) {
-            logger.warn('Falha validação update', { errors: validation.error.errors, id, data });
-            throw new ValidationError('Dados inválidos', validation.error.errors.map(e => e.message));
+            logger.warn('Falha validação update', { errors: validation.error.issues, id, data });
+            throw new ValidationError('Dados inválidos', validation.error.issues.map(e => e.message));
         }
 
         try {
@@ -109,10 +107,9 @@ export class TransactionService {
         sortBy?: keyof TransactionDTO;
         sortOrder?: 'asc' | 'desc';
     }) {
-        logger.info('Listando transações', { ...params });
+        logger.info('Listando transações', { params });
 
-        const where: Prisma.TransactionWhereInput = {
-            userId: params.userId,
+    const where = {
             ...(params.type && { type: params.type }),
             ...(params.category && { category: params.category }),
             ...(params.tags && { tags: { hasSome: params.tags } }),
@@ -125,7 +122,9 @@ export class TransactionService {
 
         const page = params.page ?? 1;
         const limit = params.limit ?? 20;
-        const orderBy = { [params.sortBy ?? 'date']: params.sortOrder ?? 'desc' };
+        const orderBy: Record<string, any> = {
+            [params.sortBy ?? 'date']: params.sortOrder ?? 'desc',
+        };
 
         return this.prisma.transaction.findMany({
             where,
@@ -138,7 +137,7 @@ export class TransactionService {
     /**
      * Importa transações via CSV, valida e retorna resultado detalhado.
      */
-    async importCSV(userId: string, csvData: string): Promise<{ imported: number; errors: string[] }> {
+    async importCSV(userId: string): Promise<{ imported: number; errors: string[] }> {
         logger.info('Importando transações CSV', { userId });
         // TODO: Implementação robusta de parsing, validação e batch insert
         return { imported: 0, errors: [] };

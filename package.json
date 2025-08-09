@@ -1,6 +1,8 @@
 {
   "dependencies": {
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "react-hot-toast": "^2.5.2",
+    "zod": "^4.0.16"
   },
   "devDependencies": {
     "@types/multer": "^2.0.0"

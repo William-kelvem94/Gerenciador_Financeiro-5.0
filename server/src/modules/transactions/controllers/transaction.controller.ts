@@ -18,7 +18,7 @@ export class TransactionController {
    */
   async create(req: Request, res: Response) {
     try {
-      const userId = typeof req.user?.id === 'string' ? req.user.id : '';
+  const userId = typeof req.user?.userId === 'string' ? req.user.userId : '';
       const validation = TransactionSchema.omit({ id: true }).safeParse({ ...req.body, userId });
       if (!validation.success) {
         logger.warn('Falha validação transação', { issues: validation.error.issues });
@@ -38,7 +38,7 @@ export class TransactionController {
    */
   async update(req: Request, res: Response) {
     try {
-      const userId = typeof req.user?.id === 'string' ? req.user.id : '';
+  const userId = typeof req.user?.userId === 'string' ? req.user.userId : '';
       const validation = TransactionSchema.partial().required({ id: true }).safeParse({ ...req.body, userId });
       if (!validation.success) {
         logger.warn('Falha validação update', { issues: validation.error.issues });
@@ -59,7 +59,7 @@ export class TransactionController {
   async delete(req: Request, res: Response) {
     try {
       await this.service.delete(req.params.id);
-      await this.service.auditLog('DELETE', { userId: req.user?.id, transactionId: req.params.id });
+  await this.service.auditLog('DELETE', { userId: req.user?.userId, transactionId: req.params.id });
       res.json(ResponseHelper.success(null, 'Transação removida com sucesso'));
     } catch (error: any) {
       logger.error('Erro ao remover transação', { error: error.message });
@@ -88,7 +88,7 @@ export class TransactionController {
    */
   async findAll(req: Request, res: Response) {
     try {
-      const userId = typeof req.user?.id === 'string' ? req.user.id : '';
+  const userId = typeof req.user?.userId === 'string' ? req.user.userId : '';
       // Validação básica para filtros, pode ser expandida
       const validation = TransactionSchema.partial().safeParse({ ...req.query, userId });
       if (!validation.success) {
@@ -114,7 +114,7 @@ export class TransactionController {
         return res.status(400).json(ResponseHelper.error('NO_FILE', 'Nenhum arquivo enviado'));
       }
       const result = await this.service.uploadReceipt(transactionId, file);
-      await this.service.auditLog('UPLOAD_RECEIPT', { userId: req.user?.id, transactionId, fileName: file.originalname });
+  await this.service.auditLog('UPLOAD_RECEIPT', { userId: req.user?.userId, transactionId, fileName: file.originalname });
       res.json(ResponseHelper.success(result, 'Comprovante enviado com sucesso'));
     } catch (error: any) {
       logger.error('Erro ao enviar comprovante', { error: error.message });
@@ -128,10 +128,10 @@ export class TransactionController {
   async export(req: Request, res: Response) {
     try {
       const { format = 'csv' } = req.query;
-      const filters = { ...req.query, userId: req.user?.id };
-  const userId = typeof req.user?.id === 'string' ? req.user.id : '';
+  const filters = { ...req.query, userId: req.user?.userId };
+  const userId = typeof req.user?.userId === 'string' ? req.user.userId : '';
   const result = await this.service.export(userId, format as 'csv' | 'pdf', filters);
-      await this.service.auditLog('EXPORT', { userId: req.user?.id, format });
+  await this.service.auditLog('EXPORT', { userId: req.user?.userId, format });
       res.json(ResponseHelper.success(result, 'Exportação realizada com sucesso'));
     } catch (error: any) {
       logger.error('Erro ao exportar transações', { error: error.message });
