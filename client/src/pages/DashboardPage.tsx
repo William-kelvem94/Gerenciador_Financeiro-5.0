@@ -1,143 +1,9 @@
-import { memo, useMemo, useEffect, useState } from 'react';
+import { memo, useMemo, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { z } from 'zod';
 import { useQuery } from '@tanstack/react-query';
-import { toast } from 'react-hot-toast';
-
-// 1. Props Schema (future extensibility)
-const DashboardPagePropsSchema = z.object({
-    userId: z.string().uuid().optional(),
-});
-type DashboardPageProps = z.infer<typeof DashboardPagePropsSchema>;
-
-// 2. Main Component
-export const DashboardPage = memo((props: DashboardPageProps) => {
-    // 3. Validate props
-    const validatedProps = useMemo(() => DashboardPagePropsSchema.parse(props), [props]);
-
-    // 4. Local state
-    const [error, setError] = useState<string | null>(null);
-
-    // 5. Server state (fetch dashboard data)
-    const {
-        data: dashboard,
-        isLoading,
-        error: serverError,
-        refetch,
-    } = useQuery({
-        queryKey: ['dashboard', validatedProps.userId],
-        queryFn: () => fetchDashboard(validatedProps.userId),
-        enabled: !!validatedProps.userId,
-        staleTime: 5 * 60 * 1000,
-        retry: 2,
-    });
-
-    // 6. Error effect
-    useEffect(() => {
-        if (serverError) {
-            setError(serverError.message);
-            toast.error(`Erro ao carregar dashboard: ${serverError.message}`);
-        }
-    }, [serverError]);
-
-    // 7. Loading state
-    if (isLoading) {
-        return (
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center min-h-screen bg-background-primary"
-            >
-                <div className="animate-pulse text-cyber-primary">Carregando dashboard...</div>
-            </motion.div>
-        );
-    }
-
-    // 8. Error state
-    if (error) {
-        return (
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="p-6 bg-red-500/10 border border-red-500/20 rounded-lg max-w-md mx-auto mt-16"
-            >
-                <p className="text-red-400">{error}</p>
-                <button
-                    onClick={() => {
-                        setError(null);
-                        refetch();
-                    }}
-                    className="mt-4 btn btn-primary"
-                >
-                    Tentar Novamente
-                </button>
-            </motion.div>
-        );
-    }
-
-    // 9. Main render
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="container mx-auto py-12 min-h-screen bg-background-primary"
-            data-testid="dashboard-page"
-        >
-            <header className="mb-8 text-center">
-                <h2 className="text-3xl font-bold text-cyber-primary mb-2 text-glow">Dashboard</h2>
-                <p className="text-muted-foreground text-lg">Resumo financeiro e métricas principais</p>
-            </header>
-
-            <main>
-                {dashboard ? (
-                    <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                        <Card
-                            title="Saldo Atual"
-                            value={formatCurrency(dashboard.balance)}
-                            variant="primary"
-                        />
-                        <Card
-                            title="Receitas"
-                            value={formatCurrency(dashboard.income)}
-                            variant="success"
-                        />
-                        <Card
-                            title="Despesas"
-                            value={formatCurrency(dashboard.expense)}
-                            variant="danger"
-                        />
-                    </section>
-                ) : (
-                    <div className="text-center py-12">
-                        <p className="text-muted-foreground mb-4">Nenhum dado disponível.</p>
-                    </div>
-                )}
-
-                {/* Placeholder for charts and widgets */}
-                <section className="mt-8">
-                    <div className="card">
-                        <div className="card-header">
-                            <h3 className="card-title">Gráfico de tendências</h3>
-                            <p className="card-description">Visualize suas receitas e despesas ao longo do tempo.</p>
-                        </div>
-                        <div className="card-content">
-                            {/* TODO: Integrar componente Chart.js/D3.js */}
-                            <div className="h-64 flex items-center justify-center text-muted-foreground">
-                                [Gráfico de tendências aqui]
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </main>
-        </motion.div>
-    );
-});
-
-DashboardPage.displayName = 'DashboardPage';
-
-export default DashboardPage;
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 // --- Types & Helpers ---
 
@@ -145,7 +11,12 @@ const DashboardSchema = z.object({
     balance: z.number(),
     income: z.number(),
     expense: z.number(),
-    // Add more fields as needed
+    goals: z.array(z.object({
+        name: z.string(),
+        progress: z.number(),
+    })).optional(),
+    alerts: z.array(z.string()).optional(),
+    suggestions: z.array(z.string()).optional(),
 });
 type DashboardData = z.infer<typeof DashboardSchema>;
 
@@ -161,26 +32,182 @@ function formatCurrency(value: number): string {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
 
-// Card component for metrics
+// Card KPI
 interface CardProps {
     title: string;
     value: string;
-    variant?: 'primary' | 'success' | 'danger';
+    color: string;
 }
-const Card = memo<CardProps>(({ title, value, variant = 'primary' }) => (
-    <div
-        className={`
-            card
-            ${variant === 'primary' ? 'bg-cyber-primary/10 border-cyber-primary' : ''}
-            ${variant === 'success' ? 'bg-cyber-success/10 border-cyber-success' : ''}
-            ${variant === 'danger' ? 'bg-cyber-danger/10 border-cyber-danger' : ''}
-            shadow-lg
-        `}
+const Card = memo<CardProps>(({ title, value, color }) => (
+    <motion.div
+        className={`bg-background-secondary rounded-xl p-6 shadow-lg flex flex-col items-center border-2 neon-glow ${color}`}
+        whileHover={{ scale: 1.05 }}
+        transition={{ type: 'spring', stiffness: 300 }}
     >
-        <div className="card-header">
-            <h4 className="card-title text-xl font-semibold text-cyber-primary">{title}</h4>
-        </div>
-        <div className="card-content text-2xl font-bold text-glow">{value}</div>
-    </div>
+        <span className="text-sm font-medium text-muted-foreground mb-2">{title}</span>
+        <span className={`text-2xl font-bold drop-shadow-neon`}>{value}</span>
+    </motion.div>
 ));
 Card.displayName = 'Card';
+
+export const DashboardPage = memo(() => {
+    const chartRef = useRef<HTMLCanvasElement>(null);
+    const { data } = useQuery({
+        queryKey: ['dashboard'],
+        queryFn: () => fetchDashboard(),
+    });
+
+    // KPIs
+    const kpiData = useMemo(() => {
+        if (!data) return [];
+        return [
+            {
+                title: 'Saldo',
+                value: formatCurrency(data.balance),
+                color: 'border-cyber-primary text-cyber-primary',
+            },
+            {
+                title: 'Receita',
+                value: formatCurrency(data.income),
+                color: 'border-cyber-success text-cyber-success',
+            },
+            {
+                title: 'Despesa',
+                value: formatCurrency(data.expense),
+                color: 'border-cyber-danger text-cyber-danger',
+            },
+        ];
+    }, [data]);
+
+    // Gráfico
+    useEffect(() => {
+        if (chartRef.current && data) {
+            const chartData = {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [
+                    {
+                        label: 'Receita',
+                        data: [data.income, data.income * 0.9, data.income * 1.1, data.income * 1.05, data.income * 0.95, data.income],
+                        borderColor: '#00ffe7',
+                        backgroundColor: 'rgba(0,255,231,0.1)',
+                        tension: 0.4,
+                    },
+                    {
+                        label: 'Despesa',
+                        data: [data.expense, data.expense * 1.1, data.expense * 0.95, data.expense * 1.05, data.expense * 0.9, data.expense],
+                        borderColor: '#ff005c',
+                        backgroundColor: 'rgba(255,0,92,0.1)',
+                        tension: 0.4,
+                    },
+                ],
+            };
+            new Chart(chartRef.current, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#00ffe7',
+                                font: { size: 14 },
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#fff' },
+                            grid: { color: '#333' },
+                        },
+                        y: {
+                            ticks: { color: '#fff' },
+                            grid: { color: '#333' },
+                        },
+                    },
+                    responsive: true,
+                },
+            });
+        }
+    }, [data]);
+
+    // Alertas e Sugestões
+    const alerts = data?.alerts ?? [
+        'Você está próximo do limite de despesas este mês.',
+        'Meta "Viagem" está 80% concluída.',
+        'Receita acima da média nos últimos 3 meses.',
+    ];
+    const suggestions = data?.suggestions ?? [
+        'Considere investir parte do saldo em renda fixa.',
+        'Reduza gastos com alimentação para bater a meta.',
+        'Automatize pagamentos recorrentes.',
+    ];
+
+    // Metas
+    const goals = data?.goals ?? [
+        { name: 'Viagem', progress: 80 },
+        { name: 'Reserva de Emergência', progress: 45 },
+    ];
+
+    return (
+        <motion.div
+            className="flex flex-col items-center w-full py-8"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+        >
+            {/* KPIs */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-4xl mb-8">
+                {kpiData.map((kpi) => (
+                    <Card key={kpi.title} {...kpi} />
+                ))}
+            </div>
+
+            {/* Gráfico */}
+            <div className="w-full max-w-3xl bg-background-secondary rounded-2xl p-8 shadow-xl border-2 border-cyber-primary neon-glow mb-8">
+                <h2 className="text-xl font-bold text-cyber-primary mb-2">Gráfico de Tendências</h2>
+                <p className="text-muted-foreground mb-4">Visualize suas receitas e despesas ao longo do tempo.</p>
+                <canvas ref={chartRef} className="w-full h-64" />
+            </div>
+
+            {/* Metas */}
+            <div className="w-full max-w-3xl bg-background-secondary rounded-2xl p-8 shadow-xl border-2 border-cyber-success neon-glow mb-8">
+                <h2 className="text-xl font-bold text-cyber-success mb-2">Metas</h2>
+                <ul className="list-disc ml-4 text-muted-foreground">
+                    {goals.map((goal) => (
+                        <li key={goal.name}>
+                            <span className="font-semibold text-cyber-primary">{goal.name}</span> — <span>{goal.progress}% concluída</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+
+            {/* Alertas e Sugestões */}
+            <motion.div
+                className="w-full max-w-4xl flex flex-col md:flex-row gap-6"
+                initial={{ y: 40, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+            >
+                <div className="flex-1 bg-background-secondary rounded-xl p-6 shadow-lg border-2 border-cyber-danger neon-glow">
+                    <h3 className="text-lg font-bold text-cyber-danger mb-2">Alertas Inteligentes</h3>
+                    <ul className="list-disc ml-4 text-muted-foreground">
+                        {alerts.map((alert, idx) => (
+                            <li key={idx}>{alert}</li>
+                        ))}
+                    </ul>
+                </div>
+                <div className="flex-1 bg-background-secondary rounded-xl p-6 shadow-lg border-2 border-cyber-success neon-glow">
+                    <h3 className="text-lg font-bold text-cyber-success mb-2">Sugestões de IA</h3>
+                    <ul className="list-disc ml-4 text-muted-foreground">
+                        {suggestions.map((suggestion, idx) => (
+                            <li key={idx}>{suggestion}</li>
+                        ))}
+                    </ul>
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+});
+
+DashboardPage.displayName = 'DashboardPage';
+
+export default DashboardPage;

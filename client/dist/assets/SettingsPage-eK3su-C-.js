@@ -1,0 +1,1 @@
+import{j as e}from"./index-Bak0-3RP.js";const r=()=>e.jsxs("div",{className:"flex flex-col items-center justify-center min-h-screen bg-background-primary",children:[e.jsx("h2",{className:"text-2xl font-bold text-cyber-primary mb-4",children:"Configurações"}),e.jsx("p",{className:"text-muted-foreground",children:"Ajuste preferências e integrações"})]});export{r as default};
