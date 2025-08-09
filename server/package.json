@@ -2,6 +2,7 @@
   "name": "will-finance-server",
   "version": "5.0.0",
   "private": true,
+  "type": "commonjs",
   "scripts": {
     "dev": "ts-node-dev src/index.ts",
     "build": "tsc",

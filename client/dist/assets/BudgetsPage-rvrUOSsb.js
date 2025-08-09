@@ -1,23 +1,14 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { z } from "zod";
 
-// Zod schema para validação dos parâmetros e dados
+// Validação dos parâmetros
 const budgetParamsSchema = z.object({
     userId: z.string().uuid().optional(),
 });
 
-// Removido budgetSchema não utilizado
-
 // Helpers
-function formatAmount(amount: number) {
-    return new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-    }).format(amount);
-}
 function formatAmount(amount) {
     return new Intl.NumberFormat("pt-BR", {
         style: "currency",
@@ -37,11 +28,10 @@ function formatPeriod(period) {
             return "";
     }
 }
-        {
-            id: "1e2d3c4b-5a6f-7e8d-9c0b-1a2b3c4d5e6f",
+
+// Mock API
 async function fetchBudgets(userId) {
-    // Aqui você faria a chamada real à API
-    // Exemplo de retorno mock:
+    // Substitua por chamada real à API
     return [
         {
             id: "1e2d3c4b-5a6f-7e8d-9c0b-1a2b3c4d5e6f",
@@ -52,86 +42,67 @@ async function fetchBudgets(userId) {
         },
     ];
 }
-}) {
+
 async function createBudget(data) {
-    // Aqui você faria a chamada real à API
+    // Substitua por chamada real à API
     return {
         id: "2e2d3c4b-5a6f-7e8d-9c0b-1a2b3c4d5e6f",
-        name: data.name || "",
-        amount: data.amount || 0,
-        period: data.period || "monthly",
-        description: data.description || "",
+        ...data,
     };
 }
-function showError(msg: string) {
-    // Exemplo: toast.error(msg)
+
+function showSuccess(msg) {
     alert(msg);
 }
 
-// Componente principal
-const BudgetsPage: React.FC<{ userId?: string }> = React.memo((props) => {
-function showSuccess(msg) {
-    // Exemplo: toast.success(msg)
-    alert(msg);
-}
 function showError(msg) {
-    // Exemplo: toast.error(msg)
     alert(msg);
 }
-    } = useQuery({
-        queryKey: ["budgets", params.userId],
+
 const BudgetsPage = React.memo((props) => {
     const params = useMemo(() => budgetParamsSchema.parse(props), [props]);
     const [errorMsg, setErrorMsg] = useState(null);
-        retry: 2,
-    });
 
     const {
-        mutate,
+        data,
+        error,
         isPending,
-    } = useMutation({
+        refetch,
+    } = useQuery({
+        queryKey: ["budgets", params.userId],
+        queryFn: () => fetchBudgets(params.userId),
+        retry: 2,
+        onError: (err) => {
+            showError(`Erro: ${err.message}`);
+            setErrorMsg(err.message);
+        },
+    });
+
+    const { mutate } = useMutation({
         mutationFn: createBudget,
         onSuccess: () => {
             showSuccess("Orçamento criado com sucesso!");
             refetch();
         },
-        onError: (err: any) => {
+        onError: (err) => {
             showError(`Erro: ${err.message}`);
             setErrorMsg(err.message);
         },
     });
 
-    const budgets = useMemo(
-        () =>
-            data
-                ? data.map((b) => ({
-                        ...b,
-        onError: (err) => {
-            showError(`Erro: ${err.message}`);
-            setErrorMsg(err.message);
-        },
-        [data]
-    );
+    const budgets =
+        data?.map((b) => ({
+            ...b,
+            formattedAmount: formatAmount(b.amount),
+            formattedPeriod: formatPeriod(b.period),
+        })) ?? [];
 
-    useEffect(() => {
-        if (error) {
-            setErrorMsg((error as Error).message);
-            showError(`Erro ao carregar orçamentos: ${(error as Error).message}`);
-        }
-    }, [error]);
-
-    if (isLoading)
-        return (
-            <motion.div
-                initial={{ opacity: 0 }}
     useEffect(() => {
         if (error) {
             setErrorMsg(error.message);
             showError(`Erro ao carregar orçamentos: ${error.message}`);
         }
     }, [error]);
-            </motion.div>
-        );
 
     if (errorMsg)
         return (
