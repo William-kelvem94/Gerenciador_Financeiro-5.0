@@ -1,0 +1,16 @@
+/* Tema Cyberpunk Master - Variáveis CSS Enterprise */
+:root {
+  --cyber-primary: #00FFFF;
+  --cyber-secondary: #FF0080;
+  --background-primary: #0A0A0F;
+  --background-secondary: #1A1A2E;
+  --foreground-primary: #FFFFFF;
+  --foreground-secondary: #E2E8F0;
+}
+.text-neon {
+  color: var(--cyber-primary);
+  text-shadow: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary);
+}
+.bg-background-primary {
+  background: var(--background-primary);
+}
