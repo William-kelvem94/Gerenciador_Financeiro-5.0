@@ -1,8 +1,8 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
 
-// Configuração base da API
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+// Configuração base da API - agora usando proxy do Vite na porta 5174
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Instância do axios com configurações padrão
 export const api = axios.create({

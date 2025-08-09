@@ -1,17 +1,34 @@
-import { render } from '@testing-library/react';
+
+import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import App from '../App';
 
-// Mock do router para evitar erros nos testes
+// Tipos para os mocks
+type MockRouterProps = {
+  children: React.ReactNode;
+};
+
+type MockNavigateProps = {
+  to: string;
+};
+
+// Mock do router com tipagem forte
 vi.mock('react-router-dom', async (importOriginal) => {
-  const actualModule = await importOriginal();
-  const actual = typeof actualModule === 'object' && actualModule !== null ? actualModule : {};
+  const actualModule = await importOriginal<typeof import('react-router-dom')>();
   return {
-    ...actual,
-    BrowserRouter: ({ children }: { children: React.ReactNode }) => <div data-testid="browser-router">{children}</div>,
-    Routes: ({ children }: { children: React.ReactNode }) => <div data-testid="routes">{children}</div>,
-    Route: ({ children }: { children?: React.ReactNode }) => <div data-testid="route">{children}</div>,
-    Navigate: ({ to }: { to: string }) => <div data-testid="navigate" data-to={to}>Navigate to {to}</div>,
+    ...actualModule,
+    BrowserRouter: ({ children }: MockRouterProps) => (
+      <div data-testid="browser-router">{children}</div>
+    ),
+    Routes: ({ children }: MockRouterProps) => (
+      <div data-testid="routes">{children}</div>
+    ),
+    Route: ({ children }: { children?: React.ReactNode }) => (
+      <div data-testid="route">{children}</div>
+    ),
+    Navigate: ({ to }: MockNavigateProps) => (
+      <div data-testid="navigate" data-to={to}>Navigate to {to}</div>
+    ),
     useNavigate: () => vi.fn(),
     useLocation: () => ({ pathname: '/' }),
   };
@@ -45,16 +62,27 @@ vi.mock('../contexts/ThemeContext', () => ({
 }));
 
 describe('App', () => {
-  it('renderiza sem crashes', () => {
-    render(<App />);
-    // Apenas verifica se o componente renderiza sem erros
-    expect(document.body).toBeTruthy();
+  it('deve renderizar sem erros', () => {
+    // Act
+    const { container } = render(<App />);
+    // Assert
+    expect(container).toBeInTheDocument();
+    expect(screen.getByTestId('browser-router')).toBeInTheDocument();
   });
 
-  it('aplica tema cyberpunk corretamente', () => {
+  it('deve aplicar o tema cyberpunk corretamente', () => {
     render(<App />);
-    // Verifica se as classes CSS do tema estão sendo aplicadas
-    const body = document.body;
-    expect(body).toBeTruthy();
+    // Exemplo genérico - adapte para suas classes reais:
+    const themedElement = document.querySelector('.theme-cyberpunk');
+    expect(themedElement).toBeInTheDocument();
+    // Ou verifique estilos específicos se aplicável:
+    // const primaryColorElement = screen.getByTestId('some-element');
+    // expect(primaryColorElement).toHaveStyle({ color:'#00ffff' });
+  });
+
+  it('deve conter as rotas principais', () => {
+    render(<App />);
+    expect(screen.getByTestId('routes')).toBeInTheDocument();
+    expect(screen.getAllByTestId('route').length).toBeGreaterThan(0);
   });
 });

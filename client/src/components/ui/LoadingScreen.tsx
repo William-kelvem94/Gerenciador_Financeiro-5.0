@@ -10,7 +10,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
   message = 'Loading...' 
 }) => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="min-h-screen flex items-center justify-center bg-black">
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -34,7 +34,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="text-foreground-secondary"
+          className="text-white-secondary"
         >
           {message}
         </motion.p>
@@ -48,7 +48,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
               style={{
                 left: `${Math.random() * 100}%`,
                 height: '100px',
-              }}
+              } as React.CSSProperties}
               animate={{
                 y: ['-100px', '100vh'],
               }}

@@ -8,51 +8,6 @@ datasource db {
 }
 
 model User {
-<<<<<<< HEAD
-  id                      String         @id @default(cuid())
-  email                   String         @unique
-  name                    String
-  password                String
-  avatar                  String?
-  phone                   String?
-  role                    String         @default("USER")
-  isActive                Boolean        @default(true)
-  emailVerified           Boolean        @default(false)
-  emailVerifiedAt         DateTime?
-  emailVerificationToken  String?
-  passwordResetToken      String?
-  passwordResetExpires    DateTime?
-  lastLoginAt             DateTime?
-  googleId                String?        @unique
-  createdAt               DateTime       @default(now())
-  updatedAt               DateTime       @updatedAt
-  
-  // Configurações e preferências (mantidas do schema original)
-  budgetAlerts            Boolean        @default(true)
-  currency                String         @default("BRL")
-  dateFormat              String         @default("DD/MM/YYYY")
-  emailNotifications      Boolean        @default(true)
-  goalReminders           Boolean        @default(true)
-  isEmailPublic           Boolean        @default(false)
-  isProfilePublic         Boolean        @default(false)
-  language                String         @default("pt-BR")
-  monthlyBudget           Float?
-  pushNotifications       Boolean        @default(true)
-  savingsGoal             Float?
-  theme                   String         @default("dark")
-  timezone                String         @default("America/Sao_Paulo")
-  twoFactorEnabled        Boolean        @default(false)
-  twoFactorSecret         String?
-  
-  // Relacionamentos
-  accounts                Account[]
-  aiInsights              AiInsight[]
-  budgets                 Budget[]
-  categories              Category[]
-  goals                   Goal[]
-  notifications           Notification[]
-  transactions            Transaction[]
-=======
   id                 String         @id @default(cuid())
   email              String         @unique
   name               String
@@ -85,7 +40,6 @@ model User {
   goals              Goal[]
   notifications      Notification[]
   transactions       Transaction[]
->>>>>>> 19ae9cf82eb63c5cfccf5974311e9c254540a7d3
 
   @@map("users")
 }

@@ -1,13 +1,8 @@
-import { Server } from 'socket.io';
-
-export const setupSocketIO = (io: Server) => {
-  io.on('connection', (socket) => {
-    console.log('Client connected:', socket.id);
-    
-    socket.on('disconnect', () => {
-      console.log('Client disconnected:', socket.id);
-    });
+// Configuração do Socket.IO
+export function setupSocketIO(io: any): void {
+  // Implemente a configuração real aqui
+  io.on('connection', (socket: any) => {
+    console.log('Novo cliente conectado ao Socket.IO');
+    // Adicione listeners customizados aqui
   });
-  
-  return io;
-};
+}

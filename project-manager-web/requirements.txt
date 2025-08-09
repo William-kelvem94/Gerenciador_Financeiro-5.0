@@ -1,8 +1,0 @@
-# Will Finance 5.0 Project Manager Dependencies
-# Todas as dependências já estão no Python padrão
-# Este arquivo é apenas para referência
-
-# Se precisar de dependências adicionais:
-# requests>=2.28.0
-# flask>=2.2.0  # Alternativa ao http.server
-# jinja2>=3.1.0  # Para templates avançados

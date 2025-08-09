@@ -32,7 +32,7 @@ export function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-black text-white">
       {/* Matrix background effect */}
       <div className="matrix-rain"></div>
       
@@ -41,14 +41,14 @@ export function Layout() {
         initial={{ x: -300 }}
         animate={{ x: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="fixed inset-y-0 left-0 z-50 w-72 bg-background-secondary/95 backdrop-blur-xl border-r border-cyber-primary/20"
+        className="fixed inset-y-0 left-0 z-50 w-72 bg-black-secondary/95 backdrop-blur-xl border-r border-cyber-primary/20"
       >
         {/* Logo Section */}
         <div className="flex items-center justify-center h-20 border-b border-cyber-primary/20">
           <PhoenixLogo size="lg" />
           <div className="ml-4">
             <h1 className="text-2xl font-cyber text-cyber-primary">Will Finance</h1>
-            <p className="text-sm text-foreground-muted font-mono">Phoenix System v5.0</p>
+            <p className="text-sm text-white-muted font-mono">Phoenix System v5.0</p>
           </div>
         </div>
 
@@ -59,8 +59,8 @@ export function Layout() {
               <User className="w-5 h-5 text-cyber-dark" />
             </div>
             <div>
-              <p className="text-sm font-medium text-foreground">{user?.name}</p>
-              <p className="text-xs text-foreground-muted font-mono">{user?.email}</p>
+              <p className="text-sm font-medium text-white">{user?.name}</p>
+              <p className="text-xs text-white-muted font-mono">{user?.email}</p>
             </div>
           </div>
         </div>
@@ -79,11 +79,11 @@ export function Layout() {
                   className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
                     isActive
                       ? 'bg-cyber-primary/10 text-cyber-primary border border-cyber-primary/30 shadow-glow-sm'
-                      : 'text-foreground-secondary hover:text-cyber-primary hover:bg-background-tertiary/50'
+                      : 'text-white-secondary hover:text-cyber-primary hover:bg-black-tertiary/50'
                   }`}
                 >
                   <Icon className={`mr-3 h-5 w-5 transition-colors ${
-                    isActive ? 'text-cyber-primary' : 'text-foreground-muted group-hover:text-cyber-primary'
+                    isActive ? 'text-cyber-primary' : 'text-white-muted group-hover:text-cyber-primary'
                   }`} />
                   <span className="font-mono">{item.name}</span>
                   {isActive && (
@@ -117,13 +117,13 @@ export function Layout() {
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="h-16 bg-background-secondary/80 backdrop-blur-xl border-b border-cyber-primary/10 flex items-center justify-between px-6"
+          className="h-16 bg-black-secondary/80 backdrop-blur-xl border-b border-cyber-primary/10 flex items-center justify-between px-6"
         >
           <div>
             <h2 className="text-lg font-cyber text-cyber-primary">
               {navigation.find(item => item.href === location.pathname)?.name || 'Sistema'}
             </h2>
-            <p className="text-xs text-foreground-muted font-mono">
+            <p className="text-xs text-white-muted font-mono">
               Gerenciamento Financeiro Avançado
             </p>
           </div>
@@ -132,10 +132,10 @@ export function Layout() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-cyber-accent rounded-full animate-pulse"></div>
-              <span className="text-xs text-foreground-muted font-mono">Sistema Online</span>
+              <span className="text-xs text-white-muted font-mono">Sistema Online</span>
             </div>
             <div className="w-px h-6 bg-cyber-primary/20"></div>
-            <div className="text-xs text-foreground-muted font-mono">
+            <div className="text-xs text-white-muted font-mono">
               {new Date().toLocaleString('pt-BR')}
             </div>
           </div>

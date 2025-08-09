@@ -91,7 +91,7 @@ export const RegisterPage: React.FC = () => {
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-            }}
+            } as React.CSSProperties}
           />
         ))}
       </div>
@@ -101,7 +101,7 @@ export const RegisterPage: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md p-8 relative z-10"
       >
-        <div className="bg-background-secondary border border-border rounded-xl p-8 shadow-glow-lg">
+  <div className="bg-black-secondary border border-cyber-border rounded-xl p-8 shadow-glow-lg">
           <div className="text-center mb-8">
             <motion.div
               initial={{ scale: 0 }}
@@ -115,7 +115,7 @@ export const RegisterPage: React.FC = () => {
             <h1 className="text-3xl font-cyber text-cyber-primary mb-2">
               Join Will Finance
             </h1>
-            <p className="text-foreground-secondary">
+            <p className="text-white-secondary">
               Create your cyberpunk financial account
             </p>
           </div>
@@ -123,18 +123,18 @@ export const RegisterPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name Field */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Full Name
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground-muted w-5 h-5" />
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white-muted w-5 h-5" />
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-3 bg-background border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
-                    errors.name ? 'border-cyber-danger' : 'border-border'
+                  className={`w-full pl-10 pr-4 py-3 bg-black border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
+                    errors.name ? 'border-cyber-danger' : 'border-cyber-border'
                   }`}
                   placeholder="Enter your full name"
                 />
@@ -146,18 +146,18 @@ export const RegisterPage: React.FC = () => {
 
             {/* Email Field */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground-muted w-5 h-5" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white-muted w-5 h-5" />
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-3 bg-background border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
-                    errors.email ? 'border-cyber-danger' : 'border-border'
+                  className={`w-full pl-10 pr-4 py-3 bg-black border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
+                    errors.email ? 'border-cyber-danger' : 'border-cyber-border'
                   }`}
                   placeholder="Enter your email"
                 />
@@ -169,25 +169,25 @@ export const RegisterPage: React.FC = () => {
 
             {/* Password Field */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground-muted w-5 h-5" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white-muted w-5 h-5" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-12 py-3 bg-background border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
-                    errors.password ? 'border-cyber-danger' : 'border-border'
+                  className={`w-full pl-10 pr-12 py-3 bg-black border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
+                    errors.password ? 'border-cyber-danger' : 'border-cyber-border'
                   }`}
                   placeholder="Create a password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-foreground-muted hover:text-foreground"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white-muted hover:text-white"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -199,25 +199,25 @@ export const RegisterPage: React.FC = () => {
 
             {/* Confirm Password Field */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Confirm Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground-muted w-5 h-5" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white-muted w-5 h-5" />
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-12 py-3 bg-background border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
-                    errors.confirmPassword ? 'border-cyber-danger' : 'border-border'
+                  className={`w-full pl-10 pr-12 py-3 bg-black border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
+                    errors.confirmPassword ? 'border-cyber-danger' : 'border-cyber-border'
                   }`}
                   placeholder="Confirm your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-foreground-muted hover:text-foreground"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white-muted hover:text-white"
                 >
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -240,7 +240,7 @@ export const RegisterPage: React.FC = () => {
           </form>
 
           <div className="mt-8 text-center">
-            <p className="text-foreground-secondary">
+            <p className="text-white-secondary">
               Already have an account?{' '}
               <Link 
                 to="/login" 

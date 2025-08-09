@@ -23,7 +23,7 @@ export const CyberpunkParticles: React.FC<CyberpunkParticlesProps> = ({
   speed = 1 
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | null>(null);
   const particlesRef = useRef<Particle[]>([]);
   const { currentTheme } = useTheme();
 
@@ -168,7 +168,7 @@ export const CyberpunkParticles: React.FC<CyberpunkParticlesProps> = ({
 // Matrix-style digital rain effect
 export const MatrixRain: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | null>(null);
   const { currentTheme } = useTheme();
 
   useEffect(() => {

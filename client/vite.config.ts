@@ -73,7 +73,7 @@ export default defineConfig({
     setupFiles: ['./src/tests/setup.ts'],
   },
   server: {
-    port: 5173,
+    port: 5174,
     host: true,
     headers: {
       'Cache-Control': 'no-cache, no-store, max-age=0',
