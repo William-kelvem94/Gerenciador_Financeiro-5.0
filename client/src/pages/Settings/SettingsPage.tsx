@@ -130,7 +130,7 @@ export function SettingsPage() {
   if (!settingsData) {
     return (
       <div className="flex items-center justify-center min-h-[40vh]">
-        <span className="text-foreground-muted">Carregando configurações...</span>
+        <span className="text-white-muted">Carregando configurações...</span>
       </div>
     );
   }
@@ -193,13 +193,13 @@ export function SettingsPage() {
             <Settings className="w-8 h-8" />
             Configurações
           </h1>
-          <p className="text-foreground-muted mt-2">
+          <p className="text-white-muted mt-2">
             Personalize sua experiência no Will Finance 5.0
           </p>
         </header>
 
         {/* Settings Tabs */}
-        <div className="flex space-x-1 mb-8 bg-background-secondary/30 p-1 rounded-lg">
+        <div className="flex space-x-1 mb-8 bg-black-secondary/30 p-1 rounded-lg">
           {settingsTabs.map((tab) => (
             <button
               key={tab.id}
@@ -208,7 +208,7 @@ export function SettingsPage() {
                 flex items-center gap-2 px-4 py-2 rounded-md transition-all
                 ${activeTab === tab.id 
                   ? 'bg-cyber-primary text-background-primary font-medium' 
-                  : 'text-foreground-muted hover:text-cyber-primary'
+                  : 'text-white-muted hover:text-cyber-primary'
                 }
               `}
             >
@@ -231,7 +231,7 @@ export function SettingsPage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-foreground-secondary mb-2">
+                  <label className="block text-sm font-medium text-white-secondary mb-2">
                     Nome
                   </label>
                   <input
@@ -244,7 +244,7 @@ export function SettingsPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-foreground-secondary mb-2">
+                  <label className="block text-sm font-medium text-white-secondary mb-2">
                     Sobrenome
                   </label>
                   <input
@@ -271,8 +271,8 @@ export function SettingsPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-foreground-primary">Autenticação de Dois Fatores</h3>
-                    <p className="text-sm text-foreground-muted">Adicione uma camada extra de segurança</p>
+                    <h3 className="font-medium text-white-primary">Autenticação de Dois Fatores</h3>
+                    <p className="text-sm text-white-muted">Adicione uma camada extra de segurança</p>
                   </div>
                   <button
                     onClick={() => settingsData && updateSetting('security', 'twoFactorEnabled', !settingsData.security.twoFactorEnabled)}
@@ -305,8 +305,8 @@ export function SettingsPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-foreground-primary">Notificações Push</h3>
-                    <p className="text-sm text-foreground-muted">Receba notificações em tempo real</p>
+                    <h3 className="font-medium text-white-primary">Notificações Push</h3>
+                    <p className="text-sm text-white-muted">Receba notificações em tempo real</p>
                   </div>
                   <button
                     onClick={() => settingsData && updateSetting('notifications', 'pushNotifications', !settingsData.notifications.pushNotifications)}
@@ -338,7 +338,7 @@ export function SettingsPage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-foreground-secondary mb-2">
+                  <label className="block text-sm font-medium text-white-secondary mb-2">
                     Tema
                   </label>
                   <select
@@ -353,7 +353,7 @@ export function SettingsPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-foreground-secondary mb-2">
+                  <label className="block text-sm font-medium text-white-secondary mb-2">
                     Moeda
                   </label>
                   <select
@@ -382,8 +382,8 @@ export function SettingsPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-foreground-primary">Backup Automático</h3>
-                    <p className="text-sm text-foreground-muted">Backup automático dos seus dados</p>
+                    <h3 className="font-medium text-white-primary">Backup Automático</h3>
+                    <p className="text-sm text-white-muted">Backup automático dos seus dados</p>
                   </div>
                   <button
                     onClick={() => settingsData && updateSetting('backup', 'automaticBackup', !settingsData.backup.automaticBackup)}
@@ -414,7 +414,7 @@ export function SettingsPage() {
           )}
 
           {/* Save Button */}
-          <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-border-muted">
+          <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-cyber-border-muted">
             <button
               onClick={handleSaveSettings}
               disabled={!hasChanges || isLoading}

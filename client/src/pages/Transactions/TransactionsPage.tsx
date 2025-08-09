@@ -198,7 +198,7 @@ export function TransactionsPage() {
             <CreditCard className="w-8 h-8" />
             Transações
           </h1>
-          <p className="text-foreground-muted mt-2">
+          <p className="text-white-muted mt-2">
             Gerenciamento Financeiro Avançado
           </p>
         </header>
@@ -211,7 +211,7 @@ export function TransactionsPage() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-foreground-muted text-sm">Receitas</p>
+                <p className="text-white-muted text-sm">Receitas</p>
                 <p className="text-2xl font-bold text-green-400">
                   {formatCurrency(stats.income)}
                 </p>
@@ -226,7 +226,7 @@ export function TransactionsPage() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-foreground-muted text-sm">Despesas</p>
+                <p className="text-white-muted text-sm">Despesas</p>
                 <p className="text-2xl font-bold text-red-400">
                   {formatCurrency(stats.expenses)}
                 </p>
@@ -241,7 +241,7 @@ export function TransactionsPage() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-foreground-muted text-sm">Saldo</p>
+                <p className="text-white-muted text-sm">Saldo</p>
                 <p className={`text-2xl font-bold ${stats.balance >= 0 ? 'text-cyber-primary' : 'text-red-400'}`}>
                   {formatCurrency(stats.balance)}
                 </p>
@@ -256,7 +256,7 @@ export function TransactionsPage() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-foreground-muted text-sm">Total</p>
+                <p className="text-white-muted text-sm">Total</p>
                 <p className="text-2xl font-bold text-cyber-primary">
                   {stats.total}
                 </p>
@@ -270,7 +270,7 @@ export function TransactionsPage() {
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground-muted w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white-muted w-4 h-4" />
               <input
                 type="text"
                 placeholder="Buscar transações..."
@@ -306,7 +306,7 @@ export function TransactionsPage() {
           {loading ? (
             <div className="flex items-center justify-center p-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyber-primary"></div>
-              <span className="ml-3 text-foreground-muted">Carregando transações...</span>
+              <span className="ml-3 text-white-muted">Carregando transações...</span>
             </div>
           ) : error ? (
             <div className="p-8 text-center">
@@ -320,11 +320,11 @@ export function TransactionsPage() {
             </div>
           ) : filteredTransactions.length === 0 ? (
             <div className="p-12 text-center">
-              <CreditCard className="w-16 h-16 text-foreground-muted mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-foreground-primary mb-2">
+              <CreditCard className="w-16 h-16 text-white-muted mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-white-primary mb-2">
                 Nenhuma Transação Encontrada
               </h3>
-              <p className="text-foreground-muted mb-6">
+              <p className="text-white-muted mb-6">
                 Comece adicionando sua primeira transação
               </p>
               <button className="btn btn-primary">
@@ -335,13 +335,13 @@ export function TransactionsPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-background-secondary/50">
+                <thead className="bg-black-secondary/50">
                   <tr>
-                    <th className="text-left p-4 text-foreground-secondary font-medium">Data</th>
-                    <th className="text-left p-4 text-foreground-secondary font-medium">Descrição</th>
-                    <th className="text-left p-4 text-foreground-secondary font-medium">Categoria</th>
-                    <th className="text-left p-4 text-foreground-secondary font-medium">Conta</th>
-                    <th className="text-right p-4 text-foreground-secondary font-medium">Valor</th>
+                    <th className="text-left p-4 text-white-secondary font-medium">Data</th>
+                    <th className="text-left p-4 text-white-secondary font-medium">Descrição</th>
+                    <th className="text-left p-4 text-white-secondary font-medium">Categoria</th>
+                    <th className="text-left p-4 text-white-secondary font-medium">Conta</th>
+                    <th className="text-right p-4 text-white-secondary font-medium">Valor</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -351,13 +351,13 @@ export function TransactionsPage() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="border-t border-border-muted hover:bg-background-secondary/30 transition-colors"
+                      className="border-t border-cyber-border-muted hover:bg-black-secondary/30 transition-colors"
                     >
-                      <td className="p-4 text-foreground-muted text-sm">
+                      <td className="p-4 text-white-muted text-sm">
                         {formatDate(transaction.date)}
                       </td>
                       <td className="p-4">
-                        <div className="font-medium text-foreground-primary">
+                        <div className="font-medium text-white-primary">
                           {transaction.description}
                         </div>
                       </td>
@@ -366,7 +366,7 @@ export function TransactionsPage() {
                           {transaction.category}
                         </span>
                       </td>
-                      <td className="p-4 text-foreground-muted text-sm">
+                      <td className="p-4 text-white-muted text-sm">
                         {transaction.account || 'N/A'}
                       </td>
                       <td className="p-4 text-right">
@@ -388,7 +388,7 @@ export function TransactionsPage() {
         </div>
 
         {/* Status Bar */}
-        <div className="mt-6 flex justify-between items-center text-sm text-foreground-muted">
+        <div className="mt-6 flex justify-between items-center text-sm text-white-muted">
           <div>
             Sistema Online • {formatDate(new Date().toISOString())}
           </div>

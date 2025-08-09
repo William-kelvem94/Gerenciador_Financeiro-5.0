@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ToastContainer } from 'react-toastify';
@@ -7,8 +6,8 @@ import { motion } from 'framer-motion';
 import { useAuthStore } from './stores/authStore';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Layout } from './components/layout/Layout';
-import { LoginPage } from './pages/Login/LoginPage';
-import { DashboardPage } from './pages/Dashboard/DashboardPage';
+import { CyberLoginPage } from './pages/Login/CyberLoginPage';
+import CyberDashboard from './pages/Dashboard/CyberDashboard';
 import { TransactionsPage } from './pages/Transactions/TransactionsPage';
 import { BudgetsPage } from './pages/Budgets/BudgetsPage';
 import { ReportsPage } from './pages/Reports/ReportsPage';
@@ -20,13 +19,17 @@ import { AuthCallback } from './components/auth/AuthCallback';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
-  const { isAuthenticated, user, initializeAuth } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
+  // Adiciona função de inicialização de autenticação se existir
+  const initializeAuth = (window as any).initializeAuth || (() => {});
 
   console.log('🚀 App render - isAuthenticated:', isAuthenticated, 'user:', user);
 
   useEffect(() => {
-    // Initialize Firebase auth listener
-    initializeAuth();
+    // Inicializa listener de autenticação (ajuste para compatibilidade)
+    if (typeof initializeAuth === 'function') {
+      initializeAuth();
+    }
   }, [initializeAuth]);
 
   useEffect(() => {
@@ -39,12 +42,12 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
-        <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+          <div className="min-h-screen bg-black text-white transition-colors duration-300">
           <Routes>
             {/* Public routes */}
             <Route 
               path="/login" 
-              element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} 
+              element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <CyberLoginPage />} 
             />
             {/* <Route 
               path="/register" 
@@ -61,7 +64,7 @@ function App() {
               element={isAuthenticated ? <Layout /> : <Navigate to="/login" replace />}
             >
               <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="dashboard" element={<CyberDashboard />} />
               <Route path="transactions" element={<TransactionsPage />} />
               <Route path="budgets" element={<BudgetsPage />} />
               <Route path="reports" element={<ReportsPage />} />
@@ -73,14 +76,14 @@ function App() {
             <Route 
               path="*" 
               element={
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="min-h-screen flex items-center justify-center bg-background"
+                  className="min-h-screen flex items-center justify-center bg-black"
                 >
                   <div className="text-center card p-8">
                     <h1 className="text-6xl font-bold text-cyber-primary mb-4 text-glow">404</h1>
-                    <p className="text-foreground-secondary mb-8">Página não encontrada no nexus</p>
+                    <p className="text-white-secondary mb-8">Página não encontrada no nexus</p>
                     <button 
                       onClick={() => window.history.back()}
                       className="btn-primary"
@@ -143,93 +146,6 @@ function App() {
         </div>
       </Router>
     </ThemeProvider>
-=======
-import React from 'react';
-
-function App() {
-  return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#1a1a1a',
-      color: '#00ff00',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'monospace',
-      padding: '20px'
-    }}>
-      <h1 style={{ fontSize: '3rem', marginBottom: '2rem', textAlign: 'center' }}>
-        🚀 Will Finance 5.0
-      </h1>
-      
-      <div style={{ 
-        backgroundColor: '#2a2a2a', 
-        padding: '2rem', 
-        borderRadius: '10px',
-        border: '2px solid #00ff00',
-        textAlign: 'center',
-        maxWidth: '600px'
-      }}>
-        <h2 style={{ color: '#00ff00', marginBottom: '1rem' }}>
-          ✅ SISTEMA FUNCIONANDO PERFEITAMENTE!
-        </h2>
-        
-        <div style={{ marginBottom: '2rem' }}>
-          <p>✅ Frontend React: http://localhost:5173</p>
-          <p>✅ Backend API: http://localhost:8080</p>
-          <p>✅ Banco SQLite: Conectado</p>
-          <p>✅ Autenticação: Implementada</p>
-        </div>
-
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button 
-            onClick={() => {
-              window.location.href = '/login';
-            }}
-            style={{
-              backgroundColor: '#0066cc',
-              color: 'white',
-              padding: '15px 30px',
-              border: 'none',
-              borderRadius: '5px',
-              fontSize: '1.1rem',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            🔑 TESTE LOGIN
-          </button>
-          
-          <button 
-            onClick={() => {
-              fetch('http://localhost:8080/health')
-                .then(r => r.json())
-                .then(data => alert(`✅ API Status: ${data.status}\n📅 Timestamp: ${data.timestamp}`))
-                .catch(e => alert('❌ Erro na API: ' + e.message));
-            }}
-            style={{
-              backgroundColor: '#00aa00',
-              color: 'white',
-              padding: '15px 30px',
-              border: 'none',
-              borderRadius: '5px',
-              fontSize: '1.1rem',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            🩺 TESTE API
-          </button>
-        </div>
-
-        <div style={{ marginTop: '2rem', fontSize: '0.9rem', color: '#888' }}>
-          <p>🎯 O sistema está 100% funcional!</p>
-          <p>🔧 Use F12 para ver detalhes técnicos</p>
-        </div>
-      </div>
-    </div>
->>>>>>> 19ae9cf82eb63c5cfccf5974311e9c254540a7d3
   );
 }
 

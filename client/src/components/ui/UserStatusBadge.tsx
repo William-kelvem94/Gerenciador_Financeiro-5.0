@@ -44,15 +44,15 @@ export function UserStatusBadge({ className = '', showDetails = false }: UserSta
             ? 'bg-cyber-primary/20 text-cyber-primary' 
             : isAdmin 
             ? 'bg-cyber-accent/20 text-cyber-accent'
-            : 'bg-background-secondary text-foreground-muted'
+            : 'bg-black-secondary text-white-muted'
         }`}>
           {isMaster ? <Shield className="w-5 h-5" /> : <User className="w-5 h-5" />}
         </div>
         <div>
-          <h3 className="font-mono text-sm font-medium text-foreground">
+          <h3 className="font-mono text-sm font-medium text-white">
             {getUserDisplayName()}
           </h3>
-          <p className="text-xs text-foreground-muted font-mono uppercase">
+          <p className="text-xs text-white-muted font-mono uppercase">
             {getUserRole()}
           </p>
         </div>
@@ -60,7 +60,7 @@ export function UserStatusBadge({ className = '', showDetails = false }: UserSta
 
       {databases.length > 0 && (
         <div className="mb-3">
-          <h4 className="text-xs font-mono text-foreground-muted mb-2 flex items-center">
+          <h4 className="text-xs font-mono text-white-muted mb-2 flex items-center">
             <Database className="w-3 h-3 mr-1" />
             Bancos de Dados
           </h4>
@@ -79,7 +79,7 @@ export function UserStatusBadge({ className = '', showDetails = false }: UserSta
 
       {permissions.length > 0 && (
         <div>
-          <h4 className="text-xs font-mono text-foreground-muted mb-2 flex items-center">
+          <h4 className="text-xs font-mono text-white-muted mb-2 flex items-center">
             <Key className="w-3 h-3 mr-1" />
             Permissões
           </h4>
