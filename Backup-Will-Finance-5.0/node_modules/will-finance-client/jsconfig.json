@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true, // Habilita verificação estrita para melhor qualidade
+    "skipLibCheck": true,
+    "baseUrl": ".", // Facilita imports relativos
+    "paths": {
+      "@/*": ["src/*"] // Alias enterprise para src
+    }
+  },
+  "include": [
+    "src", // Inclui código fonte principal
+    "postcss.config.js",
+    "tailwind.config.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

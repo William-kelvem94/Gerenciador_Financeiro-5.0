@@ -1,0 +1,7 @@
+@import './cyberpunk-themes.css';
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--background-primary);
+  color: var(--foreground-primary);
+}

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will Finance 5.0 - Dashboard de Análise</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin: 0;
+        }
+        .score-card {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .score-card h2 {
+            font-size: 3em;
+            margin: 0;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .metric-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        .metric-card h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .chart-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .recommendations {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .strengths {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Will Finance 5.0</h1>
+            <p>Dashboard de Análise Completa do Projeto</p>
+            <small>Gerado em 03/08/2025 às 00:46</small>
+        </div>
+
+        <div class="score-card">
+            <h2>77.5%</h2>
+            <p>Score Geral de Saúde</p>
+            <p>🟡 BOM - Projeto bem estruturado</p>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>📁 Total de Arquivos</h3>
+                <div class="metric-value">88,758</div>
+            </div>
+            <div class="metric-card">
+                <h3>📂 Diretórios</h3>
+                <div class="metric-value">14,655</div>
+            </div>
+            <div class="metric-card">
+                <h3>🔧 Tipos de Arquivo</h3>
+                <div class="metric-value">94</div>
+            </div>
+            <div class="metric-card">
+                <h3>⚙️ Scripts de Automação</h3>
+                <div class="metric-value">38</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3>📊 Distribuição da Arquitetura</h3>
+            <canvas id="architectureChart" width="400" height="200"></canvas>
+        </div>
+
+        <div class="strengths">
+            <h3>🎯 Pontos Fortes</h3>
+            <ul>
+                <li>✅ Arquitetura moderna e bem estruturada</li>
+                <li>✅ Uso de TypeScript em todo o projeto</li>
+                <li>✅ Sistema de IA integrado</li>
+                <li>✅ Automação completa de CI/CD</li>
+                <li>✅ Documentação abrangente</li>
+                <li>✅ Stack tecnológica atualizada</li>
+            </ul>
+        </div>
+
+        <div class="recommendations">
+            <h3>📋 Recomendações Prioritárias</h3>
+            <ul>
+                <li>🔴 <strong>Alta</strong> - Backend: Módulo 'extrato' sem estrutura padrão</li>
+                <li>🟡 <strong>Média</strong> - Documentação: Expandir documentação técnica</li>
+                <li>🟢 <strong>Baixa</strong> - Frontend: Adicionar mais testes unitários</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Relatório gerado automaticamente pelo sistema de análise</p>
+            <p>Will Finance 5.0 - Sistema Profissional de Gerenciamento Financeiro</p>
+        </div>
+    </div>
+
+    <script>
+        // Gráfico da arquitetura
+        const ctx = document.getElementById('architectureChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Frontend', 'Backend', 'IA/ML', 'DevOps', 'Docs'],
+                datasets: [{
+                    data: [42, 3232, 21, 38, 50],
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#4BC0C0',
+                        '#9966FF'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

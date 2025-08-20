@@ -1,0 +1,20 @@
+/* ============================================
+   WILL FINANCE 5.0 - MAIN STYLESHEET
+   ============================================ */
+
+/* Import Cyberpunk Base Theme */
+@import url('./styles/cyberpunk-base.css');
+
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Basic body styles */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+  font-family: 'Inter', system-ui, sans-serif;
+}

@@ -1,0 +1,17 @@
+{
+  "file_name": "Comprovante_19-03-2025_132205.pdf",
+  "fields": [
+    {"label": "data", "value": "10/02/2025", "bbox": [0,0,0,0]},
+    {"label": "descricao", "value": "TRANSFERENCIA PIX REM: WILLIAM K SOUSA PEREI 10/02", "bbox": [0,0,0,0]},
+    {"label": "docto", "value": "1306400", "bbox": [0,0,0,0]},
+    {"label": "credito", "value": "3,00", "bbox": [0,0,0,0]},
+    {"label": "debito", "value": "", "bbox": [0,0,0,0]},
+    {"label": "saldo", "value": "32,74", "bbox": [0,0,0,0]},
+    {"label": "data", "value": "10/02/2025", "bbox": [0,0,0,0]},
+    {"label": "descricao", "value": "PIX QR CODE ESTATICO DES: V R DA SILVA 10/02", "bbox": [0,0,0,0]},
+    {"label": "docto", "value": "1301564", "bbox": [0,0,0,0]},
+    {"label": "credito", "value": "", "bbox": [0,0,0,0]},
+    {"label": "debito", "value": "2,50", "bbox": [0,0,0,0]},
+    {"label": "saldo", "value": "30,24", "bbox": [0,0,0,0]}
+  ]
+}

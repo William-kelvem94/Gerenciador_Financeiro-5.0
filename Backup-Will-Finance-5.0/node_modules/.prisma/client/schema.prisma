@@ -1,0 +1,188 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String         @id @default(cuid())
+  email              String         @unique
+  name               String
+  password           String
+  avatar             String?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  budgetAlerts       Boolean        @default(true)
+  currency           String         @default("BRL")
+  dateFormat         String         @default("DD/MM/YYYY")
+  emailNotifications Boolean        @default(true)
+  emailVerified      Boolean        @default(false)
+  emailVerifiedAt    DateTime?
+  goalReminders      Boolean        @default(true)
+  isEmailPublic      Boolean        @default(false)
+  isProfilePublic    Boolean        @default(false)
+  language           String         @default("pt-BR")
+  lastLoginAt        DateTime?
+  monthlyBudget      Float?
+  pushNotifications  Boolean        @default(true)
+  savingsGoal        Float?
+  theme              String         @default("dark")
+  timezone           String         @default("America/Sao_Paulo")
+  twoFactorEnabled   Boolean        @default(false)
+  twoFactorSecret    String?
+  accounts           Account[]
+  aiInsights         AiInsight[]
+  budgets            Budget[]
+  categories         Category[]
+  goals              Goal[]
+  notifications      Notification[]
+  transactions       Transaction[]
+
+  @@map("users")
+}
+
+model Account {
+  id            String        @id @default(cuid())
+  name          String
+  type          String
+  balance       Float         @default(0)
+  currency      String        @default("BRL")
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  userId        String
+  accountNumber String?
+  bankName      String?
+  closingDay    Int?
+  color         String        @default("#3B82F6")
+  creditLimit   Float?
+  description   String?
+  dueDay        Int?
+  icon          String        @default("wallet")
+  interestRate  Float?
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions  Transaction[]
+
+  @@map("accounts")
+}
+
+model Category {
+  id           String        @id @default(cuid())
+  name         String
+  icon         String        @default("tag")
+  color        String        @default("#6B7280")
+  type         String
+  createdAt    DateTime      @default(now())
+  description  String?
+  isActive     Boolean       @default(true)
+  isSystem     Boolean       @default(false)
+  updatedAt    DateTime      @updatedAt
+  userId       String?
+  budgets      Budget[]
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@unique([name, userId])
+  @@map("categories")
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  amount        Float
+  description   String
+  type          String
+  date          DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  userId        String
+  accountId     String
+  categoryId    String
+  aiAnalyzed    Boolean  @default(false)
+  aiCategories  String?
+  aiConfidence  Float?
+  aiTags        String?
+  isRecurring   Boolean  @default(false)
+  latitude      Float?
+  location      String?
+  longitude     Float?
+  notes         String?
+  parentId      String?
+  recurringRule String?
+  reference     String?
+  status        String   @default("COMPLETED")
+  account       Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category      Category @relation(fields: [categoryId], references: [id])
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
+
+model Budget {
+  id              String   @id @default(cuid())
+  name            String
+  amount          Float
+  spent           Float    @default(0)
+  period          String
+  startDate       DateTime
+  endDate         DateTime
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  userId          String
+  alertPercentage Float    @default(80)
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id])
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("budgets")
+}
+
+model Goal {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  targetAmount  Float
+  currentAmount Float     @default(0)
+  isCompleted   Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  userId        String
+  color         String    @default("#10B981")
+  icon          String    @default("target")
+  targetDate    DateTime?
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("goals")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  type      String
+  isRead    Boolean  @default(false)
+  data      String?
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model AiInsight {
+  id          String   @id @default(cuid())
+  type        String
+  title       String
+  description String
+  data        String
+  confidence  Float
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_insights")
+}

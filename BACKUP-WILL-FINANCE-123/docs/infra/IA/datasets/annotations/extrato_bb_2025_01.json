@@ -1,0 +1,17 @@
+{
+  "file_name": "extrato_bb_2025_01.pdf",
+  "fields": [
+    {"label": "data", "value": "06/01/2025", "bbox": [0,0,0,0]},
+    {"label": "descricao", "value": "Pix - Enviado 06/01 11:48 Aroldo Pinheiro Pereira", "bbox": [0,0,0,0]},
+    {"label": "valor", "value": "119,80", "bbox": [0,0,0,0]},
+    {"label": "tipo", "value": "saida", "bbox": [0,0,0,0]},
+    {"label": "data", "value": "09/01/2025", "bbox": [0,0,0,0]},
+    {"label": "descricao", "value": "Compra com Cartão", "bbox": [0,0,0,0]},
+    {"label": "valor", "value": "18,00", "bbox": [0,0,0,0]},
+    {"label": "tipo", "value": "saida", "bbox": [0,0,0,0]},
+    {"label": "data", "value": "09/01/2025", "bbox": [0,0,0,0]},
+    {"label": "descricao", "value": "Resgate Poupança", "bbox": [0,0,0,0]},
+    {"label": "valor", "value": "150,00", "bbox": [0,0,0,0]},
+    {"label": "tipo", "value": "entrada", "bbox": [0,0,0,0]}
+  ]
+}
