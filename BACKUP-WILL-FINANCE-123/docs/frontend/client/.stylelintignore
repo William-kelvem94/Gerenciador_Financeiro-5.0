@@ -1,8 +1,0 @@
-# Ignore Tailwind utility files
-src/index.css
-# Ignore generated files
-dist/
-build/
-node_modules/
-# Ignore vendor prefixes in cyberpunk themes
-src/styles/cyberpunk-themes.css

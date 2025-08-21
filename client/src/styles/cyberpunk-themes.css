@@ -1,0 +1,48 @@
+/* Tema Cyberpunk Master - Will Finance 5.0 */
+:root {
+  --cyber-primary: #00FFFF;
+  --cyber-secondary: #FF0080;
+  --cyber-accent: #39FF14;
+  --cyber-danger: #FF0040;
+  --background-primary: #0A0A0F;
+  --background-secondary: #1A1A2E;
+  --background-tertiary: #16213E;
+  --foreground-primary: #FFFFFF;
+  --foreground-secondary: #E2E8F0;
+  --foreground-muted: #94A3B8;
+  --border-primary: rgba(0,255,255,0.3);
+  --border-secondary: rgba(255,0,128,0.2);
+  --shadow-neon: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary);
+  --radius-lg: 1rem;
+}
+[data-theme="dark"] {
+  --background-primary: #000000;
+  --background-secondary: #111111;
+}
+[data-theme="light"] {
+  --background-primary: #FFFFFF;
+  --background-secondary: #F8FAFC;
+  --foreground-primary: #1E293B;
+}
+.glass {
+  background: rgba(26,26,46,0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+}
+.text-neon {
+  color: var(--cyber-primary);
+  text-shadow: var(--shadow-neon);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--cyber-primary), var(--cyber-secondary));
+  color: var(--background-primary);
+  box-shadow: var(--shadow-neon);
+}
+.card {
+  background: linear-gradient(135deg, var(--background-secondary), var(--background-tertiary));
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}

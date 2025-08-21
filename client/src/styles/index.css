@@ -1,0 +1,35 @@
+@import './cyberpunk-themes.css';
+
+body {
+  background: var(--background-primary);
+  color: var(--foreground-primary);
+  font-family: 'Inter', 'JetBrains Mono', sans-serif;
+  min-height: 100vh;
+  margin: 0;
+}
+
+a {
+  color: var(--cyber-primary);
+  text-decoration: none;
+}
+
+.card {
+  box-shadow: var(--shadow-neon);
+}
+
+.btn {
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: background 0.3s, color 0.3s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--cyber-primary), var(--cyber-secondary));
+  color: var(--background-primary);
+}
+
+.text-neon {
+  color: var(--cyber-primary);
+  text-shadow: var(--shadow-neon);
+}
