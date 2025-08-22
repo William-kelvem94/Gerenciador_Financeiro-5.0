@@ -1,35 +1,47 @@
-@import './cyberpunk-themes.css';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  --cyber-primary: #00FFFF;
+  --cyber-secondary: #FF0080;
+  --cyber-accent: #39FF14;
+  --background-primary: #0A0A0F;
+  --background-secondary: #1A1A2E;
+  --foreground-primary: #FFFFFF;
+  --foreground-muted: #94A3B8;
+  --border-primary: rgba(0,255,255,0.3);
+  --shadow-neon: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary);
+  --radius-lg: 1rem;
+  --gradient-primary: linear-gradient(135deg, var(--cyber-primary), var(--cyber-secondary));
+  --font-family-primary: 'Inter', sans-serif;
+  --font-family-mono: 'JetBrains Mono', monospace;
+}
 
 body {
   background: var(--background-primary);
   color: var(--foreground-primary);
-  font-family: 'Inter', 'JetBrains Mono', sans-serif;
-  min-height: 100vh;
+  font-family: var(--font-family-primary);
   margin: 0;
-}
-
-a {
-  color: var(--cyber-primary);
-  text-decoration: none;
-}
-
-.card {
-  box-shadow: var(--shadow-neon);
-}
-
-.btn {
-  border-radius: var(--radius-lg);
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
-  transition: background 0.3s, color 0.3s;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, var(--cyber-primary), var(--cyber-secondary));
-  color: var(--background-primary);
+  min-height: 100vh;
 }
 
 .text-neon {
   color: var(--cyber-primary);
   text-shadow: var(--shadow-neon);
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: var(--background-primary);
+  box-shadow: var(--shadow-neon);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1.5rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-neon), 0 4px 6px -1px rgba(0,0,0,0.1);
 }
