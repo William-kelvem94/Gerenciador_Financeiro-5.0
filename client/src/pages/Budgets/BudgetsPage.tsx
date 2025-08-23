@@ -1,8 +1,8 @@
 const BudgetsPage = () => {
   return (
-    <div>
-      <h1 className="text-3xl text-neon font-bold mb-4">Orçamentos</h1>
-      <div className="card">
+    <div className="page-spot">
+      <h1 className="page-title">Orçamentos</h1>
+      <div className="card form-card">
         <p className="card-description">Gestão de orçamentos aparecerá aqui.</p>
       </div>
     </div>

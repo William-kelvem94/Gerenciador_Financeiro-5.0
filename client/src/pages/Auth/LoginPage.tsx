@@ -1,6 +1,6 @@
 const LoginPage = () => {
   return (
-    <div className="card">
+    <div className="card form-card">
       <h1 className="card-title text-neon">Login</h1>
       <form className="space-y-4">
         <input className="input" type="email" placeholder="E-mail" required />

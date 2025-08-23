@@ -1,32 +1,60 @@
-import { NavLink } from 'react-router-dom';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-const menu = [
-  { label: 'Dashboard', path: '/', icon: '📊' },
-  { label: 'Transações', path: '/transactions', icon: '💸' },
-  { label: 'Orçamentos', path: '/budgets', icon: '🗂️' },
-  { label: 'Relatórios', path: '/reports', icon: '📈' },
-  { label: 'Configurações', path: '/settings', icon: '⚙️' },
-  { label: 'Sair', path: '/logout', icon: '🚪' },
+const navLinks: { href: string; label: string }[] = [
+  { href: '/dashboard', label: '🏠 Dashboard' },
+  { href: '/transactions', label: '🪙 Transações' },
+  { href: '/budgets', label: '📑 Orçamentos' },
+  { href: '/reports', label: '📈 Relatórios' },
+  { href: '/settings', label: '⚙️ Configurações' },
+  { href: '/logout', label: '� Sair' },
 ];
 
-const Sidebar = () => (
-  <aside className="glass-strong w-64 min-h-screen p-6 flex flex-col gap-6 shadow-neon">
-    <h2 className="text-neon text-2xl font-bold mb-8">Will Finance</h2>
-    <nav className="flex flex-col gap-4">
-      {menu.map(item => (
-        <NavLink
-          key={item.path}
-          to={item.path}
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-lg font-semibold transition-all text-lg ${isActive ? 'text-neon bg-background-secondary' : 'text-foreground-muted hover:text-neon hover:bg-background-secondary/50'}`
-          }
-        >
-          <span className="text-xl">{item.icon}</span>
-          {item.label}
-        </NavLink>
-      ))}
-    </nav>
-  </aside>
-);
+export default function Sidebar({ mobileOpen, setMobileOpen }: { mobileOpen?: boolean; setMobileOpen?: (open: boolean) => void }) {
+  const location = useLocation();
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="sidebar-box sidebar-desktop glass-strong">
+        <div className="sidebar-brand">
+          <h2 className="sidebar-brand-title text-neon">Will Finance</h2>
+        </div>
+        <nav>
+    <ul className="nav-list">
+            {navLinks.map(link => (
+              <li key={link.href} className="nav-item">
+                <Link to={link.href} className={`nav-link ${location.pathname === link.href ? 'active' : ''}`}>
+      <span aria-hidden>{link.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </aside>
 
-export default Sidebar;
+      {/* Mobile drawer */}
+      {mobileOpen && setMobileOpen && (
+        <>
+          <div className="mobile-drawer-backdrop" onClick={() => setMobileOpen(false)} />
+          <aside className="sidebar-box sidebar-mobile glass-strong">
+            <div className="sidebar-brand sidebar-brand-mobile">
+              <h2 className="sidebar-brand-title text-neon">Will Finance</h2>
+              <button className="btn btn-secondary" onClick={() => setMobileOpen(false)} aria-label="Fechar menu">✖</button>
+            </div>
+            <nav>
+              <ul className="nav-list">
+                {navLinks.map(link => (
+                  <li key={link.href} className="nav-item">
+                    <Link to={link.href} className={`nav-link ${location.pathname === link.href ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>
+                      <span aria-hidden>{link.label}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </aside>
+        </>
+      )}
+    </>
+  );
+}
