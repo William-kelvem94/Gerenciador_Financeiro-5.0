@@ -1,180 +1,162 @@
-🚀 Instruções Otimizadas para GitHub Copilot - Will Finance 5.0 PRORO
-🎯 MISSÃO PRINCIPAL
-Criar o melhor sistema financeiro do mundo com arquitetura enterprise, segurança militar e experiência cyberpunk premium.
+# Instruções Otimizadas — Will Finance 5.0 (versão refatorada)
 
-🏆 Características Essenciais
-⚡ Performance Extrema: React 18 + Vite + lazy loading
+Objetivo: entregar instruções objetivas, padronizadas e acionáveis para o Copilot gerar código como um desenvolvedor sênior — seguro, testável e consistente.
 
-🎨 UI Cyberpunk: Framer Motion + Three.js + temas customizados
+## Princípios gerais
+- TypeScript estrito (noImplicitAny, strict).
+- Tipos explícitos; evitar `any`.
+- Validação com Zod em todas as entradas.
+- Separação clara: controller (HTTP) → service (negócio) → repository/ORM.
+- Tratamento de erros centralizado e respostas padronizadas.
+- Segurança por padrão: validação, sanitização, rate-limit, JWT + refresh tokens.
+- Testes: unitários para serviços, integração para rotas críticas.
 
-🔐 Segurança: Firebase Auth + JWT + 2FA + criptografia AES-256
+## Stack resumido
+- Frontend: React 18 + Vite + TypeScript + Tailwind + Framer Motion
+- Backend: Node 20 + Express + TypeScript + Prisma + Zod + Redis + JWT
+- DevOps: Docker, GitHub Actions, Prometheus/Grafana, Sentry
 
-📊 Analytics: Charts.js + D3.js + dashboards interativos
+## Estrutura recomendada
+- client/
+  - src/components, pages, hooks, stores, types, utils
+- server/
+  - src/modules/* (auth, transactions, budgets, reports)
+  - src/shared (errors, logger, utils)
+  - src/config, src/middleware, src/prisma
 
-🤖 IA Integrada: OpenAI GPT + análise preditiva
+## Convenções de nomes
+- Arquivos/funções: camelCase (createTransaction, authMiddleware)
+- Componentes/Classes/Tipos: PascalCase (TransactionModal, Transaction)
+- Constantes: UPPER_SNAKE_CASE
+- Diretórios: kebab-case
 
-🌐 Arquitetura: Microserviços + Redis + load balancer
+## TypeScript & ESLint/TSConfig (principais)
+- tsconfig.json: strict: true, noImplicitAny: true, forceConsistentCasingInFileNames: true
+- ESLint: regras para evitar any, prefer const, etc.
 
-🔄 Real-time: WebSockets + notificações push
+## Model de resposta HTTP (padrão)
+- Forma:
+    {
+        success: boolean;
+        data: T | null;
+        message?: string;
+        error?: { code: string; details?: string[] }
+    }
 
-📱 Multi-plataforma: PWA + Electron + mobile-first
+## Exemplo de tipos e resposta genérica (padrão)
+    interface ApiResponse<T> {
+        success: boolean;
+        data: T | null;
+        message?: string;
+        error?: { code: string; details?: string[] };
+    }
 
-🛠️ STACK TECNOLÓGICA RESUMIDA
-🎨 Frontend (client/)
-typescript
-- React 18.2+ + TypeScript 5.0+ + Vite 5.0+
-- Tailwind CSS 3.4+ + Framer Motion 11+
-- TanStack Query v5 + Zustand 4+
-- React Hook Form 7+ + Zod
-- Firebase Auth + React Router v6
-- Chart.js 4+ + D3.js
-🖥️ Backend (server/)
-typescript
-- Node.js 20+ + Express 4.18+ + TypeScript 5.0+
-- Prisma ORM 5+ + PostgreSQL 16+
-- JWT + Redis 7+ + Socket.io
-- Winston + Bull Queue + Nodemailer
-- Zod + Swagger/OpenAPI
-🔧 DevOps
-yaml
-- Docker + Kubernetes
-- GitHub Actions + Nginx
-- Prometheus + Grafana + Sentry
-- ELK Stack + SSL/TLS
-📁 ARQUITETURA ESSENCIAL
-🎨 Frontend Structure (client/src/)
-text
-src/
-├── components/           # Componentes reutilizáveis
-│   ├── auth/            # Autenticação
-│   ├── dashboard/       # Dashboard
-│   ├── transactions/    # Transações
-│   ├── ui/              # UI primitives
-│   └── ai/              # IA Integration
-├── pages/               # Páginas principais
-├── hooks/               # Custom hooks
-├── stores/              # Estado global (Zustand)
-├── types/               # TypeScript types
-└── utils/               # Utilitários
-🖥️ Backend Structure (server/src/)
-text
-src/
-├── modules/             # Módulos por domínio
-│   ├── auth/           # Autenticação
-│   ├── transactions/   # Transações
-│   ├── budgets/        # Orçamentos
-│   └── reports/        # Relatórios
-├── shared/              # Código compartilhado
-├── config/              # Configurações
-├── middleware/          # Middlewares
-└── prisma/              # Database schema
-📋 CONVENÇÕES PRINCIPAIS
-🔤 Nomenclatura
-Arquivos/Funções: camelCase (getUserData, transactionService.ts)
+## Validação com Zod (exemplo)
+    import { z } from 'zod';
 
-Componentes/Classes: PascalCase (TransactionModal, UserService)
+    const createTransactionSchema = z.object({
+        body: z.object({
+            amount: z.number().positive(),
+            type: z.enum(['income', 'expense']),
+            description: z.string().max(500).optional(),
+            date: z.string().optional()
+        })
+    });
 
-Tipos/Interfaces: PascalCase (Transaction, LoginData)
+## Padrão de controller → service (exemplo)
+- Controller: recebe req, valida com Zod, chama service, retorna ApiResponse.
+- Service: lógica de negócio, lança erros específicos.
+- Error handling middleware: formata erros e responde com ApiResponse.
 
-Constantes: UPPER_SNAKE_CASE (MAX_RETRIES, API_ENDPOINTS)
+    // controller.ts (pseudo)
+    async function createTransaction(req: Request, res: Response, next: NextFunction) {
+        try {
+            const parsed = createTransactionSchema.parse({ body: req.body });
+            const result = await transactionService.create(parsed.body, { userId: req.user.id });
+            res.json({ success: true, data: result });
+        } catch (err) {
+            next(err);
+        }
+    }
 
-Diretórios: kebab-case (import-export/, user-profile/)
+    // service.ts (pseudo)
+    async function create(data: CreateTransactionDto, ctx: ServiceContext) {
+        // validações de negócio
+        return prisma.transaction.create({ data: { ...data, userId: ctx.userId } });
+    }
 
-🎨 Estilos Cyberpunk (Resumo)
-css
-:root {
-  --cyber-primary: #00FFFF;          /* Cyan neon */
-  --cyber-secondary: #FF0080;        /* Pink neon */
-  --background-primary: #0A0A0F;     /* Dark base */
-  --foreground-primary: #FFFFFF;     /* Texto principal */
-}
+## Erros & Logging
+- Use classes de erro customizadas (ValidationError, NotFoundError, AuthError) com código interno.
+- Middleware de erro traduz exceções para ApiResponse e codes HTTP.
+- Logger (Winston) central; sensível: nunca logar tokens ou senhas.
 
-.glass {
-  background: rgba(26, 26, 46, 0.3);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border-primary);
-}
-🔧 GUIDELINES CRÍTICAS
-1. 📝 TypeScript Obrigatório
-typescript
-// ✅ SEMPRE - Tipos específicos
-interface Transaction {
-  id: string;
-  amount: number;
-  type: 'income' | 'expense';
-}
+## Segurança (checklist)
+- Validar + sanitizar todas as entradas (Zod + sanitizer).
+- Autenticação: JWT curta validade + refresh tokens guardados com httpOnly cookie.
+- Rate limiting usando Redis.
+- CORS whitelist.
+- Helmet + sane headers.
+- Criptografia: AES-256 para dados sensíveis; armazenar chaves em KMS/secret manager.
+- Proteções contra SQL/NoSQL injection (usar ORM com parametrização).
 
-// ❌ NUNCA - any
-function processData(data: any): any
-2. 🛡️ Validação com Zod
-typescript
-const TransactionSchema = z.object({
-  amount: z.number().positive(),
-  type: z.enum(['income', 'expense'])
-});
-3. 🎯 Tratamento de Erros
-typescript
-try {
-  // código
-} catch (error) {
-  if (error instanceof ValidationError) {
-    // erro de validação
-  }
-  // outros erros
-}
-4. 🔐 Segurança
-Validação de entrada em todas as requisições
+## Autenticação JWT (recomendação)
+- Access token: 15m, assinado com chave rotacionável.
+- Refresh token: 30d, armazenado hashed no DB + httpOnly cookie.
+- Endpoint /auth/refresh que valida refresh token e emite novo access token.
 
-Autenticação JWT com refresh tokens
+## Prisma (dicas)
+- Modelar relações com índices e constraints.
+- Migrations revisadas; scripts para gerar e aplicar.
+- Exemplo comando:
+    npm run db:setup  # npx prisma generate && npx prisma migrate dev --name init
 
-Rate limiting com Redis
+## Testes
+- Unit: Jest + ts-jest, mock Prisma com ferramentas como prisma-mock ou testcontainers.
+- Integration: testes de rotas com SuperTest.
+- Mínimo 80% coverage, ideal 90%.
 
-Sanitização de dados
+## Scripts essenciais (package.json)
+    {
+      "scripts": {
+        "dev:server": "ts-node-dev --respawn --transpile-only src/server.ts",
+        "dev:client": "vite",
+        "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+        "build": "npm run build:client && npm run build:server",
+        "db:setup": "npx prisma generate && npx prisma migrate deploy",
+        "lint": "eslint . --ext .ts,.tsx",
+        "test": "jest --coverage"
+      }
+    }
 
-5. 📊 API Responses
-typescript
-{
-  success: boolean;
-  data: T | null;
-  message?: string;
-  error?: {
-    code: string;
-    details: string[];
-  }
-}
-⚙️ SCRIPTS ESSENCIAIS
-json
-{
-  "scripts": {
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "build": "npm run build:client && npm run build:server",
-    "test": "npm run test:unit && npm run test:e2e",
-    "lint": "npm run lint:client && npm run lint:server",
-    "db:setup": "npx prisma generate && npx prisma db push",
-    "docker:up": "docker-compose up -d"
-  }
-}
-🚀 COMANDOS RÁPIDOS
-bash
-# Desenvolvimento
-npm run dev              # Inicia cliente e servidor
+## CI / CD
+- GitHub Actions: lint + test + build em PRs.
+- PR obrigatório: revisão, changelog, testes passing.
+- Runner deploy automático em branch main com checks de segurança e scan de dependências.
 
-# Database
-npm run db:setup         # Configura banco inicial
-npm run db:studio        # Interface visual Prisma
+## PR Template mínimo
+- Descrição curta
+- Tipo de mudança (feat/fix/chore)
+- Como testar
+- Checklist: testes, lint, changelog, migrations
 
-# Qualidade
-npm run lint             # ESLint
-npm run test             # Testes
+## Boas práticas de commits
+- Use Conventional Commits (feat:, fix:, chore:, docs:, refactor:).
 
-# Deploy
-npm run build            # Build de produção
-docker-compose up -d     # Sobe containers
-🎯 OBJETIVOS DE QUALIDADE
-Code Coverage: Mínimo 80% (Meta 90%)
+## Checklist final antes de PR
+- ✅ Tipos sem any
+- ✅ Validação Zod em endpoints
+- ✅ Erros tratados e logados
+- ✅ Testes cobrindo feature crítica
+- ✅ Scripts e migrations atualizados
+- ✅ Secrets não expostos
 
-Performance: FCP < 2s, resposta < 100ms (95th percentile)
+---
 
-Segurança: Zero vulnerabilidades críticas
+Use esse documento como referência principal. Ao gerar código, o Copilot deve:
+1. Priorizar tipos explícitos.
+2. Gerar validações Zod para entradas HTTP.
+3. Seguir padrão controller → service → repository.
+4. Incluir testes básicos e exemplos de uso.
+5. Não incluir segredos ou chaves no código.
 
-Documentação: 100% das APIs documentadas
+FIM.

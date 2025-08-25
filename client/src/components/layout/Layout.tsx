@@ -2,16 +2,18 @@ import type { ReactNode } from 'react';
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import MatrixBackground from './MatrixBackground';
 
 const Layout = ({ children }: { children: ReactNode }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   return (
     <div className="layout-container premium-layout min-h-screen font-family-primary">
+      <MatrixBackground />
       <Header onMenuClick={() => setMobileOpen(true)} />
       <div className="layout-main flex">
         <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
         {/* main: aplicar margem esquerda quando sidebar estiver visível em md+ */}
-        <main className="main-content glass premium-main flex-1 main-with-sidebar p-6 md:p-10">
+  <main className="main-content glass premium-main flex-1 main-with-sidebar p-6 md:p-10" style={{ position: 'relative', zIndex: 10 }}>
           <div className="container">
             {children}
           </div>

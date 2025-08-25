@@ -1,5 +1,6 @@
 import React from 'react';
 import useDashboardData from '../../hooks/useDashboardData';
+import Icon from '../../icons/iconRegistry';
 
 const DashboardCards: React.FC = () => {
   const { data, loading } = useDashboardData();
@@ -32,7 +33,7 @@ const DashboardCards: React.FC = () => {
         <article key={card.id} className="card glass card-metric" style={{ border: '1px solid rgba(0,255,255,0.06)' }}>
           <div className="card-head">
             <span className="card-icon" aria-hidden>
-              {card.icon}
+              <Icon name={card.icon as any} size={20} />
             </span>
             <div>
               <div className={`card-title ${card.color}`}>{card.title}</div>
