@@ -1,9 +1,9 @@
-# 🚀 Will Finance 5.0 - Resumo da Limpeza e Organização do Projeto
+# 🚀 Will Finance 6.0 - Resumo da Limpeza e Organização do Projeto
 
 ## ✅ PROJETO COMPLETAMENTE FUNCIONAL
 
 ### 🎯 Status Atual
-- ✅ **Frontend**: React + TypeScript + Vite rodando em `http://localhost:5174`
+- ✅ **Frontend**: React + TypeScript + Vite rodando em `http://localhost:5173`
 - ✅ **Backend**: NestJS + Prisma + TypeScript rodando em `http://localhost:8080`
 - ✅ **Database**: SQLite configurado e sincronizado
 - ✅ **Autenticação**: Sistema JWT implementado

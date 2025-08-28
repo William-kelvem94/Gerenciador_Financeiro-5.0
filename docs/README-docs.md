@@ -1,7 +1,7 @@
 
-# 📚 Documentação Técnica - Will Finance 5.0
+# 📚 Documentação Técnica - Will Finance 6.0
 
-Este diretório reúne toda a documentação técnica, arquitetura, API, testes, segurança e guias de desenvolvimento do Will Finance 5.0.
+Este diretório reúne toda a documentação técnica, arquitetura, API, testes, segurança e guias de desenvolvimento do Will Finance 6.0.
 
 ## Sumário
 - [Visão Geral](#visão-geral)
@@ -16,7 +16,7 @@ Este diretório reúne toda a documentação técnica, arquitetura, API, testes,
 ---
 
 ## Visão Geral
-Will Finance 5.0 é um sistema financeiro enterprise, distribuído, seguro, escalável e com interface cyberpunk. Esta documentação cobre todos os aspectos técnicos e funcionais do projeto.
+Will Finance 6.0 é um sistema financeiro enterprise, distribuído, seguro, escalável e com interface cyberpunk. Esta documentação cobre todos os aspectos técnicos e funcionais do projeto.
 
 ## Estrutura de Documentação
 ### Subdiretórios
@@ -27,12 +27,6 @@ Will Finance 5.0 é um sistema financeiro enterprise, distribuído, seguro, esca
 - `api/` — Documentação da API
 - `auth/` — Documentação de autenticação
 
-### Documentos principais
-- [Arquitetura do sistema](ARCHITECTURE.md)
-- [Roadmap de funcionalidades](ROADMAP_FUNCIONALIDADES.md)
-- [Guia de deploy](DEPLOY.md)
-- [Changelog](CHANGELOG.md)
-
 ## Arquitetura
 - [Visão Geral da Arquitetura](ARCHITECTURE.md)
 - [Arquitetura de Serviços](ARQUITETURA_SERVICOS.md)
@@ -42,7 +36,6 @@ Will Finance 5.0 é um sistema financeiro enterprise, distribuído, seguro, esca
 
 ## API
 - [Referência da API](api/api-reference.md)
-- [Guia de Autenticação](API_README.md)
 - [Validação Final](VALIDACAO_FINAL.md)
 
 ## Guia de Instalação
