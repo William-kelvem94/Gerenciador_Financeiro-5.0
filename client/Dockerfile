@@ -1,4 +1,4 @@
-# === 🏗️ WILL FINANCE 5.0 - CLIENT DOCKERFILE ENTERPRISE === #
+# === 🏗️ WILL FINANCE 6.0 - CLIENT DOCKERFILE ENTERPRISE === #
 # Multi-stage build optimized for production deployment
 # Following security best practices and performance optimization
 
@@ -37,8 +37,8 @@ FROM nginx:1.25-alpine AS production
 
 # Metadata for enterprise tracking
 LABEL maintainer="Will Finance Team <team@willfinance.com>" \
-      version="5.0.0" \
-      description="Will Finance 5.0 Client - Enterprise Financial Management System" \
+      version="6.0.0" \
+      description="Will Finance 6.0 Client - Enterprise Financial Management System" \
       org.opencontainers.image.source="https://github.com/willfinance/will-finance-5.0"
 
 # Install required packages and security updates
@@ -49,8 +49,8 @@ RUN apk --no-cache add \
     && rm -rf /var/cache/apk/*
 
 # Copy optimized nginx configuration
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
-COPY docker/nginx-security.conf /etc/nginx/conf.d/security.conf
+COPY nginx/nginx.prod.conf /etc/nginx/conf.d/default.conf
+COPY nginx/conf.d /etc/nginx/conf.d
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
@@ -70,11 +70,11 @@ RUN addgroup -g 1001 -S appgroup && \
 USER appuser
 
 # Expose port 3000
-EXPOSE 3000
+EXPOSE 80
 
 # Health check with improved configuration
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -fsS --max-time 5 http://localhost:3000/health || exit 1
+    CMD curl -fsS --max-time 5 http://localhost:80/health || exit 1
 
 # Start nginx with optimized configuration
 CMD ["nginx", "-g", "daemon off;"]
