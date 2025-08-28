@@ -7,10 +7,10 @@
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
   },
-    "scripts": {
-      "preinstall": "echo '🚀 Iniciando instalação do Will Finance 5.0...'",
-      "postinstall": "echo '✅ Dependências instaladas com sucesso!'",
-      "dev": "concurrently --kill-others-on-fail --names \"SERVER,CLIENT\" --prefix-colors \"cyan,magenta\" \"npm run dev:server\" \"npm run dev:client\"",
+  "scripts": {
+    "preinstall": "echo '🚀 Iniciando instalação do Will Finance 5.0...'",
+    "postinstall": "echo '✅ Dependências instaladas com sucesso!'",
+    "dev": "concurrently --kill-others-on-fail --names \"SERVER,CLIENT\" --prefix-colors \"cyan,magenta\" \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
     "dev:ai": "docker-compose -f docker-compose.yml -f docker-compose.ia.yml up -d",
@@ -80,7 +80,6 @@
     "deploy": "npm run build && npm run db:deploy && npm run start:prod",
     "deploy:staging": "npm run build && docker-compose -f docker-compose.staging.yml up -d",
     "docs:generate": "cd client && npm run docs:generate && cd ../server && npm run docs:generate",
-    
     "ai:start": "npm run dev:ai",
     "ai:stop": "docker-compose -f docker-compose.ia.yml down",
     "ai:logs": "docker-compose -f docker-compose.ia.yml logs -f"
@@ -99,6 +98,7 @@
   "author": "William",
   "license": "MIT",
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/dotenv": "^6.1.1",
     "@types/express-rate-limit": "^5.1.3",
     "@types/socket.io": "^3.0.1",
@@ -106,21 +106,21 @@
     "concurrently": "^8.2.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
-    "typescript": "^5.8.3",
     "rimraf": "^5.0.5",
-    "optipng-bin": "^7.0.1"
+    "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@nestjs/common": "11.1.5",
-    "@nestjs/config": "^3.3.0",
-    "@nestjs/core": "11.1.5",
-    "@nestjs/jwt": "^11.0.0",
-    "@nestjs/mapped-types": "^2.0.4",
-    "@nestjs/passport": "^11.0.0",
-    "@nestjs/platform-express": "11.1.5",
-    "@nestjs/swagger": "^7.2.0",
-    "@nestjs/testing": "^11.1.5",
-    "@nestjs/throttler": "^3.1.0",
+    "@nestjs/common": "^10.4.20",
+    "@nestjs/config": "3.1.1",
+    "@nestjs/core": "^10.4.20",
+    "@nestjs/jwt": "^10.2.0",
+    "@nestjs/mapped-types": "2.0.4",
+    "@nestjs/passport": "10.0.0",
+    "@nestjs/platform-express": "^10.4.20",
+    "@nestjs/swagger": "^7.4.2",
+    "@nestjs/testing": "10.2.7",
+    "@nestjs/throttler": "^6.4.0",
+    "@prisma/client": "^6.14.0",
     "axios": "^1.10.0",
     "dotenv": "^17.2.0",
     "express-rate-limit": "^8.0.1",
@@ -138,8 +138,15 @@
     ]
   },
   "workspaces": {
-    "packages": ["client", "server", "ia"],
-    "nohoist": ["**/esbuild", "esbuild"]
+    "packages": [
+      "client",
+      "server",
+      "ia"
+    ],
+    "nohoist": [
+      "**/esbuild",
+      "esbuild"
+    ]
   },
   "husky": {
     "hooks": {

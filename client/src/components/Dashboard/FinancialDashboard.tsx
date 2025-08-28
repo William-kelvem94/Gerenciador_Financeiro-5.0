@@ -16,7 +16,7 @@ import {
 import { useTransactionStore } from '../../stores/transactionStore';
 import { useAuthStore } from '../../stores/authStore';
 import { CyberpunkProgress } from '../ui/CyberpunkProgress';
-import { CyberpunkCard } from '../ui/CyberpunkCard';
+import CyberpunkCard from '../ui/CyberpunkCard';
 import { format, startOfMonth, endOfMonth, subMonths, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -309,16 +309,14 @@ const FinancialDashboard: React.FC = () => {
   }
 
   return (
-    <div className="dashboard-container p-6 space-y-6">
-      {/* Cards de Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <CyberpunkCard className="stat-card">
+    <div className="dashboard-container p-6 space-y-8 bg-gradient-cyber rounded-xl shadow-cyber border border-cyber-primary/20 animate-float">
+      {/* Cards de Resumo Cyberpunk */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <CyberpunkCard className="stat-card glass animate-glow">
           <div className="stat-content">
-            <h3 className="stat-title">Saldo (Mês)</h3>
-            <p className={`stat-value ${(summary && summary.balance >= 0) ? 'positive' : 'negative'}`}>
-              R$ {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(summary?.balance ?? 0)}
-            </p>
-            <span className="stat-change">
+            <h3 className="stat-title text-cyber-primary text-lg font-bold mb-2">Saldo (Mês)</h3>
+            <p className={`stat-value text-3xl font-mono ${summary && summary.balance >= 0 ? 'text-cyber-accent' : 'text-cyber-danger'}`}>R$ {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(summary?.balance ?? 0)}</p>
+            <span className="stat-change text-cyber-secondary text-sm font-mono">
               {summary?.monthlyGrowth !== undefined && (
                 <>
                   {summary.monthlyGrowth >= 0 ? '↗' : '↘'} {Math.abs(summary.monthlyGrowth).toFixed(1)}%
@@ -328,51 +326,41 @@ const FinancialDashboard: React.FC = () => {
           </div>
         </CyberpunkCard>
 
-        <CyberpunkCard className="stat-card">
+        <CyberpunkCard className="stat-card glass animate-glow">
           <div className="stat-content">
-            <h3 className="stat-title">Receitas (Mês)</h3>
-            <p className="stat-value positive">
-              R$ {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(summary?.totalIncome || 0)}
-            </p>
-            <span className="stat-subtitle">
-              {summary?.transactionCount || 0} transações
-            </span>
+            <h3 className="stat-title text-cyber-primary text-lg font-bold mb-2">Receitas (Mês)</h3>
+            <p className="stat-value text-3xl font-mono text-cyber-accent">R$ {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(summary?.totalIncome || 0)}</p>
+            <span className="stat-subtitle text-cyber-primary text-xs font-mono">{summary?.transactionCount || 0} transações</span>
           </div>
         </CyberpunkCard>
 
-        <CyberpunkCard className="stat-card">
+        <CyberpunkCard className="stat-card glass animate-glow">
           <div className="stat-content">
-            <h3 className="stat-title">Despesas (Mês)</h3>
-            <p className="stat-value negative">
-              R$ {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(summary?.totalExpenses || 0)}
-            </p>
-            <span className="stat-subtitle">
-              Média: R$ {new Intl.NumberFormat('pt-BR').format(summary?.averageTransaction || 0)}
-            </span>
+            <h3 className="stat-title text-cyber-primary text-lg font-bold mb-2">Despesas (Mês)</h3>
+            <p className="stat-value text-3xl font-mono text-cyber-danger">R$ {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(summary?.totalExpenses || 0)}</p>
+            <span className="stat-subtitle text-cyber-secondary text-xs font-mono">Média: R$ {new Intl.NumberFormat('pt-BR').format(summary?.averageTransaction || 0)}</span>
           </div>
         </CyberpunkCard>
 
-        <CyberpunkCard className="stat-card">
+        <CyberpunkCard className="stat-card glass animate-glow">
           <div className="stat-content">
-            <h3 className="stat-title">Meta do Mês</h3>
-            <p className="stat-value">R$ 2.500,00</p>
-            <div className="progress-bar">
+            <h3 className="stat-title text-cyber-primary text-lg font-bold mb-2">Meta do Mês</h3>
+            <p className="stat-value text-2xl font-mono text-cyber-warning">R$ 2.500,00</p>
+            <div className="progress-bar w-full h-3 bg-cyber-primary/10 rounded-full mt-2">
               <div 
-                className="progress-fill" 
-                style={{ 
-                  width: `${Math.min((summary?.totalExpenses || 0) / 2500 * 100, 100)}%` 
-                }}
+                className="progress-fill bg-gradient-to-r from-cyber-danger to-cyber-accent h-3 rounded-full animate-pulse-neon"
+                style={{ width: `${Math.min((summary?.totalExpenses || 0) / 2500 * 100, 100)}%` }}
               />
             </div>
           </div>
         </CyberpunkCard>
       </div>
 
-      {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Gráficos Cyberpunk */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Gráfico de Barras - Receitas vs Despesas */}
-        <CyberpunkCard className="chart-card">
-          <h3 className="chart-title">Receitas vs Despesas (6 meses)</h3>
+        <CyberpunkCard className="chart-card glass animate-float">
+          <h3 className="chart-title text-cyber-primary text-lg font-bold mb-4">Receitas vs Despesas (6 meses)</h3>
           <div className="chart-container" style={{ height: '300px' }}>
             {barChartData && (
               <Bar data={barChartData} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: false } } }} />
@@ -381,8 +369,8 @@ const FinancialDashboard: React.FC = () => {
         </CyberpunkCard>
 
         {/* Gráfico de Pizza - Gastos por Categoria */}
-        <CyberpunkCard className="chart-card">
-          <h3 className="chart-title">Gastos por Categoria</h3>
+        <CyberpunkCard className="chart-card glass animate-float">
+          <h3 className="chart-title text-cyber-primary text-lg font-bold mb-4">Gastos por Categoria</h3>
           <div className="chart-container" style={{ height: '300px' }}>
             {pieChartData && (
               <Pie data={pieChartData} options={pieOptions} />
@@ -392,8 +380,8 @@ const FinancialDashboard: React.FC = () => {
       </div>
 
       {/* Gráfico de Linha - Evolução do Saldo */}
-      <CyberpunkCard className="chart-card">
-        <h3 className="chart-title">Evolução do Saldo (30 dias)</h3>
+      <CyberpunkCard className="chart-card glass animate-float">
+        <h3 className="chart-title text-cyber-primary text-lg font-bold mb-4">Evolução do Saldo (30 dias)</h3>
         <div className="chart-container" style={{ height: '400px' }}>
           {lineChartData && (
             <Line data={lineChartData} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: false } } }} />
@@ -401,23 +389,23 @@ const FinancialDashboard: React.FC = () => {
         </div>
       </CyberpunkCard>
 
-      {/* Alertas e Insights */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <CyberpunkCard className="alert-card">
-          <h3 className="alert-title">🤖 Insights da IA</h3>
-          <div className="alert-content">
-            <p>• Você gastou 15% menos em alimentação este mês</p>
-            <p>• Maior gasto: Compras online (R$ 890,00)</p>
-            <p>• Sugestão: Considere investir R$ 500,00 extras</p>
+      {/* Alertas e Insights Cyberpunk */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <CyberpunkCard className="alert-card glass animate-pulse-neon">
+          <h3 className="alert-title text-cyber-accent text-lg font-bold mb-2">🤖 Insights da IA</h3>
+          <div className="alert-content text-white-muted font-mono space-y-1">
+            <p>• Você gastou <span className="text-cyber-accent">15% menos</span> em alimentação este mês</p>
+            <p>• Maior gasto: <span className="text-cyber-danger">Compras online (R$ 890,00)</span></p>
+            <p>• Sugestão: <span className="text-cyber-warning">Considere investir R$ 500,00 extras</span></p>
           </div>
         </CyberpunkCard>
 
-        <CyberpunkCard className="alert-card">
-          <h3 className="alert-title">⚠️ Alertas</h3>
-          <div className="alert-content">
-            <p>• Fatura do cartão vence em 3 dias</p>
-            <p>• Meta de gastos em 85% (restam R$ 375,00)</p>
-            <p>• 2 transações não categorizadas</p>
+        <CyberpunkCard className="alert-card glass animate-pulse-neon">
+          <h3 className="alert-title text-cyber-danger text-lg font-bold mb-2">⚠️ Alertas</h3>
+          <div className="alert-content text-white-muted font-mono space-y-1">
+            <p>• Fatura do cartão vence em <span className="text-cyber-warning">3 dias</span></p>
+            <p>• Meta de gastos em <span className="text-cyber-danger">85%</span> (restam <span className="text-cyber-accent">R$ 375,00</span>)</p>
+            <p>• <span className="text-cyber-secondary">2 transações não categorizadas</span></p>
           </div>
         </CyberpunkCard>
       </div>

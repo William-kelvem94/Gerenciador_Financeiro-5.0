@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart3, TrendingUp, Calendar, Download } from 'lucide-react';
-import { LoadingScreen } from '../../components/ui/LoadingScreen';
+import LoadingScreen from '../../components/ui/LoadingScreen';
 
 export const ReportsPage: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');

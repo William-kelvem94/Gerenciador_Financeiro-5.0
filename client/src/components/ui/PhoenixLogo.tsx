@@ -6,18 +6,15 @@ interface PhoenixLogoProps {
   readonly size?: 'sm' | 'md' | 'lg' | 'xl' | 'hero';
 }
 
-export function PhoenixLogo({ className, size = 'md' }: PhoenixLogoProps) {
+const PhoenixLogo: React.FC<PhoenixLogoProps> = ({ className, size = 'md' }) => {
   const sizeClasses = {
-    sm: 'w-12 h-12',     // Aumentado de w-8 h-8
-    md: 'w-16 h-16',     // Aumentado de w-12 h-12
-    lg: 'w-24 h-24',     // Aumentado de w-16 h-16  
-    xl: 'w-32 h-32',     // Aumentado de w-20 h-20
-    hero: 'w-40 h-40'    // Novo tamanho para destaque
+    sm: 'w-12 h-12',
+    md: 'w-16 h-16',
+    lg: 'w-24 h-24',
+    xl: 'w-32 h-32',
+    hero: 'w-40 h-40'
   };
-
   const finalSize = className || sizeClasses[size];
-
-  // Extract border class for glow ring
   let glowRingBorderClass = '';
   if (size === 'hero') {
     glowRingBorderClass = 'border-2 border-orange-500/30';
@@ -26,7 +23,6 @@ export function PhoenixLogo({ className, size = 'md' }: PhoenixLogoProps) {
   } else {
     glowRingBorderClass = 'border border-orange-500/20';
   }
-
   return (
     <motion.div 
       className={`relative ${finalSize} flex-shrink-0`}
@@ -97,4 +93,5 @@ export function PhoenixLogo({ className, size = 'md' }: PhoenixLogoProps) {
       })}
     </motion.div>
   );
-}
+};
+export default PhoenixLogo;

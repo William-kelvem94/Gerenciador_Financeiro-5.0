@@ -45,18 +45,24 @@ const CyberpunkProgress = ({
 
   return (
     <div className="space-y-2">
-      {label && (
-        <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-cyan-400 font-mono uppercase tracking-wider">
-            {label}
-          </span>
-          {showPercentage && (
-            <span className="text-xs text-cyan-300/80 font-mono">
+        {label ? (
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-cyan-400 font-mono uppercase tracking-wider">
+              {label}
+            </span>
+            {showPercentage && (
+              <span className="text-xs text-cyan-300/80 font-mono" data-testid="progress-percentage">
+                {Math.round(percentage)}%
+              </span>
+            )}
+          </div>
+        ) : (
+          showPercentage && (
+            <span className="text-xs text-cyan-300/80 font-mono block text-right" data-testid="progress-percentage">
               {Math.round(percentage)}%
             </span>
-          )}
-        </div>
-      )}
+          )
+        )}
       
       <div className={`relative w-full bg-gray-900/50 rounded-full border border-cyan-500/20 ${sizeClasses[size]} overflow-hidden`}>
         {/* Background grid effect */}
