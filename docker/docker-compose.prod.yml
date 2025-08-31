@@ -307,7 +307,7 @@ networks:
       - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
       - PORT=3000
-      - IA_SERVICE_URL=http://ia:8000
+      - IA_SERVICE_URL=http://ia:8001
     expose:
       - "3000"
     volumes:

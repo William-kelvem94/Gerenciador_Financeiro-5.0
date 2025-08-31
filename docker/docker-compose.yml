@@ -81,7 +81,7 @@ services:
     container_name: will_finance_client
     restart: unless-stopped
     environment:
-      - VITE_API_URL=http://localhost:8080
+      - VITE_API_URL=http://api:8080
       - VITE_APP_ENV=development
     ports:
       - "5173:5173"

@@ -82,7 +82,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import sys; sys.exit(0)" || exit 1
 
 # Exposição de porta (se necessário)
-# EXPOSE 8001
+EXPOSE 8001
 
 # Comando padrão otimizado
 CMD ["python", "-c", "print('🤖 Will Finance AI Environment Ready!'); import time; time.sleep(60)"]

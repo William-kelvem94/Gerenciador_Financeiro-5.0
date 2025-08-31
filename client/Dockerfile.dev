@@ -1,6 +1,6 @@
 
 # Imagem base atualizada e instruções para minimizar vulnerabilidades
-FROM node:22-alpine
+FROM node:20-alpine
 
 # Atualizar pacotes do sistema e instalar git em um único RUN (usando apk para Alpine)
 RUN apk update && apk upgrade && apk add --no-cache git && rm -rf /var/cache/apk/*
