@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../hooks/useTheme';
 import { Palette, Volume2, Zap, Download, Upload, RotateCcw, Eye, Sparkles } from 'lucide-react';
 
 interface ThemeCustomizerProps {

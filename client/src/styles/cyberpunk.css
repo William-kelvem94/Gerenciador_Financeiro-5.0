@@ -15,15 +15,12 @@
   --cyber-primary: #00FFFF;           /* Cyan neon principal */
   --cyber-primary-dark: #00CCCC;      /* Cyan escuro */
   --cyber-primary-light: #66FFFF;     /* Cyan claro */
-  
   --cyber-secondary: #FF0080;         /* Pink neon secundário */
   --cyber-secondary-dark: #CC0066;    /* Pink escuro */
   --cyber-secondary-light: #FF66B3;   /* Pink claro */
-  
   --cyber-accent: #39FF14;            /* Green neon accent */
   --cyber-accent-dark: #2ECC11;       /* Green escuro */
   --cyber-accent-light: #66FF4D;      /* Green claro */
-  
   --cyber-warning: #FFD700;           /* Gold warning */
   --cyber-danger: #FF0040;            /* Red neon danger */
   --cyber-success: #00FF41;           /* Matrix green success */
@@ -70,8 +67,8 @@
   --animation-glow: glow 2s ease-in-out infinite alternate;
   
   /* === FONTES === */
-  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-cyber: 'Orbitron', monospace;
+  --font-primary: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-cyber: Orbitron, monospace;
   --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
   
   /* === ESPAÇAMENTOS === */
@@ -121,11 +118,6 @@ body {
 
 /* Seleção de texto */
 ::selection {
-  background: var(--cyber-primary);
-  color: var(--bg-primary);
-}
-
-::-moz-selection {
   background: var(--cyber-primary);
   color: var(--bg-primary);
 }
@@ -370,7 +362,7 @@ body {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
+  0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 }
 
@@ -509,7 +501,7 @@ body {
   }
   
   .card {
-    padding: var(--spacing-md);
+    padding: 16px;
   }
   
   .btn {
@@ -557,7 +549,7 @@ body {
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
 }

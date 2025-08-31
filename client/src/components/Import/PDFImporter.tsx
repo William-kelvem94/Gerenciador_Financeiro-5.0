@@ -46,7 +46,7 @@ const PDFImporter: React.FC = () => {
     );
   };
 
-  const simulateProcessingStages = async () => {
+  const simulateProcessingStages = useCallback(async () => {
     updateStage('Upload', 'completed', 'Upload concluído');
     await new Promise(resolve => setTimeout(resolve, 500));
     
@@ -65,7 +65,7 @@ const PDFImporter: React.FC = () => {
     updateStage('Importação', 'processing', 'Salvando no banco...');
     await new Promise(resolve => setTimeout(resolve, 1000));
     updateStage('Importação', 'completed', 'Transações salvas');
-  };
+  }, []);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -161,7 +161,7 @@ const PDFImporter: React.FC = () => {
 
       toast.error('Falha na importação: ' + errorMessage);
     }
-  }, [addTransaction, processingStages]);
+  }, [addTransaction, processingStages, simulateProcessingStages]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop: (acceptedFiles: File[]) => { void onDrop(acceptedFiles); },

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useState, ReactNode } from "react";
 
 interface SettingsContextProps {
   darkMode: boolean;
@@ -17,10 +17,4 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useSettings = () => {
-  const context = useContext(SettingsContext);
-  if (!context) {
-    throw new Error("useSettings must be used within a SettingsProvider");
-  }
-  return context;
-};
+

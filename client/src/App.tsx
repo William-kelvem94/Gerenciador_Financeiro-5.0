@@ -20,17 +20,15 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const { isAuthenticated, user } = useAuthStore();
-  // Adiciona função de inicialização de autenticação se existir
-  const initializeAuth = (window as any).initializeAuth || (() => {});
-
-  console.log('🚀 App render - isAuthenticated:', isAuthenticated, 'user:', user);
 
   useEffect(() => {
+    // Adiciona função de inicialização de autenticação se existir
+    const initializeAuth = (window as any).initializeAuth || (() => {});
     // Inicializa listener de autenticação (ajuste para compatibilidade)
     if (typeof initializeAuth === 'function') {
       initializeAuth();
     }
-  }, [initializeAuth]);
+  }, []);
 
   useEffect(() => {
     // Log user authentication status

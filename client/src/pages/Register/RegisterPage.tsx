@@ -62,7 +62,7 @@ export const RegisterPage: React.FC = () => {
 
     try {
       await register(formData.name, formData.email, formData.password);
-    } catch (error) {
+    } catch {
       // Error is handled by the store
     }
   };

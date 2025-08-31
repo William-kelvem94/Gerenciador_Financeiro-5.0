@@ -113,7 +113,7 @@ export const useAuthStore = create<AuthState>()(
           const response = await api.get('/auth/me');
           const user = response.data;
           set({ user });
-        } catch (error) {
+        } catch {
           get().logout();
         }
       },
@@ -133,4 +133,3 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
-

@@ -63,8 +63,8 @@ export function LoginPage() {
   // await loginWithGoogle(); // Função removida, ajuste necessário
       console.log('✅ Login Google realizado com sucesso');
       toast.success('Login com Google realizado com sucesso!');
-    } catch (error) {
-      console.error('❌ Erro no login Google:', error);
+    } catch {
+      console.error('❌ Erro no login Google:');
       // O toast de erro já é mostrado no store
     } finally {
       setLoading(false);
@@ -87,7 +87,7 @@ export function LoginPage() {
       setEmail('admin@willfinance.com');
       setPassword('admin123');
       setIsRegisterMode(false);
-    } catch (error) {
+    } catch {
       console.log('Admin pode já existir, tentando login...');
       setEmail('admin@willfinance.com');
       setPassword('admin123');

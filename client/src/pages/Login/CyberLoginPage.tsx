@@ -8,7 +8,6 @@ import {
   Mail, 
   Eye, 
   EyeOff, 
-  Zap, 
   UserPlus, 
   LogIn,
   Shield,

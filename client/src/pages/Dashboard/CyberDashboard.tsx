@@ -7,17 +7,13 @@ import {
   TrendingDown,
   DollarSign,
   CreditCard,
-  PiggyBank,
   Activity,
   Target,
-  Zap,
   AlertCircle,
   ArrowUpRight,
   ArrowDownRight,
   Wallet,
-  BarChart3,
-  Users,
-  Globe
+  BarChart3
 } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 
@@ -421,7 +417,7 @@ export default function CyberDashboard() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {quickActions.map((action, index) => (
+            {quickActions.map((action) => (
               <QuickAction
                 key={action.label}
                 {...action}

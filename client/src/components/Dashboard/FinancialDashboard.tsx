@@ -43,18 +43,17 @@ interface FinancialSummary {
   transactionCount: number;
 }
 
+// Cores cyberpunk para gráficos
+const cyberpunkColors = [
+  '#00ffea', '#ff0080', '#8000ff', '#00ff80', 
+  '#ff8000', '#0080ff', '#ff4000', '#40ff00',
+  '#ff0040', '#4000ff', '#00ff40', '#ff8040'
+];
 
 const FinancialDashboard: React.FC = () => {
   const { transactions, isLoading } = useTransactionStore();
   const { user } = useAuthStore();
   const [summary, setSummary] = useState<FinancialSummary | null>(null);
-
-  // Cores cyberpunk para gráficos
-  const cyberpunkColors = [
-    '#00ffea', '#ff0080', '#8000ff', '#00ff80', 
-    '#ff8000', '#0080ff', '#ff4000', '#40ff00',
-    '#ff0040', '#4000ff', '#00ff40', '#ff8040'
-  ];
 
   useEffect(() => {
     // Dados serão carregados automaticamente pela store

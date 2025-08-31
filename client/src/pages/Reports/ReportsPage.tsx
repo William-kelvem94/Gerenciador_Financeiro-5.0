@@ -5,10 +5,6 @@ import LoadingScreen from '../../components/ui/LoadingScreen';
 
 export const ReportsPage: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');
-  const [_dateRange, _setDateRange] = useState({
-    startDate: '',
-    endDate: '',
-  });
   // TODO: Integrar com store de relatórios reais
   const isLoading = false;
   const mockReports = {

@@ -1,6 +1,5 @@
 import React, {
   createContext,
-  useContext,
   useEffect,
   useState,
   ReactNode,
@@ -163,7 +162,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   };
 
   // Preview theme (aplica temporariamente, retorna função para restaurar)
-  const previewTheme = (themeId: string) => {
+  const previewTheme = useCallback((themeId: string) => {
     const theme = availableThemes.find(t => t.id === themeId);
     if (theme) {
       const root = document.documentElement;
@@ -181,7 +180,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       };
     }
     return undefined;
-  };
+  }, [currentTheme]);
 
   const exportTheme = useCallback((): string => {
     return JSON.stringify(
@@ -263,42 +262,11 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       setSoundConfig,
       setAnimationConfig,
       playSound,
+      previewTheme,
     ]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
-// Hook to use theme context
-export const useTheme = (): ThemeContextType => {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
-};
 
-// Hook for sound system
-export const useSound = () => {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useSound must be used within a ThemeProvider');
-  }
-  return {
-    config: context.soundConfig,
-    setConfig: context.setSoundConfig,
-    playSound: context.playSound,
-  };
-};
-
-// Hook for animations (sincronizado com contexto)
-export const useAnimation = () => {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useAnimation must be used within a ThemeProvider');
-  }
-  return {
-    config: context.animationConfig,
-    setConfig: context.setAnimationConfig,
-  };
-};

@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import { useAuthStore } from '../../stores/authStore';
 import { useMasterUser } from '../../hooks/useMasterUser';
 import { 
   Plus, 
@@ -35,16 +34,9 @@ interface TransactionFilters {
   dateTo: string;
 }
 
-// Utility function melhorada
-function getUserDisplayName(user?: { name?: string; email?: string; displayName?: string }) {
-  if (!user) return 'Usuário';
-  return user.displayName || user.name || user.email?.split('@')[0] || 'Usuário';
-}
-
 // Mock transactions removido - apenas para referência de tipos
 
 export function TransactionsPage() {
-  const { user, token } = useAuthStore();
   const { isMaster, databases } = useMasterUser();
   
   // Estados otimizados
@@ -106,6 +98,7 @@ export function TransactionsPage() {
     } finally {
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMaster, databases, transactions.length]);
 
   // Effect otimizado para evitar loops - carrega apenas uma vez
@@ -125,7 +118,7 @@ export function TransactionsPage() {
     return () => {
       isMounted = false;
     };
-  }, []); // Dependências removidas para evitar loops
+  }, [fetchTransactions]); // Dependências removidas para evitar loops
 
   // Transações filtradas
   const filteredTransactions = useMemo(() => {

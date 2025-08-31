@@ -35,16 +35,6 @@ function formatCurrency(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-function validateDashboardData(data: any): data is DashboardStats {
-  return (
-    data &&
-    typeof data.income === 'number' && Number.isFinite(data.income) &&
-    typeof data.expenses === 'number' && Number.isFinite(data.expenses) &&
-    typeof data.balance === 'number' && Number.isFinite(data.balance) &&
-    typeof data.transactionCount === 'number' && Number.isInteger(data.transactionCount) && data.transactionCount >= 0
-  );
-}
-
 interface StatCardProps {
   icon: React.ReactNode;
   label: string;
@@ -77,7 +67,9 @@ function StatCard({
       animate="visible"
       transition={{ duration: 0.6, delay }}
       className={clsx(
-        'glass p-6 rounded-xl border relative overflow-hidden group hover:shadow-glow transition-all duration-300',
+        'group relative bg-gray-900/60 backdrop-blur-lg border rounded-xl p-6',
+        'transition-all duration-300 ease-in-out transform hover:scale-105',
+        'hover:shadow-glow cursor-pointer overflow-hidden',
         borderClass
       )}
     >
@@ -343,7 +335,7 @@ export function DashboardPage() {
         setLoading(false);
       }
     },
-    [user?.id]
+    []
   );
 
   useEffect(() => {
@@ -384,7 +376,7 @@ export function DashboardPage() {
       clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [navigate]); // Remover user das dependências
+  }, [navigate, fetchDashboardData, loading, user]);
 
   if (loading) {
     return (

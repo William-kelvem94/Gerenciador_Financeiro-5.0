@@ -8,10 +8,7 @@ import {
   CheckCircle,
   PiggyBank,
   Wallet,
-  ShoppingCart,
-  Home,
-  Car,
-  Coffee
+  ShoppingCart
 } from 'lucide-react';
 import { BudgetModal, BudgetData } from '../../components/Modal/BudgetModal';
 
@@ -93,7 +90,7 @@ export function BudgetsPage() {
         if (!response.ok) throw new Error('Erro ao buscar orçamentos');
         const data = await response.json();
         setBudgets(data.budgets || []);
-      } catch (err) {
+      } catch {
         setBudgets([]);
       }
     };

@@ -3,11 +3,11 @@ import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../../stores/authStore';
 import {
-  Settings, 
-  User, 
-  Shield, 
-  Bell, 
-  Palette, 
+  Settings,
+  User,
+  Shield,
+  Bell,
+  Palette,
   Database,
   Save
 } from 'lucide-react';
@@ -65,23 +65,30 @@ export function SettingsPage() {
   const { user, token } = useAuthStore();
   const [activeTab, setActiveTab] = useState<string>('profile');
   const [settingsData, setSettingsData] = useState<SettingsData | null>(null);
-
   const [hasChanges, setHasChanges] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading true
 
   // Carregar configurações do usuário
   useEffect(() => {
     const loadUserSettings = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch('/api/user/settings', {
           headers: { 'Content-Type': 'application/json' },
         });
         if (response.ok) {
           const data = await response.json();
-  const [settingsData, setSettingsData] = useState<SettingsData | null>(null);
+          setSettingsData(data);
+        } else {
+          // Handle non-ok responses if necessary
+          setSettingsData(null);
         }
       } catch (error) {
+        console.error("Failed to load user settings:", error);
         setSettingsData(null);
+        toast.error("Falha ao carregar as configurações do usuário.");
+      } finally {
+        setIsLoading(false);
       }
     };
     loadUserSettings();
@@ -113,6 +120,7 @@ export function SettingsPage() {
 
   // Salvar configurações
   const handleSaveSettings = async () => {
+    if (!settingsData) return;
 
     setIsLoading(true);
     try {
@@ -127,13 +135,6 @@ export function SettingsPage() {
       }
 
       setHasChanges(false);
-  if (!settingsData) {
-    return (
-      <div className="flex items-center justify-center min-h-[40vh]">
-        <span className="text-white-muted">Carregando configurações...</span>
-      </div>
-    );
-  }
       toast.success('Configurações salvas com sucesso!');
     } catch (error) {
       console.error('Erro ao salvar configurações:', error);
@@ -178,6 +179,14 @@ export function SettingsPage() {
       toast.error('Erro ao exportar dados');
     }
   };
+
+  if (isLoading && !settingsData) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <span className="text-white-muted">Carregando configurações...</span>
+      </div>
+    );
+  }
 
   return (
     <motion.div

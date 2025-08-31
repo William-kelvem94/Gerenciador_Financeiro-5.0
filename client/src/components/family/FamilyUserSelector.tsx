@@ -161,6 +161,9 @@ export const FamilyUserSelector: React.FC = () => {
                   <motion.button
                     key={user.id}
                     onClick={() => handleUserSelect(user)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleUserSelect(user); }}
+                    role="button"
+                    tabIndex={0}
                     className={`w-full p-3 flex items-center gap-3 hover:bg-gray-800/50 transition-colors ${
                       currentUser?.id === user.id ? 'bg-cyan-500/10 border-r-2 border-cyan-400' : ''
                     }`}

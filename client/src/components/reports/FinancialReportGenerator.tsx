@@ -4,7 +4,7 @@
  */
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Document, Page, Text, View, StyleSheet, PDFDownloadLink, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
 import { toast } from 'react-toastify';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -564,7 +564,7 @@ export const FinancialReportGenerator: React.FC = () => {
               fileName={`relatorio-financeiro-${reportData.user.name}-${new Date().toISOString().split('T')[0]}.pdf`}
               className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors"
             >
-              {({ blob, url, loading, error }) =>
+              {({ _blob, _url, loading, _error }) =>
                 loading ? '⏳ Carregando...' : '📁 Download PDF (React-PDF)'
               }
             </PDFDownloadLink>

@@ -33,14 +33,14 @@
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: Inter, system-ui, sans-serif;
   line-height: 1.6;
   overflow-x: hidden;
 }
 
 /* Cyberpunk Typography */
 .font-cyber {
-  font-family: 'Orbitron', monospace;
+  font-family: Orbitron, monospace;
 }
 
 .font-mono {
@@ -53,10 +53,10 @@ body {
 }
 
 .animate-pulse-glow {
-  animation: pulseGlow 2s ease-in-out infinite alternate;
+  animation: pulse-glow 2s ease-in-out infinite alternate;
 }
 
-@keyframes pulseGlow {
+@keyframes pulse-glow {
   from {
     text-shadow: 0 0 5px var(--cyber-primary), 0 0 10px var(--cyber-primary);
   }
@@ -117,7 +117,7 @@ body {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
+  0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 }
 
@@ -157,7 +157,7 @@ body {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .card-cyber {
     padding: 16px;
   }

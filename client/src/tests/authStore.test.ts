@@ -63,7 +63,7 @@ describe('AuthStore - Validações Críticas', () => {
       const { persist } = require('zustand/middleware');
       const useTestStore = create(
         persist(
-          (set: any, get: any) => ({
+          (_set: any, _get: any) => ({
             user: null,
             token: null,
             isAuthenticated: false,
@@ -134,7 +134,7 @@ describe('AuthStore - Validações Críticas', () => {
       const api = { defaults: { headers: { common: {} } } };
       const useTestStore = create(
         persist(
-          (set: any, get: any) => ({
+          (_set: any, _get: any) => ({
             user: null,
             token: null,
             isAuthenticated: false,

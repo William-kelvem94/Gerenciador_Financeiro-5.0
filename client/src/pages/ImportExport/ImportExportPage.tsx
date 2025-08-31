@@ -465,6 +465,7 @@ const ImportExportPage: React.FC = () => {
                     Formato de Exportação:
                   </legend>
                   <div className="flex space-x-4">
+                    {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
                     <label className="flex items-center">
                       <input
                         type="radio"

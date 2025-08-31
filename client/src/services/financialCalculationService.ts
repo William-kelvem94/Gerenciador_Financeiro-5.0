@@ -308,7 +308,7 @@ export class FinancialCalculationService {
         minimumFractionDigits: this.PRECISION,
         maximumFractionDigits: this.PRECISION
       }).format(validation.value);
-    } catch (error) {
+    } catch {
       return `R$ ${validation.value.toFixed(this.PRECISION)}`;
     }
   }
