@@ -42,7 +42,7 @@ export const useAuthStore = create<AuthState>()(
               email: 'demo@willfinance.com',
               name: 'Demo User',
               avatar: '',
-              createdAt: new Date().toISOString()
+              createdAt: new Date().toISOString(),
             };
             const demoToken = 'demo-token-123';
             set({
@@ -120,12 +120,12 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({
+      partialize: state => ({
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => state => {
         if (state?.token) {
           api.defaults.headers.common['Authorization'] = `Bearer ${state.token}`;
         }

@@ -4,16 +4,16 @@
 
 /* Variáveis CSS customizadas */
 :root {
-  --bg-primary: #0A0A0A;
-  --bg-secondary: #1A1A1A;
-  --bg-tertiary: #2A2A2A;
-  --text-primary: #FFFFFF;
-  --text-secondary: #CCCCCC;
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #2a2a2a;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
   --text-muted: #888888;
   --border-primary: #333333;
-  --cyber-primary: #00FFFF;
-  --cyber-secondary: #FF00FF;
-  --cyber-accent: #39FF14;
+  --cyber-primary: #00ffff;
+  --cyber-secondary: #ff00ff;
+  --cyber-accent: #39ff14;
 }
 
 /* Reset básico */
@@ -149,7 +149,9 @@ body {
 
 .neon-border {
   border: 1px solid var(--cyber-primary);
-  box-shadow: 0 0 5px var(--cyber-primary), inset 0 0 5px var(--cyber-primary);
+  box-shadow:
+    0 0 5px var(--cyber-primary),
+    inset 0 0 5px var(--cyber-primary);
 }
 
 .glass {
@@ -168,6 +170,8 @@ body {
     box-shadow: 0 0 5px var(--cyber-primary);
   }
   to {
-    box-shadow: 0 0 20px var(--cyber-primary), 0 0 30px var(--cyber-primary);
+    box-shadow:
+      0 0 20px var(--cyber-primary),
+      0 0 30px var(--cyber-primary);
   }
 }

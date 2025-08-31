@@ -18,7 +18,7 @@ export interface BudgetState {
   budgets: Budget[];
   isLoading: boolean;
   error: string | null;
-  
+
   // Actions
   setBudgets: (budgets: Budget[]) => void;
   addBudget: (budget: Budget) => void;
@@ -31,46 +31,40 @@ export interface BudgetState {
 
 export const useBudgetStore = create<BudgetState>()(
   persist(
-    (set) => ({
+    set => ({
       budgets: [],
       isLoading: false,
       error: null,
 
-      setBudgets: (budgets) => 
-        set({ budgets, error: null }),
+      setBudgets: budgets => set({ budgets, error: null }),
 
-      addBudget: (budget) => 
-        set((state) => ({ 
+      addBudget: budget =>
+        set(state => ({
           budgets: [budget, ...state.budgets],
           error: null,
         })),
 
-      updateBudget: (id, updatedData) => 
-        set((state) => ({
-          budgets: state.budgets.map((b) =>
-            b.id === id ? { ...b, ...updatedData } : b
-          ),
+      updateBudget: (id, updatedData) =>
+        set(state => ({
+          budgets: state.budgets.map(b => (b.id === id ? { ...b, ...updatedData } : b)),
           error: null,
         })),
 
-      removeBudget: (id) => 
-        set((state) => ({
-          budgets: state.budgets.filter((b) => b.id !== id),
+      removeBudget: id =>
+        set(state => ({
+          budgets: state.budgets.filter(b => b.id !== id),
           error: null,
         })),
 
-      setLoading: (isLoading) => 
-        set({ isLoading }),
+      setLoading: isLoading => set({ isLoading }),
 
-      setError: (error) => 
-        set({ error, isLoading: false }),
+      setError: error => set({ error, isLoading: false }),
 
-      clearBudgets: () => 
-        set({ budgets: [], error: null }),
+      clearBudgets: () => set({ budgets: [], error: null }),
     }),
     {
       name: 'budget-storage',
-      partialize: (state) => ({ 
+      partialize: state => ({
         // Don't persist loading states and errors
         budgets: state.budgets,
       }),

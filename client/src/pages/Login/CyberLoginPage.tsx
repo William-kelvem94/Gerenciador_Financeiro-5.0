@@ -3,18 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../../stores/authStore';
 import toast from 'react-hot-toast';
-import { 
-  Lock, 
-  Mail, 
-  Eye, 
-  EyeOff, 
-  UserPlus, 
+import {
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  UserPlus,
   LogIn,
   Shield,
   Terminal,
   Cpu,
   WifiOff,
-  Globe
+  Globe,
 } from 'lucide-react';
 
 // Cyber Logo Component
@@ -25,21 +25,21 @@ const CyberLogo: React.FC = () => (
     transition={{ duration: 0.8, type: 'spring' }}
     className="relative"
   >
-    <div className="text-6xl font-cyber font-black text-center">
+    <div className="font-cyber text-center text-6xl font-black">
       <span className="text-glow animate-pulse-glow">WILL</span>
       <br />
       <span className="text-glow-pink">FINANCE</span>
       <br />
-      <span className="text-glow-green text-2xl font-mono">v5.0 CYBER</span>
+      <span className="text-glow-green font-mono text-2xl">v5.0 CYBER</span>
     </div>
-    
+
     {/* Circuit Lines */}
-    <div className="absolute -top-4 -left-4 w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
-    <div className="absolute -top-2 -right-8 w-1 h-1 bg-pink-400 rounded-full animate-pulse" />
-    <div className="absolute -bottom-4 -right-4 w-3 h-3 bg-green-400 rounded-full animate-pulse" />
-    
+    <div className="absolute -top-4 -left-4 h-2 w-2 animate-pulse rounded-full bg-cyan-400" />
+    <div className="absolute -top-2 -right-8 h-1 w-1 animate-pulse rounded-full bg-pink-400" />
+    <div className="absolute -right-4 -bottom-4 h-3 w-3 animate-pulse rounded-full bg-green-400" />
+
     {/* Connecting Lines */}
-    <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-30">
+    <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-30">
       <defs>
         <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#00FFFF" />
@@ -78,47 +78,37 @@ const CyberInput: React.FC<CyberInputProps> = ({
   icon,
   required = false,
   showPasswordToggle = false,
-  onTogglePassword
+  onTogglePassword,
 }) => (
-  <div className="relative group">
-    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-cyan-400 z-10">
+  <div className="group relative">
+    <div className="absolute top-1/2 left-3 z-10 -translate-y-1/2 transform text-cyan-400">
       {React.cloneElement(icon as React.ReactElement, {
-        className: 'w-5 h-5'
+        className: 'w-5 h-5',
       })}
     </div>
-    
+
     <input
       type={type}
       placeholder={placeholder}
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={e => onChange(e.target.value)}
       required={required}
-      className={`
-        w-full pl-12 pr-12 py-4 bg-gray-900/50 backdrop-blur-lg
-        border border-gray-600 rounded-lg text-white placeholder-gray-400
-        transition-all duration-300 ease-in-out font-mono
-        focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20
-        focus:bg-gray-900/70 group-hover:border-gray-500
-      `}
+      className={`w-full rounded-lg border border-gray-600 bg-gray-900/50 py-4 pr-12 pl-12 font-mono text-white placeholder-gray-400 backdrop-blur-lg transition-all duration-300 ease-in-out group-hover:border-gray-500 focus:border-cyan-400 focus:bg-gray-900/70 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none`}
     />
-    
+
     {showPasswordToggle && (
       <button
         type="button"
         onClick={onTogglePassword}
-        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-cyan-400 transition-colors z-10"
+        className="absolute top-1/2 right-3 z-10 -translate-y-1/2 transform text-gray-400 transition-colors hover:text-cyan-400"
       >
-        {type === 'password' ? (
-          <EyeOff className="w-5 h-5" />
-        ) : (
-          <Eye className="w-5 h-5" />
-        )}
+        {type === 'password' ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
       </button>
     )}
-    
+
     {/* Input Glow Effect */}
-    <div className="absolute inset-0 rounded-lg opacity-0 group-focus-within:opacity-100 transition-opacity duration-300">
-      <div className="absolute inset-0 rounded-lg border border-cyan-400/50 animate-pulse" />
+    <div className="absolute inset-0 rounded-lg opacity-0 transition-opacity duration-300 group-focus-within:opacity-100">
+      <div className="absolute inset-0 animate-pulse rounded-lg border border-cyan-400/50" />
     </div>
   </div>
 );
@@ -129,29 +119,27 @@ const DemoCredentials: React.FC<{ onUseDemo: () => void }> = ({ onUseDemo }) => 
     initial={{ opacity: 0, x: -20 }}
     animate={{ opacity: 1, x: 0 }}
     transition={{ duration: 0.5, delay: 0.3 }}
-    className="mt-6 p-4 bg-blue-900/20 border border-blue-400/30 rounded-lg"
+    className="mt-6 rounded-lg border border-blue-400/30 bg-blue-900/20 p-4"
   >
-    <div className="flex items-center space-x-2 mb-3">
-      <Terminal className="w-5 h-5 text-blue-400" />
-      <h3 className="text-blue-400 font-mono font-semibold">Acesso Demo</h3>
+    <div className="mb-3 flex items-center space-x-2">
+      <Terminal className="h-5 w-5 text-blue-400" />
+      <h3 className="font-mono font-semibold text-blue-400">Acesso Demo</h3>
     </div>
-    
-    <div className="space-y-2 text-sm font-mono">
-      <div className="flex justify-between items-center">
+
+    <div className="space-y-2 font-mono text-sm">
+      <div className="flex items-center justify-between">
         <span className="text-gray-400">Email:</span>
         <span className="text-blue-400">demo@willfinance.com</span>
       </div>
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <span className="text-gray-400">Senha:</span>
         <span className="text-blue-400">demo123</span>
       </div>
     </div>
-    
+
     <button
       onClick={onUseDemo}
-      className="w-full mt-3 px-4 py-2 bg-blue-900/30 border border-blue-400/50 rounded-lg
-                 text-blue-400 font-mono hover:bg-blue-400/10 transition-all duration-300
-                 hover:border-blue-400 hover:shadow-lg"
+      className="mt-3 w-full rounded-lg border border-blue-400/50 bg-blue-900/30 px-4 py-2 font-mono text-blue-400 transition-all duration-300 hover:border-blue-400 hover:bg-blue-400/10 hover:shadow-lg"
     >
       Usar Credenciais Demo
     </button>
@@ -161,7 +149,7 @@ const DemoCredentials: React.FC<{ onUseDemo: () => void }> = ({ onUseDemo }) => 
 // System Status Component
 const SystemStatus: React.FC = () => {
   const [status, setStatus] = useState<'online' | 'maintenance' | 'error'>('online');
-  
+
   useEffect(() => {
     // Simulate system status check
     const timer = setTimeout(() => setStatus('online'), 1000);
@@ -172,21 +160,21 @@ const SystemStatus: React.FC = () => {
     online: {
       color: 'text-green-400',
       bg: 'bg-green-900/20 border-green-400/30',
-      icon: <Globe className="w-4 h-4" />,
-      text: 'Sistemas Online'
+      icon: <Globe className="h-4 w-4" />,
+      text: 'Sistemas Online',
     },
     maintenance: {
       color: 'text-yellow-400',
       bg: 'bg-yellow-900/20 border-yellow-400/30',
-      icon: <WifiOff className="w-4 h-4" />,
-      text: 'Manutenção'
+      icon: <WifiOff className="h-4 w-4" />,
+      text: 'Manutenção',
     },
     error: {
       color: 'text-red-400',
       bg: 'bg-red-900/20 border-red-400/30',
-      icon: <Shield className="w-4 h-4" />,
-      text: 'Sistema Indisponível'
-    }
+      icon: <Shield className="h-4 w-4" />,
+      text: 'Sistema Indisponível',
+    },
   };
 
   const config = statusConfig[status];
@@ -196,13 +184,11 @@ const SystemStatus: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.8 }}
-      className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm ${config.bg}`}
+      className={`inline-flex items-center space-x-2 rounded-full px-3 py-1 text-sm ${config.bg}`}
     >
-      <div className={`${config.color}`}>
-        {config.icon}
-      </div>
+      <div className={`${config.color}`}>{config.icon}</div>
       <span className={`font-mono ${config.color}`}>{config.text}</span>
-      <div className={`w-2 h-2 rounded-full ${config.color.replace('text', 'bg')} animate-pulse`} />
+      <div className={`h-2 w-2 rounded-full ${config.color.replace('text', 'bg')} animate-pulse`} />
     </motion.div>
   );
 };
@@ -232,7 +218,7 @@ export function CyberLoginPage() {
     }
 
     setLoading(true);
-    
+
     try {
       if (isRegisterMode) {
         await register(name, email, password);
@@ -244,9 +230,7 @@ export function CyberLoginPage() {
     } catch (error) {
       console.error('Erro na autenticação:', error);
       toast.error(
-        error instanceof Error 
-          ? error.message 
-          : 'Erro na autenticação. Tente novamente.'
+        error instanceof Error ? error.message : 'Erro na autenticação. Tente novamente.'
       );
     } finally {
       setLoading(false);
@@ -267,33 +251,39 @@ export function CyberLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black">
       {/* Background Effects */}
       <div className="absolute inset-0">
         {/* Gradient Orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-400/10 rounded-full blur-3xl animate-pulse" 
-             style={{ animationDelay: '1s' }} />
-        <div className="absolute top-3/4 left-3/4 w-64 h-64 bg-green-400/10 rounded-full blur-3xl animate-pulse"
-             style={{ animationDelay: '2s' }} />
-        
+        <div className="absolute top-1/4 left-1/4 h-96 w-96 animate-pulse rounded-full bg-cyan-400/10 blur-3xl" />
+        <div
+          className="absolute right-1/4 bottom-1/4 h-96 w-96 animate-pulse rounded-full bg-pink-400/10 blur-3xl"
+          style={{ animationDelay: '1s' }}
+        />
+        <div
+          className="absolute top-3/4 left-3/4 h-64 w-64 animate-pulse rounded-full bg-green-400/10 blur-3xl"
+          style={{ animationDelay: '2s' }}
+        />
+
         {/* Grid Pattern */}
         <div className="absolute inset-0 opacity-5">
-          <div className="w-full h-full"
-               style={{
-                 backgroundImage: `
+          <div
+            className="h-full w-full"
+            style={{
+              backgroundImage: `
                    linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
                    linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px)
                  `,
-                 backgroundSize: '50px 50px'
-               }} />
+              backgroundSize: '50px 50px',
+            }}
+          />
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 w-full max-w-md mx-auto p-6">
+      <div className="relative z-10 mx-auto w-full max-w-md p-6">
         {/* Logo Section */}
-        <div className="text-center mb-8">
+        <div className="mb-8 text-center">
           <CyberLogo />
         </div>
 
@@ -302,19 +292,16 @@ export function CyberLoginPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="glass-effect rounded-2xl p-8 space-y-6"
+          className="glass-effect space-y-6 rounded-2xl p-8"
         >
           {/* Form Header */}
-          <div className="text-center space-y-2">
-            <h2 className="text-2xl font-cyber font-bold text-cyan-400">
+          <div className="space-y-2 text-center">
+            <h2 className="font-cyber text-2xl font-bold text-cyan-400">
               {isRegisterMode ? 'CRIAR CONTA' : 'ACESSO SISTEMA'}
             </h2>
-            <div className="w-16 h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent mx-auto" />
-            <p className="text-gray-400 font-mono text-sm">
-              {isRegisterMode 
-                ? 'Configure sua conta no sistema' 
-                : 'Autentique-se para continuar'
-              }
+            <div className="mx-auto h-px w-16 bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
+            <p className="font-mono text-sm text-gray-400">
+              {isRegisterMode ? 'Configure sua conta no sistema' : 'Autentique-se para continuar'}
             </p>
           </div>
 
@@ -357,26 +344,27 @@ export function CyberLoginPage() {
               disabled={loading}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className={`
-                w-full py-4 px-6 rounded-lg font-mono font-bold uppercase tracking-wider
-                transition-all duration-300 ease-in-out relative overflow-hidden
-                ${loading 
-                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
+              className={`relative w-full overflow-hidden rounded-lg px-6 py-4 font-mono font-bold tracking-wider uppercase transition-all duration-300 ease-in-out ${
+                loading
+                  ? 'cursor-not-allowed bg-gray-600 text-gray-400'
                   : 'bg-gradient-to-r from-cyan-400 to-blue-500 text-black hover:from-cyan-300 hover:to-blue-400'
-                }
-              `}
+              } `}
               style={{
-                boxShadow: loading ? 'none' : '0 0 30px rgba(0, 255, 255, 0.4)'
+                boxShadow: loading ? 'none' : '0 0 30px rgba(0, 255, 255, 0.4)',
               }}
             >
               {loading ? (
                 <div className="flex items-center justify-center space-x-2">
-                  <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
                   <span>Processando...</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center space-x-2">
-                  {isRegisterMode ? <UserPlus className="w-5 h-5" /> : <LogIn className="w-5 h-5" />}
+                  {isRegisterMode ? (
+                    <UserPlus className="h-5 w-5" />
+                  ) : (
+                    <LogIn className="h-5 w-5" />
+                  )}
                   <span>{isRegisterMode ? 'Criar Conta' : 'Acessar Sistema'}</span>
                 </div>
               )}
@@ -387,23 +375,18 @@ export function CyberLoginPage() {
           <div className="text-center">
             <button
               onClick={toggleMode}
-              className="text-gray-400 hover:text-cyan-400 font-mono text-sm transition-colors duration-300"
+              className="font-mono text-sm text-gray-400 transition-colors duration-300 hover:text-cyan-400"
             >
-              {isRegisterMode 
-                ? 'Já possui conta? Fazer login' 
-                : 'Não possui conta? Criar uma'
-              }
+              {isRegisterMode ? 'Já possui conta? Fazer login' : 'Não possui conta? Criar uma'}
             </button>
           </div>
 
           {/* Demo Credentials */}
-          {!isRegisterMode && (
-            <DemoCredentials onUseDemo={handleDemoLogin} />
-          )}
+          {!isRegisterMode && <DemoCredentials onUseDemo={handleDemoLogin} />}
         </motion.div>
 
         {/* System Status */}
-        <div className="text-center mt-6">
+        <div className="mt-6 text-center">
           <SystemStatus />
         </div>
 
@@ -412,14 +395,14 @@ export function CyberLoginPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 1 }}
-          className="text-center mt-8 space-y-2"
+          className="mt-8 space-y-2 text-center"
         >
-          <p className="text-gray-500 text-xs font-mono">
+          <p className="font-mono text-xs text-gray-500">
             WILL FINANCE v5.0 © 2025 - Sistema de Gestão Financeira
           </p>
           <div className="flex items-center justify-center space-x-2 text-gray-600">
-            <Cpu className="w-4 h-4" />
-            <span className="text-xs font-mono">Powered by React + TypeScript</span>
+            <Cpu className="h-4 w-4" />
+            <span className="font-mono text-xs">Powered by React + TypeScript</span>
           </div>
         </motion.div>
       </div>

@@ -2,15 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../../stores/authStore';
-import {
-  Settings,
-  User,
-  Shield,
-  Bell,
-  Palette,
-  Database,
-  Save
-} from 'lucide-react';
+import { Settings, User, Shield, Bell, Palette, Database, Save } from 'lucide-react';
 
 interface SettingsData {
   // Profile Settings
@@ -84,9 +76,9 @@ export function SettingsPage() {
           setSettingsData(null);
         }
       } catch (error) {
-        console.error("Failed to load user settings:", error);
+        console.error('Failed to load user settings:', error);
         setSettingsData(null);
-        toast.error("Falha ao carregar as configurações do usuário.");
+        toast.error('Falha ao carregar as configurações do usuário.');
       } finally {
         setIsLoading(false);
       }
@@ -100,19 +92,19 @@ export function SettingsPage() {
     { id: 'security', label: 'Segurança', icon: Shield },
     { id: 'notifications', label: 'Notificações', icon: Bell },
     { id: 'preferences', label: 'Preferências', icon: Palette },
-    { id: 'backup', label: 'Backup & Dados', icon: Database }
+    { id: 'backup', label: 'Backup & Dados', icon: Database },
   ];
 
   // Atualizar configuração específica
   const updateSetting = (section: keyof SettingsData, key: string, value: any) => {
-    setSettingsData((prev) => {
+    setSettingsData(prev => {
       if (!prev) return prev;
       return {
         ...prev,
         [section]: {
           ...prev[section],
-          [key]: value
-        }
+          [key]: value,
+        },
       };
     });
     setHasChanges(true);
@@ -155,7 +147,7 @@ export function SettingsPage() {
       const response = await fetch('/api/user/export', {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -172,7 +164,7 @@ export function SettingsPage() {
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
-      
+
       toast.success('Dados exportados com sucesso!');
     } catch (error) {
       console.error('Erro ao exportar dados:', error);
@@ -182,7 +174,7 @@ export function SettingsPage() {
 
   if (isLoading && !settingsData) {
     return (
-      <div className="flex items-center justify-center min-h-[40vh]">
+      <div className="flex min-h-[40vh] items-center justify-center">
         <span className="text-white-muted">Carregando configurações...</span>
       </div>
     );
@@ -196,70 +188,62 @@ export function SettingsPage() {
       transition={{ duration: 0.3 }}
       className="settings-page p-6"
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="mx-auto max-w-4xl">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-cyber-primary flex items-center gap-3">
-            <Settings className="w-8 h-8" />
+          <h1 className="text-cyber-primary flex items-center gap-3 text-3xl font-bold">
+            <Settings className="h-8 w-8" />
             Configurações
           </h1>
-          <p className="text-white-muted mt-2">
-            Personalize sua experiência no Will Finance 5.0
-          </p>
+          <p className="text-white-muted mt-2">Personalize sua experiência no Will Finance 5.0</p>
         </header>
 
         {/* Settings Tabs */}
-        <div className="flex space-x-1 mb-8 bg-black-secondary/30 p-1 rounded-lg">
-          {settingsTabs.map((tab) => (
+        <div className="bg-black-secondary/30 mb-8 flex space-x-1 rounded-lg p-1">
+          {settingsTabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`
-                flex items-center gap-2 px-4 py-2 rounded-md transition-all
-                ${activeTab === tab.id 
-                  ? 'bg-cyber-primary text-background-primary font-medium' 
+              className={`flex items-center gap-2 rounded-md px-4 py-2 transition-all ${
+                activeTab === tab.id
+                  ? 'bg-cyber-primary text-background-primary font-medium'
                   : 'text-white-muted hover:text-cyber-primary'
-                }
-              `}
+              } `}
             >
-              <tab.icon className="w-4 h-4" />
+              <tab.icon className="h-4 w-4" />
               {tab.label}
             </button>
           ))}
         </div>
 
         {/* Settings Content */}
-        <div className="glass p-6 rounded-lg">
+        <div className="glass rounded-lg p-6">
           {/* Profile Settings */}
           {activeTab === 'profile' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-6"
-            >
-              <h2 className="text-xl font-semibold text-cyber-primary">Configurações do Perfil</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <h2 className="text-cyber-primary text-xl font-semibold">Configurações do Perfil</h2>
+
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-white-secondary mb-2">
+                  <label className="text-white-secondary mb-2 block text-sm font-medium">
                     Nome
                   </label>
                   <input
                     type="text"
                     value={settingsData?.profile.firstName ?? ''}
-                    onChange={(e) => updateSetting('profile', 'firstName', e.target.value)}
+                    onChange={e => updateSetting('profile', 'firstName', e.target.value)}
                     className="input w-full"
                     placeholder="Seu nome"
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-white-secondary mb-2">
+                  <label className="text-white-secondary mb-2 block text-sm font-medium">
                     Sobrenome
                   </label>
                   <input
                     type="text"
                     value={settingsData?.profile.lastName ?? ''}
-                    onChange={(e) => updateSetting('profile', 'lastName', e.target.value)}
+                    onChange={e => updateSetting('profile', 'lastName', e.target.value)}
                     className="input w-full"
                     placeholder="Seu sobrenome"
                   />
@@ -270,31 +254,32 @@ export function SettingsPage() {
 
           {/* Security Settings */}
           {activeTab === 'security' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-6"
-            >
-              <h2 className="text-xl font-semibold text-cyber-primary">Configurações de Segurança</h2>
-              
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <h2 className="text-cyber-primary text-xl font-semibold">
+                Configurações de Segurança
+              </h2>
+
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-white-primary">Autenticação de Dois Fatores</h3>
-                    <p className="text-sm text-white-muted">Adicione uma camada extra de segurança</p>
+                    <h3 className="text-white-primary font-medium">Autenticação de Dois Fatores</h3>
+                    <p className="text-white-muted text-sm">
+                      Adicione uma camada extra de segurança
+                    </p>
                   </div>
                   <button
-                    onClick={() => settingsData && updateSetting('security', 'twoFactorEnabled', !settingsData.security.twoFactorEnabled)}
-                    className={`
-                      relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                      ${settingsData?.security.twoFactorEnabled ? 'bg-cyber-primary' : 'bg-gray-600'}
-                    `}
+                    onClick={() =>
+                      settingsData &&
+                      updateSetting(
+                        'security',
+                        'twoFactorEnabled',
+                        !settingsData.security.twoFactorEnabled
+                      )
+                    }
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settingsData?.security.twoFactorEnabled ? 'bg-cyber-primary' : 'bg-gray-600'} `}
                   >
                     <span
-                      className={`
-                        inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                        ${settingsData?.security.twoFactorEnabled ? 'translate-x-6' : 'translate-x-1'}
-                      `}
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settingsData?.security.twoFactorEnabled ? 'translate-x-6' : 'translate-x-1'} `}
                     />
                   </button>
                 </div>
@@ -304,31 +289,30 @@ export function SettingsPage() {
 
           {/* Notifications Settings */}
           {activeTab === 'notifications' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-6"
-            >
-              <h2 className="text-xl font-semibold text-cyber-primary">Configurações de Notificações</h2>
-              
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <h2 className="text-cyber-primary text-xl font-semibold">
+                Configurações de Notificações
+              </h2>
+
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-white-primary">Notificações Push</h3>
-                    <p className="text-sm text-white-muted">Receba notificações em tempo real</p>
+                    <h3 className="text-white-primary font-medium">Notificações Push</h3>
+                    <p className="text-white-muted text-sm">Receba notificações em tempo real</p>
                   </div>
                   <button
-                    onClick={() => settingsData && updateSetting('notifications', 'pushNotifications', !settingsData.notifications.pushNotifications)}
-                    className={`
-                      relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                      ${settingsData?.notifications.pushNotifications ? 'bg-cyber-primary' : 'bg-gray-600'}
-                    `}
+                    onClick={() =>
+                      settingsData &&
+                      updateSetting(
+                        'notifications',
+                        'pushNotifications',
+                        !settingsData.notifications.pushNotifications
+                      )
+                    }
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settingsData?.notifications.pushNotifications ? 'bg-cyber-primary' : 'bg-gray-600'} `}
                   >
                     <span
-                      className={`
-                        inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                        ${settingsData?.notifications.pushNotifications ? 'translate-x-6' : 'translate-x-1'}
-                      `}
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settingsData?.notifications.pushNotifications ? 'translate-x-6' : 'translate-x-1'} `}
                     />
                   </button>
                 </div>
@@ -338,21 +322,19 @@ export function SettingsPage() {
 
           {/* Preferences Settings */}
           {activeTab === 'preferences' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-6"
-            >
-              <h2 className="text-xl font-semibold text-cyber-primary">Preferências de Interface</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <h2 className="text-cyber-primary text-xl font-semibold">
+                Preferências de Interface
+              </h2>
+
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-white-secondary mb-2">
+                  <label className="text-white-secondary mb-2 block text-sm font-medium">
                     Tema
                   </label>
                   <select
                     value={settingsData?.preferences.theme ?? ''}
-                    onChange={(e) => updateSetting('preferences', 'theme', e.target.value)}
+                    onChange={e => updateSetting('preferences', 'theme', e.target.value)}
                     className="input w-full"
                   >
                     <option value="dark">Dark</option>
@@ -360,14 +342,14 @@ export function SettingsPage() {
                     <option value="cyberpunk">Cyberpunk</option>
                   </select>
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-white-secondary mb-2">
+                  <label className="text-white-secondary mb-2 block text-sm font-medium">
                     Moeda
                   </label>
                   <select
                     value={settingsData?.preferences.currency ?? ''}
-                    onChange={(e) => updateSetting('preferences', 'currency', e.target.value)}
+                    onChange={e => updateSetting('preferences', 'currency', e.target.value)}
                     className="input w-full"
                   >
                     <option value="BRL">Real (BRL)</option>
@@ -381,40 +363,34 @@ export function SettingsPage() {
 
           {/* Backup Settings */}
           {activeTab === 'backup' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-6"
-            >
-              <h2 className="text-xl font-semibold text-cyber-primary">Backup & Dados</h2>
-              
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <h2 className="text-cyber-primary text-xl font-semibold">Backup & Dados</h2>
+
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-white-primary">Backup Automático</h3>
-                    <p className="text-sm text-white-muted">Backup automático dos seus dados</p>
+                    <h3 className="text-white-primary font-medium">Backup Automático</h3>
+                    <p className="text-white-muted text-sm">Backup automático dos seus dados</p>
                   </div>
                   <button
-                    onClick={() => settingsData && updateSetting('backup', 'automaticBackup', !settingsData.backup.automaticBackup)}
-                    className={`
-                      relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                      ${settingsData?.backup.automaticBackup ? 'bg-cyber-primary' : 'bg-gray-600'}
-                    `}
+                    onClick={() =>
+                      settingsData &&
+                      updateSetting(
+                        'backup',
+                        'automaticBackup',
+                        !settingsData.backup.automaticBackup
+                      )
+                    }
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settingsData?.backup.automaticBackup ? 'bg-cyber-primary' : 'bg-gray-600'} `}
                   >
                     <span
-                      className={`
-                        inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                        ${settingsData?.backup.automaticBackup ? 'translate-x-6' : 'translate-x-1'}
-                      `}
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settingsData?.backup.automaticBackup ? 'translate-x-6' : 'translate-x-1'} `}
                     />
                   </button>
                 </div>
 
                 <div className="mt-6">
-                  <button
-                    onClick={handleExportData}
-                    className="btn btn-secondary"
-                  >
+                  <button onClick={handleExportData} className="btn btn-secondary">
                     Exportar Dados
                   </button>
                 </div>
@@ -423,13 +399,13 @@ export function SettingsPage() {
           )}
 
           {/* Save Button */}
-          <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-cyber-border-muted">
+          <div className="border-cyber-border-muted mt-8 flex justify-end gap-4 border-t pt-6">
             <button
               onClick={handleSaveSettings}
               disabled={!hasChanges || isLoading}
               className="btn btn-primary flex items-center gap-2"
             >
-              <Save className="w-4 h-4" />
+              <Save className="h-4 w-4" />
               {isLoading ? 'Salvando...' : 'Salvar Alterações'}
             </button>
           </div>

@@ -1,17 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useAuthStore } from '../stores/authStore';
 
-
 // Improved localStorage mock for Zustand persist
 let store: Record<string, string> = {};
 const localStorageMock = {
-  getItem: vi.fn((key) => {
+  getItem: vi.fn(key => {
     return store[key] ?? null;
   }),
   setItem: vi.fn((key, value) => {
     store[key] = value;
   }),
-  removeItem: vi.fn((key) => {
+  removeItem: vi.fn(key => {
     delete store[key];
   }),
   clear: vi.fn(() => {
@@ -87,9 +86,19 @@ describe('AuthStore - Validações Críticas', () => {
         )
       );
       // Atualiza o estado para disparar persist
-      useTestStore.setState({ token: 'test-token', user: { id: '1', email: 'test@will.com', name: 'Test', avatar: '', createdAt: new Date().toISOString() }, isAuthenticated: true });
+      useTestStore.setState({
+        token: 'test-token',
+        user: {
+          id: '1',
+          email: 'test@will.com',
+          name: 'Test',
+          avatar: '',
+          createdAt: new Date().toISOString(),
+        },
+        isAuthenticated: true,
+      });
       // Aguarda persistência
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
       // Debug: log calls
       // eslint-disable-next-line no-console
       console.log('localStorageMock.setItem calls:', localStorageMock.setItem.mock.calls);
@@ -172,14 +181,14 @@ describe('AuthStore - Validações Críticas', () => {
   describe('2. Estado isAuthenticated', () => {
     it('deve atualizar isAuthenticated para true após login demo bem-sucedido', async () => {
       const { login } = useAuthStore.getState();
-      
+
       console.log('Estado antes do login:', useAuthStore.getState());
-      
+
       await login('demo@willfinance.com', 'demo123');
-      
+
       const finalState = useAuthStore.getState();
       console.log('Estado após login demo:', finalState);
-      
+
       expect(finalState.isAuthenticated).toBe(true);
       expect(finalState.user).toBeTruthy();
       expect(finalState.user?.email).toBe('demo@willfinance.com');
@@ -187,16 +196,16 @@ describe('AuthStore - Validações Críticas', () => {
 
     it('deve manter estado consistente entre user, token e isAuthenticated', async () => {
       const { login } = useAuthStore.getState();
-      
+
       await login('demo@willfinance.com', 'demo123');
-      
+
       const { user, token, isAuthenticated } = useAuthStore.getState();
-      
+
       // Se user e token existem, isAuthenticated deve ser true
       if (user && token) {
         expect(isAuthenticated).toBe(true);
       }
-      
+
       // Se isAuthenticated é true, user e token devem existir
       if (isAuthenticated) {
         expect(user).toBeTruthy();
@@ -208,23 +217,23 @@ describe('AuthStore - Validações Críticas', () => {
   describe('3. Navegação após login', () => {
     it('deve disparar mudança de estado que triggaria useEffect', async () => {
       const { login } = useAuthStore.getState();
-      
+
       // Simula subscription para mudanças de estado
       const stateChanges: Array<{ isAuthenticated: boolean; user?: string }> = [];
-      const unsubscribe = useAuthStore.subscribe((state) => {
+      const unsubscribe = useAuthStore.subscribe(state => {
         stateChanges.push({
           isAuthenticated: state.isAuthenticated,
           user: state.user?.email,
         });
       });
-      
+
       await login('demo@willfinance.com', 'demo123');
-      
+
       console.log('Mudanças de estado capturadas:', stateChanges);
-      
+
       // Deve ter pelo menos uma mudança para isAuthenticated: true
       expect(stateChanges.some(change => change.isAuthenticated === true)).toBe(true);
-      
+
       unsubscribe();
     });
   });
@@ -232,13 +241,13 @@ describe('AuthStore - Validações Críticas', () => {
   describe('4. Toast de sucesso mas estado falso', () => {
     it('deve verificar se login completa antes do toast', async () => {
       const { login } = useAuthStore.getState();
-      
+
       // Mock toast para verificar quando é chamado
       const toast = await import('react-hot-toast');
       const toastSpy = vi.spyOn(toast.default, 'success');
-      
+
       await login('demo@willfinance.com', 'demo123');
-      
+
       // Se toast.success foi chamado, o estado deve estar correto
       if (toastSpy.mock.calls.length > 0) {
         const { isAuthenticated, user } = useAuthStore.getState();
@@ -251,25 +260,25 @@ describe('AuthStore - Validações Críticas', () => {
   describe('5. Validação credenciais demo', () => {
     it('deve aceitar credenciais demo independente do NODE_ENV', async () => {
       const { login } = useAuthStore.getState();
-      
+
       // Testa que demo funciona mesmo em "production"
       const originalEnv = import.meta.env.MODE;
       import.meta.env.MODE = 'production';
-      
+
       await login('demo@willfinance.com', 'demo123');
-      
+
       const { isAuthenticated } = useAuthStore.getState();
       expect(isAuthenticated).toBe(true);
-      
+
       // Restaura env original
       import.meta.env.MODE = originalEnv;
     });
 
     it('deve rejeitar credenciais inválidas', async () => {
       const { login } = useAuthStore.getState();
-      
+
       await expect(login('invalid@email.com', 'wrongpassword')).rejects.toThrow();
-      
+
       const { isAuthenticated } = useAuthStore.getState();
       expect(isAuthenticated).toBe(false);
     });
@@ -279,18 +288,18 @@ describe('AuthStore - Validações Críticas', () => {
     it('deve manter uma única instância do store', () => {
       const store1 = useAuthStore;
       const store2 = useAuthStore;
-      
+
       expect(store1).toBe(store2);
     });
 
     it('deve manter estado entre múltiplas chamadas getState()', async () => {
       const { login } = useAuthStore.getState();
-      
+
       await login('demo@willfinance.com', 'demo123');
-      
+
       const state1 = useAuthStore.getState();
       const state2 = useAuthStore.getState();
-      
+
       expect(state1.isAuthenticated).toBe(state2.isAuthenticated);
       expect(state1.user?.id).toBe(state2.user?.id);
     });

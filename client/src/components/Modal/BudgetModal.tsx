@@ -34,7 +34,7 @@ const budgetCategories = [
   'Investimentos',
   'Viagem',
   'Emergência',
-  'Outros'
+  'Outros',
 ];
 
 const getProgressBarColor = (percentage: number): string => {
@@ -51,8 +51,10 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
     category: budget?.category || '',
     period: budget?.period || 'monthly',
     startDate: budget?.startDate || new Date().toISOString().split('T')[0],
-    endDate: budget?.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    description: budget?.description || ''
+    endDate:
+      budget?.endDate ||
+      new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    description: budget?.description || '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -60,9 +62,9 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
   const handleInputChange = (field: keyof BudgetData, value: string | number) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
-    
+
     // Remove error when user starts typing
     if (errors[field]) {
       setErrors(prev => {
@@ -105,18 +107,18 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
     if (formData.startDate && formData.endDate) {
       const startDate = new Date(formData.startDate);
       const endDate = new Date(formData.endDate);
-      
+
       if (startDate >= endDate) {
         newErrors.endDate = 'Data de fim deve ser posterior à data de início';
       }
-      
+
       const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays > 365) {
         newErrors.endDate = 'Período do orçamento não pode exceder 1 ano';
       }
-      
+
       if (diffDays < 1) {
         newErrors.endDate = 'Período mínimo é de 1 dia';
       }
@@ -134,11 +136,11 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       onSave({
         ...formData,
-        id: budget?.id || Date.now().toString()
+        id: budget?.id || Date.now().toString(),
       });
       onClose();
       // Reset form
@@ -150,7 +152,7 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
         period: 'monthly',
         startDate: new Date().toISOString().split('T')[0],
         endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        description: ''
+        description: '',
       });
       setErrors({});
     }
@@ -167,49 +169,46 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
   const percentageUsed = formData.amount > 0 ? (formData.spent / formData.amount) * 100 : 0;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-gray-800 rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
+    <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-gray-800">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
+        <div className="flex items-center justify-between border-b border-gray-700 p-6">
           <h2 className="text-xl font-semibold text-white">
             {budget ? 'Editar Orçamento' : 'Novo Orçamento'}
           </h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-gray-400 transition-colors hover:text-white"
           >
             <X size={24} />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 p-6">
           {/* Budget Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-              <Target size={16} className="inline mr-1" />
+            <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-300">
+              <Target size={16} className="mr-1 inline" />
               Nome do Orçamento
             </label>
             <input
               id="name"
               type="text"
               value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
+              onChange={e => handleInputChange('name', e.target.value)}
               placeholder="Ex: Alimentação - Agosto 2025"
-              className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 
-                         focus:outline-none focus:border-cyan-400 transition-colors ${
-                           errors.name ? 'border-red-500' : 'border-gray-600'
-                         }`}
+              className={`w-full rounded-lg border bg-gray-700 px-3 py-2 text-white placeholder-gray-400 transition-colors focus:border-cyan-400 focus:outline-none ${
+                errors.name ? 'border-red-500' : 'border-gray-600'
+              }`}
             />
-            {errors.name && (
-              <p className="text-red-400 text-sm mt-1">{errors.name}</p>
-            )}
+            {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
           </div>
 
           {/* Budget Amount */}
           <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-gray-300 mb-2">
-              <DollarSign size={16} className="inline mr-1" />
+            <label htmlFor="amount" className="mb-2 block text-sm font-medium text-gray-300">
+              <DollarSign size={16} className="mr-1 inline" />
               Valor do Orçamento
             </label>
             <input
@@ -218,22 +217,19 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
               step="0.01"
               min="0"
               value={formData.amount}
-              onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
+              onChange={e => handleInputChange('amount', parseFloat(e.target.value) || 0)}
               placeholder="0,00"
-              className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white placeholder-gray-400 
-                         focus:outline-none focus:border-cyan-400 transition-colors ${
-                           errors.amount ? 'border-red-500' : 'border-gray-600'
-                         }`}
+              className={`w-full rounded-lg border bg-gray-700 px-3 py-2 text-white placeholder-gray-400 transition-colors focus:border-cyan-400 focus:outline-none ${
+                errors.amount ? 'border-red-500' : 'border-gray-600'
+              }`}
             />
-            {errors.amount && (
-              <p className="text-red-400 text-sm mt-1">{errors.amount}</p>
-            )}
+            {errors.amount && <p className="mt-1 text-sm text-red-400">{errors.amount}</p>}
           </div>
 
           {/* Spent Amount (only show when editing) */}
           {budget && (
             <div>
-              <label htmlFor="spent" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="spent" className="mb-2 block text-sm font-medium text-gray-300">
                 Valor Gasto
               </label>
               <input
@@ -242,20 +238,19 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
                 step="0.01"
                 min="0"
                 value={formData.spent}
-                onChange={(e) => handleInputChange('spent', parseFloat(e.target.value) || 0)}
+                onChange={e => handleInputChange('spent', parseFloat(e.target.value) || 0)}
                 placeholder="0,00"
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 
-                           focus:outline-none focus:border-cyan-400 transition-colors"
+                className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white placeholder-gray-400 transition-colors focus:border-cyan-400 focus:outline-none"
               />
-              
+
               {/* Progress Indicator */}
               <div className="mt-2">
-                <div className="flex justify-between text-sm text-gray-400 mb-1">
+                <div className="mb-1 flex justify-between text-sm text-gray-400">
                   <span>Progresso: {percentageUsed.toFixed(1)}%</span>
                   <span>Restante: R$ {remainingAmount.toFixed(2)}</span>
                 </div>
-                <div className="w-full bg-gray-700 rounded-full h-2">
-                  <div 
+                <div className="h-2 w-full rounded-full bg-gray-700">
+                  <div
                     className={`h-2 rounded-full transition-all ${getProgressBarColor(percentageUsed)}`}
                     style={{ width: `${Math.min(percentageUsed, 100)}%` }}
                   />
@@ -266,18 +261,17 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
 
           {/* Category */}
           <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-300 mb-2">
-              <Tag size={16} className="inline mr-1" />
+            <label htmlFor="category" className="mb-2 block text-sm font-medium text-gray-300">
+              <Tag size={16} className="mr-1 inline" />
               Categoria
             </label>
             <select
               id="category"
               value={formData.category}
-              onChange={(e) => handleInputChange('category', e.target.value)}
-              className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white 
-                         focus:outline-none focus:border-cyan-400 transition-colors ${
-                           errors.category ? 'border-red-500' : 'border-gray-600'
-                         }`}
+              onChange={e => handleInputChange('category', e.target.value)}
+              className={`w-full rounded-lg border bg-gray-700 px-3 py-2 text-white transition-colors focus:border-cyan-400 focus:outline-none ${
+                errors.category ? 'border-red-500' : 'border-gray-600'
+              }`}
             >
               <option value="">Selecione uma categoria</option>
               {budgetCategories.map(category => (
@@ -286,17 +280,13 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
                 </option>
               ))}
             </select>
-            {errors.category && (
-              <p className="text-red-400 text-sm mt-1">{errors.category}</p>
-            )}
+            {errors.category && <p className="mt-1 text-sm text-red-400">{errors.category}</p>}
           </div>
 
           {/* Period */}
           <div>
             <fieldset>
-              <legend className="block text-sm font-medium text-gray-300 mb-2">
-                Período
-              </legend>
+              <legend className="mb-2 block text-sm font-medium text-gray-300">Período</legend>
               <div className="flex space-x-4">
                 <label className="flex items-center">
                   <input
@@ -304,7 +294,7 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
                     name="period"
                     value="weekly"
                     checked={formData.period === 'weekly'}
-                    onChange={(e) => handleInputChange('period', e.target.value as BudgetPeriod)}
+                    onChange={e => handleInputChange('period', e.target.value as BudgetPeriod)}
                     className="mr-2"
                   />
                   <span className="text-gray-300">Semanal</span>
@@ -315,7 +305,7 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
                     name="period"
                     value="monthly"
                     checked={formData.period === 'monthly'}
-                    onChange={(e) => handleInputChange('period', e.target.value as BudgetPeriod)}
+                    onChange={e => handleInputChange('period', e.target.value as BudgetPeriod)}
                     className="mr-2"
                   />
                   <span className="text-gray-300">Mensal</span>
@@ -326,7 +316,7 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
                     name="period"
                     value="yearly"
                     checked={formData.period === 'yearly'}
-                    onChange={(e) => handleInputChange('period', e.target.value as BudgetPeriod)}
+                    onChange={e => handleInputChange('period', e.target.value as BudgetPeriod)}
                     className="mr-2"
                   />
                   <span className="text-gray-300">Anual</span>
@@ -338,58 +328,51 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
           {/* Date Range */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="startDate" className="block text-sm font-medium text-gray-300 mb-2">
-                <Calendar size={16} className="inline mr-1" />
+              <label htmlFor="startDate" className="mb-2 block text-sm font-medium text-gray-300">
+                <Calendar size={16} className="mr-1 inline" />
                 Data de Início
               </label>
               <input
                 id="startDate"
                 type="date"
                 value={formData.startDate}
-                onChange={(e) => handleInputChange('startDate', e.target.value)}
-                className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white 
-                           focus:outline-none focus:border-cyan-400 transition-colors ${
-                             errors.startDate ? 'border-red-500' : 'border-gray-600'
-                           }`}
+                onChange={e => handleInputChange('startDate', e.target.value)}
+                className={`w-full rounded-lg border bg-gray-700 px-3 py-2 text-white transition-colors focus:border-cyan-400 focus:outline-none ${
+                  errors.startDate ? 'border-red-500' : 'border-gray-600'
+                }`}
               />
-              {errors.startDate && (
-                <p className="text-red-400 text-sm mt-1">{errors.startDate}</p>
-              )}
+              {errors.startDate && <p className="mt-1 text-sm text-red-400">{errors.startDate}</p>}
             </div>
 
             <div>
-              <label htmlFor="endDate" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="endDate" className="mb-2 block text-sm font-medium text-gray-300">
                 Data de Fim
               </label>
               <input
                 id="endDate"
                 type="date"
                 value={formData.endDate}
-                onChange={(e) => handleInputChange('endDate', e.target.value)}
-                className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white 
-                           focus:outline-none focus:border-cyan-400 transition-colors ${
-                             errors.endDate ? 'border-red-500' : 'border-gray-600'
-                           }`}
+                onChange={e => handleInputChange('endDate', e.target.value)}
+                className={`w-full rounded-lg border bg-gray-700 px-3 py-2 text-white transition-colors focus:border-cyan-400 focus:outline-none ${
+                  errors.endDate ? 'border-red-500' : 'border-gray-600'
+                }`}
               />
-              {errors.endDate && (
-                <p className="text-red-400 text-sm mt-1">{errors.endDate}</p>
-              )}
+              {errors.endDate && <p className="mt-1 text-sm text-red-400">{errors.endDate}</p>}
             </div>
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="description" className="mb-2 block text-sm font-medium text-gray-300">
               Descrição (Opcional)
             </label>
             <textarea
               id="description"
               value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
+              onChange={e => handleInputChange('description', e.target.value)}
               placeholder="Detalhes sobre este orçamento..."
               rows={3}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 
-                         focus:outline-none focus:border-cyan-400 transition-colors resize-none"
+              className="w-full resize-none rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white placeholder-gray-400 transition-colors focus:border-cyan-400 focus:outline-none"
             />
           </div>
 
@@ -398,15 +381,13 @@ export function BudgetModal({ isOpen, onClose, onSave, budget }: Readonly<Budget
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg 
-                         transition-colors"
+              className="flex-1 rounded-lg bg-gray-600 px-4 py-2 text-white transition-colors hover:bg-gray-700"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg 
-                         transition-colors flex items-center justify-center"
+              className="flex flex-1 items-center justify-center rounded-lg bg-cyan-600 px-4 py-2 text-white transition-colors hover:bg-cyan-700"
             >
               <Save size={18} className="mr-2" />
               {budget ? 'Salvar' : 'Criar'}

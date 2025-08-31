@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart3, TrendingUp, Calendar, Download } from 'lucide-react';
-import LoadingScreen from '../../components/ui/LoadingScreen';
+import { LoadingScreen } from '../../components/ui/LoadingScreen';
 
 export const ReportsPage: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');
@@ -24,7 +24,7 @@ export const ReportsPage: React.FC = () => {
     return <LoadingScreen message="Generating reports..." />;
   }
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -32,26 +32,22 @@ export const ReportsPage: React.FC = () => {
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between"
       >
         <div>
-          <h1 className="text-3xl font-cyber text-cyber-primary mb-2">
-            Financial Reports
-          </h1>
-          <p className="text-white-secondary">
-            Analyze your financial data and trends
-          </p>
+          <h1 className="font-cyber text-cyber-primary mb-2 text-3xl">Financial Reports</h1>
+          <p className="text-white-secondary">Analyze your financial data and trends</p>
         </div>
-        <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+        <div className="mt-4 flex items-center space-x-4 sm:mt-0">
           <select
             value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-4 py-2 bg-black-secondary border border-cyber-border rounded-lg focus:ring-2 focus:ring-cyber-primary"
+            onChange={e => setSelectedPeriod(e.target.value)}
+            className="bg-black-secondary border-cyber-border focus:ring-cyber-primary rounded-lg border px-4 py-2 focus:ring-2"
           >
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>
             <option value="yearly">Yearly</option>
           </select>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-cyber-primary text-cyber-dark rounded-lg hover:bg-cyber-secondary transition-colors">
-            <Download className="w-4 h-4" />
+          <button className="bg-cyber-primary text-cyber-dark hover:bg-cyber-secondary flex items-center space-x-2 rounded-lg px-4 py-2 transition-colors">
+            <Download className="h-4 w-4" />
             <span>Export</span>
           </button>
         </div>
@@ -61,59 +57,59 @@ export const ReportsPage: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4"
       >
-  <div className="bg-black-secondary border border-cyber-border rounded-xl p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-black-secondary border-cyber-border rounded-xl border p-6">
+          <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-white">Total Income</h3>
-            <TrendingUp className="w-6 h-6 text-cyber-accent" />
+            <TrendingUp className="text-cyber-accent h-6 w-6" />
           </div>
-          <div className="text-3xl font-cyber text-cyber-accent mb-2">
+          <div className="font-cyber text-cyber-accent mb-2 text-3xl">
             {mockReports.overview.totalIncome.toLocaleString()}
           </div>
-          <p className="text-sm text-white-secondary">+12% from last period</p>
+          <p className="text-white-secondary text-sm">+12% from last period</p>
         </div>
-  <div className="bg-black-secondary border border-cyber-border rounded-xl p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-black-secondary border-cyber-border rounded-xl border p-6">
+          <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-white">Total Expenses</h3>
-            <BarChart3 className="w-6 h-6 text-cyber-danger" />
+            <BarChart3 className="text-cyber-danger h-6 w-6" />
           </div>
-          <div className="text-3xl font-cyber text-cyber-danger mb-2">
+          <div className="font-cyber text-cyber-danger mb-2 text-3xl">
             {mockReports.overview.totalExpenses.toLocaleString()}
           </div>
-          <p className="text-sm text-white-secondary">-5% from last period</p>
+          <p className="text-white-secondary text-sm">-5% from last period</p>
         </div>
-  <div className="bg-black-secondary border border-cyber-border rounded-xl p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-black-secondary border-cyber-border rounded-xl border p-6">
+          <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-white">Net Income</h3>
-            <TrendingUp className="w-6 h-6 text-cyber-primary" />
+            <TrendingUp className="text-cyber-primary h-6 w-6" />
           </div>
-          <div className="text-3xl font-cyber text-cyber-primary mb-2">
+          <div className="font-cyber text-cyber-primary mb-2 text-3xl">
             {mockReports.overview.netIncome.toLocaleString()}
           </div>
-          <p className="text-sm text-white-secondary">+25% from last period</p>
+          <p className="text-white-secondary text-sm">+25% from last period</p>
         </div>
-  <div className="bg-black-secondary border border-cyber-border rounded-xl p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-black-secondary border-cyber-border rounded-xl border p-6">
+          <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-white">Transactions</h3>
-            <Calendar className="w-6 h-6 text-cyber-warning" />
+            <Calendar className="text-cyber-warning h-6 w-6" />
           </div>
-          <div className="text-3xl font-cyber text-cyber-warning mb-2">
+          <div className="font-cyber text-cyber-warning mb-2 text-3xl">
             {mockReports.overview.transactionCount}
           </div>
-          <p className="text-sm text-white-secondary">This period</p>
+          <p className="text-white-secondary text-sm">This period</p>
         </div>
       </motion.div>
       {/* Chart Placeholders */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-black-secondary border border-cyber-border rounded-xl p-6"
+          className="bg-black-secondary border-cyber-border rounded-xl border p-6"
         >
-          <h3 className="text-xl font-semibold text-white mb-6">Income vs Expenses</h3>
-          <div className="h-64 flex items-center justify-center border border-cyber-border-secondary rounded-lg">
+          <h3 className="mb-6 text-xl font-semibold text-white">Income vs Expenses</h3>
+          <div className="border-cyber-border-secondary flex h-64 items-center justify-center rounded-lg border">
             <p className="text-white-muted">Chart will be implemented here</p>
           </div>
         </motion.div>
@@ -121,10 +117,10 @@ export const ReportsPage: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-black-secondary border border-cyber-border rounded-xl p-6"
+          className="bg-black-secondary border-cyber-border rounded-xl border p-6"
         >
-          <h3 className="text-xl font-semibold text-white mb-6">Category Breakdown</h3>
-          <div className="h-64 flex items-center justify-center border border-cyber-border-secondary rounded-lg">
+          <h3 className="mb-6 text-xl font-semibold text-white">Category Breakdown</h3>
+          <div className="border-cyber-border-secondary flex h-64 items-center justify-center rounded-lg border">
             <p className="text-white-muted">Pie chart will be implemented here</p>
           </div>
         </motion.div>
@@ -134,10 +130,10 @@ export const ReportsPage: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-  className="bg-black-secondary border border-cyber-border rounded-xl p-6"
+        className="bg-black-secondary border-cyber-border rounded-xl border p-6"
       >
-        <h3 className="text-xl font-semibold text-white mb-6">Monthly Trends</h3>
-  <div className="h-80 flex items-center justify-center border border-cyber-border-secondary rounded-lg">
+        <h3 className="mb-6 text-xl font-semibold text-white">Monthly Trends</h3>
+        <div className="border-cyber-border-secondary flex h-80 items-center justify-center rounded-lg border">
           <p className="text-white-muted">Line chart will be implemented here</p>
         </div>
       </motion.div>

@@ -12,79 +12,84 @@
    ============================================ */
 :root {
   /* === CORES CYBERPUNK PRIMÁRIAS === */
-  --cyber-primary: #00FFFF;           /* Cyan neon principal */
-  --cyber-primary-dark: #00CCCC;      /* Cyan escuro */
-  --cyber-primary-light: #66FFFF;     /* Cyan claro */
-  --cyber-secondary: #FF0080;         /* Pink neon secundário */
-  --cyber-secondary-dark: #CC0066;    /* Pink escuro */
-  --cyber-secondary-light: #FF66B3;   /* Pink claro */
-  --cyber-accent: #39FF14;            /* Green neon accent */
-  --cyber-accent-dark: #2ECC11;       /* Green escuro */
-  --cyber-accent-light: #66FF4D;      /* Green claro */
-  --cyber-warning: #FFD700;           /* Gold warning */
-  --cyber-danger: #FF0040;            /* Red neon danger */
-  --cyber-success: #00FF41;           /* Matrix green success */
-  
+  --cyber-primary: #00ffff; /* Cyan neon principal */
+  --cyber-primary-dark: #00cccc; /* Cyan escuro */
+  --cyber-primary-light: #66ffff; /* Cyan claro */
+  --cyber-secondary: #ff0080; /* Pink neon secundário */
+  --cyber-secondary-dark: #cc0066; /* Pink escuro */
+  --cyber-secondary-light: #ff66b3; /* Pink claro */
+  --cyber-accent: #39ff14; /* Green neon accent */
+  --cyber-accent-dark: #2ecc11; /* Green escuro */
+  --cyber-accent-light: #66ff4d; /* Green claro */
+  --cyber-warning: #ffd700; /* Gold warning */
+  --cyber-danger: #ff0040; /* Red neon danger */
+  --cyber-success: #00ff41; /* Matrix green success */
+
   /* === CORES DE BACKGROUND DARK === */
-  --bg-primary: #0A0A0F;              /* Ultra dark base */
-  --bg-secondary: #1A1A2E;            /* Card background */
-  --bg-tertiary: #16213E;             /* Elevated background */
-  --bg-accent: #0F3460;               /* Accent background */
-  --bg-surface: #1E1E2E;              /* Surface background */
-  
+  --bg-primary: #0a0a0f; /* Ultra dark base */
+  --bg-secondary: #1a1a2e; /* Card background */
+  --bg-tertiary: #16213e; /* Elevated background */
+  --bg-accent: #0f3460; /* Accent background */
+  --bg-surface: #1e1e2e; /* Surface background */
+
   /* === CORES DE TEXTO === */
-  --text-primary: #FFFFFF;            /* Primary text */
-  --text-secondary: #E2E8F0;          /* Secondary text */
-  --text-muted: #94A3B8;              /* Muted text */
-  --text-disabled: #64748B;           /* Disabled text */
-  --text-glow: #00FFFF;               /* Glowing text */
-  
+  --text-primary: #ffffff; /* Primary text */
+  --text-secondary: #e2e8f0; /* Secondary text */
+  --text-muted: #94a3b8; /* Muted text */
+  --text-disabled: #64748b; /* Disabled text */
+  --text-glow: #00ffff; /* Glowing text */
+
   /* === CORES DE BORDA === */
-  --border-primary: rgba(0, 255, 255, 0.3);     /* Cyan border */
-  --border-secondary: rgba(255, 0, 128, 0.2);   /* Pink border */
-  --border-muted: rgba(148, 163, 184, 0.2);     /* Muted border */
-  --border-glow: rgba(0, 255, 255, 0.5);        /* Glowing border */
-  
+  --border-primary: rgba(0, 255, 255, 0.3); /* Cyan border */
+  --border-secondary: rgba(255, 0, 128, 0.2); /* Pink border */
+  --border-muted: rgba(148, 163, 184, 0.2); /* Muted border */
+  --border-glow: rgba(0, 255, 255, 0.5); /* Glowing border */
+
   /* === EFEITOS DE SOMBRA === */
   --shadow-glow: 0 0 20px currentColor;
   --shadow-neon: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary);
-  --shadow-neon-strong: 0 0 15px var(--cyber-primary), 0 0 30px var(--cyber-primary), 0 0 45px var(--cyber-primary);
+  --shadow-neon-strong:
+    0 0 15px var(--cyber-primary), 0 0 30px var(--cyber-primary), 0 0 45px var(--cyber-primary);
   --shadow-pink-neon: 0 0 10px var(--cyber-secondary), 0 0 20px var(--cyber-secondary);
   --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-card: 0 8px 32px rgba(0, 255, 255, 0.1);
-  
+
   /* === GRADIENTES === */
   --gradient-primary: linear-gradient(135deg, var(--cyber-primary), var(--cyber-secondary));
   --gradient-secondary: linear-gradient(135deg, var(--cyber-secondary), var(--cyber-accent));
   --gradient-background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
   --gradient-card: linear-gradient(135deg, rgba(26, 26, 46, 0.6), rgba(22, 33, 62, 0.8));
-  --gradient-button: linear-gradient(135deg, var(--cyber-primary) 0%, var(--cyber-primary-dark) 100%);
-  
+  --gradient-button: linear-gradient(
+    135deg,
+    var(--cyber-primary) 0%,
+    var(--cyber-primary-dark) 100%
+  );
+
   /* === ANIMAÇÕES === */
   --animation-fast: 0.15s ease;
   --animation-normal: 0.3s ease;
   --animation-slow: 0.5s ease;
   --animation-glow: glow 2s ease-in-out infinite alternate;
-  
+
   /* === FONTES === */
   --font-primary: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
   --font-cyber: Orbitron, monospace;
   --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
-  
+
   /* === ESPAÇAMENTOS === */
-  --spacing-xs: 0.25rem;   /* 4px */
-  --spacing-sm: 0.5rem;    /* 8px */
-  --spacing-md: 1rem;      /* 16px */
-  --spacing-lg: 1.5rem;    /* 24px */
-  --spacing-xl: 2rem;      /* 32px */
-  --spacing-2xl: 3rem;     /* 48px */
-  
+  --spacing-xs: 0.25rem; /* 4px */
+  --spacing-sm: 0.5rem; /* 8px */
+  --spacing-md: 1rem; /* 16px */
+  --spacing-lg: 1.5rem; /* 24px */
+  --spacing-xl: 2rem; /* 32px */
+  --spacing-2xl: 3rem; /* 48px */
+
   /* === BORDER RADIUS === */
-  --radius-sm: 0.25rem;    /* 4px */
-  --radius-md: 0.5rem;     /* 8px */
-  --radius-lg: 1rem;       /* 16px */
-  --radius-xl: 1.5rem;     /* 24px */
-  --radius-full: 9999px;   /* Full rounded */
+  --radius-sm: 0.25rem; /* 4px */
+  --radius-md: 0.5rem; /* 8px */
+  --radius-lg: 1rem; /* 16px */
+  --radius-xl: 1.5rem; /* 24px */
+  --radius-full: 9999px; /* Full rounded */
 }
 
 /* ============================================
@@ -107,9 +112,9 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   overflow-x: hidden;
-  
+
   /* Efeito de fundo cyberpunk */
-  background-image: 
+  background-image:
     radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(255, 0, 128, 0.1) 0%, transparent 50%),
     linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
@@ -311,7 +316,9 @@ body {
 .input:focus {
   outline: none;
   border-color: var(--cyber-primary);
-  box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1), var(--shadow-neon);
+  box-shadow:
+    0 0 0 3px rgba(0, 255, 255, 0.1),
+    var(--shadow-neon);
   background: rgba(26, 26, 46, 0.7);
 }
 
@@ -348,33 +355,56 @@ body {
     box-shadow: 0 0 5px var(--cyber-primary);
   }
   100% {
-    box-shadow: 0 0 20px var(--cyber-primary), 0 0 30px var(--cyber-primary);
+    box-shadow:
+      0 0 20px var(--cyber-primary),
+      0 0 30px var(--cyber-primary);
   }
 }
 
 @keyframes pulse-neon {
-  0%, 100% {
-    text-shadow: 0 0 5px var(--cyber-primary), 0 0 10px var(--cyber-primary);
+  0%,
+  100% {
+    text-shadow:
+      0 0 5px var(--cyber-primary),
+      0 0 10px var(--cyber-primary);
   }
   50% {
-    text-shadow: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary), 0 0 30px var(--cyber-primary);
+    text-shadow:
+      0 0 10px var(--cyber-primary),
+      0 0 20px var(--cyber-primary),
+      0 0 30px var(--cyber-primary);
   }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes scanline {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* === CLASSES DE ANIMAÇÃO === */
@@ -391,7 +421,13 @@ body {
 }
 
 .animate-gradient {
-  background: linear-gradient(-45deg, var(--cyber-primary), var(--cyber-secondary), var(--cyber-accent), var(--cyber-primary));
+  background: linear-gradient(
+    -45deg,
+    var(--cyber-primary),
+    var(--cyber-secondary),
+    var(--cyber-accent),
+    var(--cyber-primary)
+  );
   background-size: 400% 400%;
   animation: gradient-shift 3s ease infinite;
 }
@@ -487,35 +523,39 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* ============================================
    RESPONSIVIDADE
    ============================================ */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
     gap: var(--spacing-md);
   }
-  
+
   .card {
     padding: 16px;
   }
-  
+
   .btn {
     padding: var(--spacing-sm) var(--spacing-md);
     font-size: 0.875rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   :root {
     --spacing-lg: 1rem;
     --spacing-xl: 1.5rem;
   }
-  
+
   .glass {
     border-radius: var(--radius-md);
   }
@@ -534,8 +574,8 @@ body {
 
 @media (prefers-contrast: high) {
   :root {
-    --cyber-primary: #FFFFFF;
-    --cyber-secondary: #FFFFFF;
+    --cyber-primary: #ffffff;
+    --cyber-secondary: #ffffff;
     --bg-primary: #000000;
     --bg-secondary: #000000;
   }

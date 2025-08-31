@@ -21,7 +21,7 @@ export const RegisterPage: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -57,7 +57,7 @@ export const RegisterPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     try {
@@ -72,13 +72,13 @@ export const RegisterPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-dark relative overflow-hidden">
+    <div className="bg-gradient-dark relative flex min-h-screen items-center justify-center overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 opacity-20">
         {Array.from({ length: 50 }).map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 bg-cyber-primary rounded-full"
+            className="bg-cyber-primary absolute h-1 w-1 rounded-full"
             animate={{
               opacity: [0, 1, 0],
               scale: [0, 1, 0],
@@ -88,10 +88,12 @@ export const RegisterPage: React.FC = () => {
               repeat: Infinity,
               delay: Math.random() * 2,
             }}
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            } as React.CSSProperties}
+            style={
+              {
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              } as React.CSSProperties
+            }
           />
         ))}
       </div>
@@ -99,87 +101,73 @@ export const RegisterPage: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md p-8 relative z-10"
+        className="relative z-10 w-full max-w-md p-8"
       >
-  <div className="bg-black-secondary border border-cyber-border rounded-xl p-8 shadow-glow-lg">
-          <div className="text-center mb-8">
+        <div className="bg-black-secondary border-cyber-border shadow-glow-lg rounded-xl border p-8">
+          <div className="mb-8 text-center">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2 }}
-              className="w-16 h-16 bg-gradient-cyber rounded-full flex items-center justify-center mx-auto mb-4"
+              className="bg-gradient-cyber mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
             >
-              <UserPlus className="w-8 h-8 text-cyber-dark" />
+              <UserPlus className="text-cyber-dark h-8 w-8" />
             </motion.div>
-            
-            <h1 className="text-3xl font-cyber text-cyber-primary mb-2">
-              Join Will Finance
-            </h1>
-            <p className="text-white-secondary">
-              Create your cyberpunk financial account
-            </p>
+
+            <h1 className="font-cyber text-cyber-primary mb-2 text-3xl">Join Will Finance</h1>
+            <p className="text-white-secondary">Create your cyberpunk financial account</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name Field */}
             <div>
-              <label className="block text-sm font-medium text-white mb-2">
-                Full Name
-              </label>
+              <label className="mb-2 block text-sm font-medium text-white">Full Name</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white-muted w-5 h-5" />
+                <User className="text-white-muted absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform" />
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-3 bg-black border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
+                  className={`focus:ring-cyber-primary w-full rounded-lg border bg-black py-3 pr-4 pl-10 transition-all focus:border-transparent focus:ring-2 ${
                     errors.name ? 'border-cyber-danger' : 'border-cyber-border'
                   }`}
                   placeholder="Enter your full name"
                 />
               </div>
-              {errors.name && (
-                <p className="mt-1 text-sm text-cyber-danger">{errors.name}</p>
-              )}
+              {errors.name && <p className="text-cyber-danger mt-1 text-sm">{errors.name}</p>}
             </div>
 
             {/* Email Field */}
             <div>
-              <label className="block text-sm font-medium text-white mb-2">
-                Email Address
-              </label>
+              <label className="mb-2 block text-sm font-medium text-white">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white-muted w-5 h-5" />
+                <Mail className="text-white-muted absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform" />
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-3 bg-black border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
+                  className={`focus:ring-cyber-primary w-full rounded-lg border bg-black py-3 pr-4 pl-10 transition-all focus:border-transparent focus:ring-2 ${
                     errors.email ? 'border-cyber-danger' : 'border-cyber-border'
                   }`}
                   placeholder="Enter your email"
                 />
               </div>
-              {errors.email && (
-                <p className="mt-1 text-sm text-cyber-danger">{errors.email}</p>
-              )}
+              {errors.email && <p className="text-cyber-danger mt-1 text-sm">{errors.email}</p>}
             </div>
 
             {/* Password Field */}
             <div>
-              <label className="block text-sm font-medium text-white mb-2">
-                Password
-              </label>
+              <label className="mb-2 block text-sm font-medium text-white">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white-muted w-5 h-5" />
+                <Lock className="text-white-muted absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-12 py-3 bg-black border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
+                  className={`focus:ring-cyber-primary w-full rounded-lg border bg-black py-3 pr-12 pl-10 transition-all focus:border-transparent focus:ring-2 ${
                     errors.password ? 'border-cyber-danger' : 'border-cyber-border'
                   }`}
                   placeholder="Create a password"
@@ -187,29 +175,27 @@ export const RegisterPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white-muted hover:text-white"
+                  className="text-white-muted absolute top-1/2 right-3 -translate-y-1/2 transform hover:text-white"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-cyber-danger">{errors.password}</p>
+                <p className="text-cyber-danger mt-1 text-sm">{errors.password}</p>
               )}
             </div>
 
             {/* Confirm Password Field */}
             <div>
-              <label className="block text-sm font-medium text-white mb-2">
-                Confirm Password
-              </label>
+              <label className="mb-2 block text-sm font-medium text-white">Confirm Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white-muted w-5 h-5" />
+                <Lock className="text-white-muted absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform" />
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-12 py-3 bg-black border rounded-lg focus:ring-2 focus:ring-cyber-primary focus:border-transparent transition-all ${
+                  className={`focus:ring-cyber-primary w-full rounded-lg border bg-black py-3 pr-12 pl-10 transition-all focus:border-transparent focus:ring-2 ${
                     errors.confirmPassword ? 'border-cyber-danger' : 'border-cyber-border'
                   }`}
                   placeholder="Confirm your password"
@@ -217,13 +203,17 @@ export const RegisterPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white-muted hover:text-white"
+                  className="text-white-muted absolute top-1/2 right-3 -translate-y-1/2 transform hover:text-white"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-cyber-danger">{errors.confirmPassword}</p>
+                <p className="text-cyber-danger mt-1 text-sm">{errors.confirmPassword}</p>
               )}
             </div>
 
@@ -233,7 +223,7 @@ export const RegisterPage: React.FC = () => {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 px-4 bg-gradient-cyber text-cyber-dark font-semibold rounded-lg hover:shadow-glow transition-all duration-200"
+              className="bg-gradient-cyber text-cyber-dark hover:shadow-glow w-full rounded-lg px-4 py-3 font-semibold transition-all duration-200"
             >
               Create Account
             </motion.button>
@@ -242,8 +232,8 @@ export const RegisterPage: React.FC = () => {
           <div className="mt-8 text-center">
             <p className="text-white-secondary">
               Already have an account?{' '}
-              <Link 
-                to="/login" 
+              <Link
+                to="/login"
                 className="text-cyber-primary hover:text-cyber-secondary transition-colors"
               >
                 Sign in

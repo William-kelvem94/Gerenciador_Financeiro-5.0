@@ -13,9 +13,9 @@ export class StorageService {
   private static readonly BACKUP_INTERVAL = 60000; // 1 minuto
   private static readonly MAX_BACKUPS = 5;
   private static readonly VERSION = '1.0.0';
-  
+
   private backupInterval: NodeJS.Timeout | null = null;
-  
+
   constructor() {
     this.initializeBackup();
     this.restoreFromBackup();
@@ -48,14 +48,10 @@ export class StorageService {
    */
   private createBackup(): void {
     try {
-      const criticalKeys = [
-        'transaction-storage',
-        'budget-storage', 
-        'auth-storage'
-      ];
+      const criticalKeys = ['transaction-storage', 'budget-storage', 'auth-storage'];
 
       const backupData: Record<string, any> = {};
-      
+
       criticalKeys.forEach(key => {
         const data = localStorage.getItem(key);
         if (data) {
@@ -70,7 +66,7 @@ export class StorageService {
       const backup: StorageBackup = {
         timestamp: Date.now(),
         data: JSON.stringify(backupData),
-        version: StorageService.VERSION
+        version: StorageService.VERSION,
       };
 
       // Armazena no sessionStorage como backup primário
@@ -95,7 +91,7 @@ export class StorageService {
       let backups: StorageBackup[] = existingHistory ? JSON.parse(existingHistory) : [];
 
       backups.unshift(newBackup);
-      
+
       // Limita o número de backups
       if (backups.length > StorageService.MAX_BACKUPS) {
         backups = backups.slice(0, StorageService.MAX_BACKUPS);
@@ -113,9 +109,10 @@ export class StorageService {
   private restoreFromBackup(): void {
     try {
       // Verifica se há dados críticos no localStorage
-      const hasData = localStorage.getItem('transaction-storage') || 
-                     localStorage.getItem('budget-storage') ||
-                     localStorage.getItem('auth-storage');
+      const hasData =
+        localStorage.getItem('transaction-storage') ||
+        localStorage.getItem('budget-storage') ||
+        localStorage.getItem('auth-storage');
 
       if (hasData) {
         return; // LocalStorage tem dados, não precisa restaurar
@@ -173,7 +170,7 @@ export class StorageService {
     try {
       const primaryBackup = sessionStorage.getItem('app_backup_primary');
       const historyBackup = sessionStorage.getItem('app_backup_history');
-      
+
       let lastBackup: Date | undefined;
       let backupCount = 0;
 
@@ -191,7 +188,7 @@ export class StorageService {
       return {
         hasBackup: backupCount > 0,
         lastBackup,
-        backupCount
+        backupCount,
       };
     } catch (error) {
       console.error('[StorageService] Erro ao obter informações de backup:', error);

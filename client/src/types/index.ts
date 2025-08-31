@@ -153,53 +153,39 @@ export interface AiInsight {
 }
 
 // Enums
-export type AccountType = 
-  | 'CHECKING' 
-  | 'SAVINGS' 
-  | 'CREDIT_CARD' 
-  | 'INVESTMENT' 
-  | 'CASH' 
-  | 'LOAN' 
+export type AccountType =
+  | 'CHECKING'
+  | 'SAVINGS'
+  | 'CREDIT_CARD'
+  | 'INVESTMENT'
+  | 'CASH'
+  | 'LOAN'
   | 'OTHER';
 
-export type CategoryType = 
-  | 'INCOME' 
-  | 'EXPENSE' 
-  | 'TRANSFER';
+export type CategoryType = 'INCOME' | 'EXPENSE' | 'TRANSFER';
 
-export type TransactionType = 
-  | 'INCOME' 
-  | 'EXPENSE' 
-  | 'TRANSFER';
+export type TransactionType = 'INCOME' | 'EXPENSE' | 'TRANSFER';
 
-export type TransactionStatus = 
-  | 'PENDING' 
-  | 'COMPLETED' 
-  | 'CANCELLED' 
-  | 'FAILED';
+export type TransactionStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'FAILED';
 
-export type BudgetPeriod = 
-  | 'WEEKLY' 
-  | 'MONTHLY' 
-  | 'QUARTERLY' 
-  | 'YEARLY';
+export type BudgetPeriod = 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
 
-export type NotificationType = 
-  | 'BUDGET_ALERT' 
-  | 'GOAL_MILESTONE' 
-  | 'UNUSUAL_SPENDING' 
-  | 'BILL_REMINDER' 
-  | 'AI_INSIGHT' 
-  | 'SECURITY_ALERT' 
+export type NotificationType =
+  | 'BUDGET_ALERT'
+  | 'GOAL_MILESTONE'
+  | 'UNUSUAL_SPENDING'
+  | 'BILL_REMINDER'
+  | 'AI_INSIGHT'
+  | 'SECURITY_ALERT'
   | 'SYSTEM';
 
-export type InsightType = 
-  | 'SPENDING_PATTERN' 
-  | 'BUDGET_OPTIMIZATION' 
-  | 'SAVINGS_OPPORTUNITY' 
-  | 'UNUSUAL_TRANSACTION' 
-  | 'GOAL_PROGRESS' 
-  | 'CASHFLOW_PREDICTION' 
+export type InsightType =
+  | 'SPENDING_PATTERN'
+  | 'BUDGET_OPTIMIZATION'
+  | 'SAVINGS_OPPORTUNITY'
+  | 'UNUSUAL_TRANSACTION'
+  | 'GOAL_PROGRESS'
+  | 'CASHFLOW_PREDICTION'
   | 'EXPENSE_CATEGORY_ANALYSIS';
 
 // API Response types

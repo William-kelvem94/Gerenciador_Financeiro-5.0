@@ -9,29 +9,29 @@
 
 @layer base {
   body {
-    @apply bg-gray-900 text-white font-sans;
+    @apply bg-gray-900 font-sans text-white;
     background-color: #0a0a0a;
     color: #ffffff;
   }
-  
+
   html {
     scroll-behavior: smooth;
   }
-  
+
   *::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
-  
+
   *::-webkit-scrollbar-track {
     background: #1a1a1a;
   }
-  
+
   *::-webkit-scrollbar-thumb {
     background: #00ffff;
     border-radius: 4px;
   }
-  
+
   *::-webkit-scrollbar-thumb:hover {
     background: #39ff14;
   }
@@ -39,89 +39,105 @@
 
 @layer components {
   /* Cyber utilities using exact values */
-  .bg-cyber-dark { background-color: #0a0a0a; }
-  .bg-cyber-surface { background-color: #1a1a1a; }
-  .bg-cyber-elevated { background-color: #2a2a2a; }
-  
-  .text-cyber-primary { color: #00ffff; }
-  .text-cyber-secondary { color: #ff00ff; }
-  .text-cyber-accent { color: #39ff14; }
-  
-  .border-cyber { border-color: #333333; }
-  .border-cyber-primary { border-color: #00ffff; }
-  
+  .bg-cyber-dark {
+    background-color: #0a0a0a;
+  }
+  .bg-cyber-surface {
+    background-color: #1a1a1a;
+  }
+  .bg-cyber-elevated {
+    background-color: #2a2a2a;
+  }
+
+  .text-cyber-primary {
+    color: #00ffff;
+  }
+  .text-cyber-secondary {
+    color: #ff00ff;
+  }
+  .text-cyber-accent {
+    color: #39ff14;
+  }
+
+  .border-cyber {
+    border-color: #333333;
+  }
+  .border-cyber-primary {
+    border-color: #00ffff;
+  }
+
   /* Button components */
   .btn-cyber {
-    @apply px-6 py-3 rounded-lg font-medium;
+    @apply rounded-lg px-6 py-3 font-medium;
     background-color: #00ffff;
     color: #0a0a0a;
     transition: all 0.3s ease;
   }
-  
+
   .btn-cyber:hover {
     background-color: #39ff14;
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
   }
-  
+
   .btn-cyber-outline {
-    @apply px-6 py-3 rounded-lg font-medium border;
+    @apply rounded-lg border px-6 py-3 font-medium;
     background-color: transparent;
     color: #00ffff;
     border-color: #00ffff;
     transition: all 0.3s ease;
   }
-  
+
   .btn-cyber-outline:hover {
     background-color: #00ffff;
     color: #0a0a0a;
   }
-  
+
   /* Input components */
   .input-cyber {
-    @apply w-full px-4 py-3 rounded-lg border;
+    @apply w-full rounded-lg border px-4 py-3;
     background-color: rgba(26, 26, 46, 0.5);
     border-color: #333333;
     color: #ffffff;
     transition: all 0.3s ease;
   }
-  
+
   .input-cyber:focus {
     @apply outline-none;
     border-color: #00ffff;
     box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1);
   }
-  
+
   /* Card components */
   .card-cyber {
-    @apply rounded-xl p-6 border;
+    @apply rounded-xl border p-6;
     background-color: rgba(26, 26, 46, 0.5);
     border-color: #333333;
     backdrop-filter: blur(10px);
   }
-  
+
   .card-cyber-glow {
     @apply card-cyber;
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
   }
-  
+
   .card-cyber-glow:hover {
     box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
     border-color: #00ffff;
   }
-  
+
   /* Utility classes */
   .text-glow {
     text-shadow: 0 0 10px currentColor;
   }
-  
+
   .text-neon {
     color: #00ffff;
-    text-shadow: 
+    text-shadow:
       0 0 5px #00ffff,
       0 0 10px #00ffff,
       0 0 15px #00ffff;
   }
-  
+
   .glass {
     background: rgba(26, 26, 46, 0.3);
     backdrop-filter: blur(20px);
@@ -133,7 +149,7 @@
   .animate-glow {
     animation: glow 2s ease-in-out infinite alternate;
   }
-  
+
   .animate-pulse-slow {
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
@@ -141,9 +157,15 @@
 
 @keyframes glow {
   0% {
-    box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff;
+    box-shadow:
+      0 0 5px #00ffff,
+      0 0 10px #00ffff,
+      0 0 15px #00ffff;
   }
   100% {
-    box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+    box-shadow:
+      0 0 10px #00ffff,
+      0 0 20px #00ffff,
+      0 0 30px #00ffff;
   }
 }

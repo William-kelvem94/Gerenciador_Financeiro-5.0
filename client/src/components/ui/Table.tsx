@@ -18,19 +18,26 @@ export default function Table({ columns, data, className = '' }: TableProps) {
       className={`card glass ${className}`}
       data-testid="cyberpunk-table"
     >
-      <table className="w-full text-left border-separate border-spacing-y-2">
+      <table className="w-full border-separate border-spacing-y-2 text-left">
         <thead>
           <tr>
-            {validated.columns.map((col) => (
-              <th key={col} className="text-cyber-primary text-glow px-4 py-2 border-b border-cyber-primary">{col}</th>
+            {validated.columns.map(col => (
+              <th
+                key={col}
+                className="text-cyber-primary text-glow border-cyber-primary border-b px-4 py-2"
+              >
+                {col}
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
           {validated.data.map((row, idx) => (
             <tr key={idx} className="hover:bg-cyber-primary/5 transition-all">
-              {validated.columns.map((col) => (
-                <td key={col} className="px-4 py-2 text-foreground-secondary">{String(row[col] ?? '')}</td>
+              {validated.columns.map(col => (
+                <td key={col} className="text-foreground-secondary px-4 py-2">
+                  {String(row[col] ?? '')}
+                </td>
               ))}
             </tr>
           ))}

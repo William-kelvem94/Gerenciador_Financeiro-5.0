@@ -6,9 +6,5 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
   },
-  "include": [
-    "src/**/*",
-    "*.config.js",
-    "*.config.ts"
-  ]
+  "include": ["src/**/*", "*.config.js", "*.config.ts"]
 }

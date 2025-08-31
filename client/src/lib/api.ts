@@ -15,14 +15,14 @@ export const api = axios.create({
 
 // Interceptor para incluir token de autenticação
 api.interceptors.request.use(
-  (config) => {
+  config => {
     const token = localStorage.getItem('auth-token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(new Error(error?.message || 'Erro desconhecido'));
   }
 );
@@ -74,20 +74,18 @@ api.interceptors.response.use(
 
 // Helper functions for different HTTP methods
 export const apiClient = {
-  get: <T = any>(url: string, config = {}) => 
-    api.get<T>(url, config).then(res => res.data),
-  
-  post: <T = any>(url: string, data = {}, config = {}) => 
+  get: <T = any>(url: string, config = {}) => api.get<T>(url, config).then(res => res.data),
+
+  post: <T = any>(url: string, data = {}, config = {}) =>
     api.post<T>(url, data, config).then(res => res.data),
-  
-  put: <T = any>(url: string, data = {}, config = {}) => 
+
+  put: <T = any>(url: string, data = {}, config = {}) =>
     api.put<T>(url, data, config).then(res => res.data),
-  
-  patch: <T = any>(url: string, data = {}, config = {}) => 
+
+  patch: <T = any>(url: string, data = {}, config = {}) =>
     api.patch<T>(url, data, config).then(res => res.data),
-  
-  delete: <T = any>(url: string, config = {}) => 
-    api.delete<T>(url, config).then(res => res.data),
+
+  delete: <T = any>(url: string, config = {}) => api.delete<T>(url, config).then(res => res.data),
 };
 
 export default api;

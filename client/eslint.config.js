@@ -16,7 +16,7 @@ export default [
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
-  parser: tseslintParser,
+      parser: tseslintParser,
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
@@ -29,15 +29,12 @@ export default [
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       '@typescript-eslint': tseslint,
-      'react': react,
+      react: react,
       'jsx-a11y': jsxA11y,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],

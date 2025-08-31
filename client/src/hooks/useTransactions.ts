@@ -32,159 +32,171 @@ export const useTransactions = () => {
     setPagination,
   } = useTransactionStore();
 
-  const getAuthHeaders = useCallback(() => ({
-    'Content-Type': 'application/json',
-  }), []);
+  const getAuthHeaders = useCallback(
+    () => ({
+      'Content-Type': 'application/json',
+    }),
+    []
+  );
 
-  const fetchTransactions = useCallback(async (filters: TransactionFilters = {}) => {
-    if (!user?.id) {
-      setError('Usuário não identificado');
-      return;
-    }
+  const fetchTransactions = useCallback(
+    async (filters: TransactionFilters = {}) => {
+      if (!user?.id) {
+        setError('Usuário não identificado');
+        return;
+      }
 
-    setLoading(true);
-    setError(null);
+      setLoading(true);
+      setError(null);
 
-    try {
-      const queryParams = new URLSearchParams();
-      queryParams.append('userId', user.id);
-      
-      if (filters.page) queryParams.append('page', filters.page.toString());
-      if (filters.limit) queryParams.append('limit', filters.limit.toString());
-      if (filters.type) queryParams.append('type', filters.type);
-      if (filters.accountId) queryParams.append('accountId', filters.accountId);
-      if (filters.categoryId) queryParams.append('categoryId', filters.categoryId);
+      try {
+        const queryParams = new URLSearchParams();
+        queryParams.append('userId', user.id);
 
-      const response = await fetch(
-        `${API_BASE}/transactions?${queryParams.toString()}`,
-        {
+        if (filters.page) queryParams.append('page', filters.page.toString());
+        if (filters.limit) queryParams.append('limit', filters.limit.toString());
+        if (filters.type) queryParams.append('type', filters.type);
+        if (filters.accountId) queryParams.append('accountId', filters.accountId);
+        if (filters.categoryId) queryParams.append('categoryId', filters.categoryId);
+
+        const response = await fetch(`${API_BASE}/transactions?${queryParams.toString()}`, {
           headers: getAuthHeaders(),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.details || errorData.error || 'Failed to fetch transactions');
         }
-      );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || errorData.error || 'Failed to fetch transactions');
+        const data = await response.json();
+        setTransactions(data.transactions);
+        setPagination(data.pagination);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch transactions';
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user?.id, getAuthHeaders, setTransactions, setPagination, setLoading, setError]
+  );
+
+  const createTransaction = useCallback(
+    async (data: CreateTransactionData) => {
+      if (!user?.id) {
+        toast.error('Usuário não identificado');
+        return null;
       }
 
-      const data = await response.json();
-      setTransactions(data.transactions);
-      setPagination(data.pagination);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch transactions';
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, getAuthHeaders, setTransactions, setPagination, setLoading, setError]);
+      setLoading(true);
 
-  const createTransaction = useCallback(async (data: CreateTransactionData) => {
-    if (!user?.id) {
-      toast.error('Usuário não identificado');
-      return null;
-    }
+      try {
+        const response = await fetch(`${API_BASE}/transactions`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            ...data,
+            userId: user.id,
+          }),
+        });
 
-    setLoading(true);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.details || errorData.error || 'Failed to create transaction');
+        }
 
-    try {
-      const response = await fetch(`${API_BASE}/transactions`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          ...data,
-          userId: user.id,
-        }),
-      });
+        const newTransaction = await response.json();
+        addTransaction(newTransaction);
+        toast.success(newTransaction.message || 'Transaction created successfully');
+        return newTransaction;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to create transaction';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user?.id, getAuthHeaders, addTransaction, setLoading, setError]
+  );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || errorData.error || 'Failed to create transaction');
+  const updateTransactionById = useCallback(
+    async (id: string, data: UpdateTransactionData) => {
+      if (!user?.id) {
+        toast.error('Usuário não identificado');
+        return null;
       }
 
-      const newTransaction = await response.json();
-      addTransaction(newTransaction);
-      toast.success(newTransaction.message || 'Transaction created successfully');
-      return newTransaction;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create transaction';
-      setError(errorMessage);
-      toast.error(errorMessage);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, getAuthHeaders, addTransaction, setLoading, setError]);
+      setLoading(true);
 
-  const updateTransactionById = useCallback(async (id: string, data: UpdateTransactionData) => {
-    if (!user?.id) {
-      toast.error('Usuário não identificado');
-      return null;
-    }
+      try {
+        const response = await fetch(`${API_BASE}/transactions/${id}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            ...data,
+            userId: user.id,
+          }),
+        });
 
-    setLoading(true);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.details || errorData.error || 'Failed to update transaction');
+        }
 
-    try {
-      const response = await fetch(`${API_BASE}/transactions/${id}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          ...data,
-          userId: user.id,
-        }),
-      });
+        const updatedTransaction = await response.json();
+        updateTransaction(id, updatedTransaction);
+        toast.success(updatedTransaction.message || 'Transaction updated successfully');
+        return updatedTransaction;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to update transaction';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user?.id, getAuthHeaders, updateTransaction, setLoading, setError]
+  );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || errorData.error || 'Failed to update transaction');
+  const deleteTransaction = useCallback(
+    async (id: string) => {
+      if (!user?.id) {
+        toast.error('Usuário não identificado');
+        return false;
       }
 
-      const updatedTransaction = await response.json();
-      updateTransaction(id, updatedTransaction);
-      toast.success(updatedTransaction.message || 'Transaction updated successfully');
-      return updatedTransaction;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update transaction';
-      setError(errorMessage);
-      toast.error(errorMessage);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, getAuthHeaders, updateTransaction, setLoading, setError]);
+      setLoading(true);
 
-  const deleteTransaction = useCallback(async (id: string) => {
-    if (!user?.id) {
-      toast.error('Usuário não identificado');
-      return false;
-    }
+      try {
+        const response = await fetch(`${API_BASE}/transactions/${id}?userId=${user.id}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders(),
+        });
 
-    setLoading(true);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.details || errorData.error || 'Failed to delete transaction');
+        }
 
-    try {
-      const response = await fetch(`${API_BASE}/transactions/${id}?userId=${user.id}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || errorData.error || 'Failed to delete transaction');
+        const result = await response.json();
+        removeTransaction(id);
+        toast.success(result.message || 'Transaction deleted successfully');
+        return true;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to delete transaction';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        return false;
+      } finally {
+        setLoading(false);
       }
-
-      const result = await response.json();
-      removeTransaction(id);
-      toast.success(result.message || 'Transaction deleted successfully');
-      return true;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete transaction';
-      setError(errorMessage);
-      toast.error(errorMessage);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, getAuthHeaders, removeTransaction, setLoading, setError]);
+    },
+    [user?.id, getAuthHeaders, removeTransaction, setLoading, setError]
+  );
 
   return {
     transactions,

@@ -1,11 +1,11 @@
-import React, { createContext, useState, ReactNode } from "react";
+import React, { createContext, useState, ReactNode } from 'react';
 
 interface SettingsContextProps {
   darkMode: boolean;
   setDarkMode: (value: boolean) => void;
 }
 
-const SettingsContext = createContext<SettingsContextProps | undefined>(undefined);
+export const SettingsContext = createContext<SettingsContextProps | undefined>(undefined);
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [darkMode, setDarkMode] = useState(false);
@@ -16,5 +16,3 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     </SettingsContext.Provider>
   );
 };
-
-

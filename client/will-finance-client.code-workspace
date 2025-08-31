@@ -1,8 +1,8 @@
 {
   "folders": [
     {
-      "path": "."
-    }
+      "path": ".",
+    },
   ],
   "settings": {
     "css.validate": false,
@@ -12,26 +12,26 @@
     "tailwindCSS.validate": true,
     "tailwindCSS.emmetCompletions": true,
     "files.associations": {
-      "*.css": "tailwindcss"
+      "*.css": "tailwindcss",
     },
     "emmet.includeLanguages": {
       "javascript": "javascriptreact",
       "typescript": "typescriptreact",
-      "css": "css"
+      "css": "css",
     },
     "editor.quickSuggestions": {
-      "strings": true
+      "strings": true,
     },
     "css.customData": [".vscode/css_custom_data.json"],
     "[css]": {
-      "editor.suggest.insertMode": "replace"
-    }
+      "editor.suggest.insertMode": "replace",
+    },
   },
   "extensions": {
     "recommendations": [
       "bradlc.vscode-tailwindcss",
       "ms-vscode.vscode-typescript-next",
-      "esbenp.prettier-vscode"
-    ]
-  }
+      "esbenp.prettier-vscode",
+    ],
+  },
 }

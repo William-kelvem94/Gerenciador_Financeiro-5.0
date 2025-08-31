@@ -44,7 +44,7 @@ export interface TransactionState {
     total: number;
     pages: number;
   };
-  
+
   // Actions
   setTransactions: (transactions: Transaction[]) => void;
   addTransaction: (transaction: Transaction) => void;
@@ -69,50 +69,45 @@ export const useTransactionStore = create<TransactionState>()(
         pages: 0,
       },
 
-      setTransactions: (transactions) => 
-        set({ transactions, error: null }),
+      setTransactions: transactions => set({ transactions, error: null }),
 
-      addTransaction: (transaction) => 
-        set((state) => ({ 
+      addTransaction: transaction =>
+        set(state => ({
           transactions: [transaction, ...state.transactions],
           error: null,
         })),
 
-      updateTransaction: (id, updatedData) => 
-        set((state) => ({
-          transactions: state.transactions.map((t) =>
-            t.id === id ? { ...t, ...updatedData } : t
-          ),
+      updateTransaction: (id, updatedData) =>
+        set(state => ({
+          transactions: state.transactions.map(t => (t.id === id ? { ...t, ...updatedData } : t)),
           error: null,
         })),
 
-      removeTransaction: (id) => 
-        set((state) => ({
-          transactions: state.transactions.filter((t) => t.id !== id),
+      removeTransaction: id =>
+        set(state => ({
+          transactions: state.transactions.filter(t => t.id !== id),
           error: null,
         })),
 
-      setLoading: (isLoading) => 
-        set({ isLoading }),
+      setLoading: isLoading => set({ isLoading }),
 
-      setError: (error) => 
-        set({ error, isLoading: false }),
+      setError: error => set({ error, isLoading: false }),
 
-      setPagination: (pagination) => 
-        set((state) => ({
+      setPagination: pagination =>
+        set(state => ({
           pagination: { ...state.pagination, ...pagination },
         })),
 
-      clearTransactions: () => 
-        set({ 
-          transactions: [], 
-          error: null, 
-          pagination: { page: 1, limit: 10, total: 0, pages: 0 } 
+      clearTransactions: () =>
+        set({
+          transactions: [],
+          error: null,
+          pagination: { page: 1, limit: 10, total: 0, pages: 0 },
         }),
     }),
     {
       name: 'transaction-storage',
-      partialize: (state) => ({ 
+      partialize: state => ({
         // Don't persist loading states and errors
         transactions: state.transactions,
         pagination: state.pagination,

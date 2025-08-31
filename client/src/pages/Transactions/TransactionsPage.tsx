@@ -2,17 +2,17 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useMasterUser } from '../../hooks/useMasterUser';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Download, 
-  Upload, 
+import {
+  Plus,
+  Search,
+  Filter,
+  Download,
+  Upload,
   CreditCard,
   TrendingUp,
   TrendingDown,
   Calendar,
-  DollarSign
+  DollarSign,
 } from 'lucide-react';
 
 // Types para melhor type safety
@@ -38,7 +38,7 @@ interface TransactionFilters {
 
 export function TransactionsPage() {
   const { isMaster, databases } = useMasterUser();
-  
+
   // Estados otimizados
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +48,7 @@ export function TransactionsPage() {
     type: 'ALL',
     category: '',
     dateFrom: '',
-    dateTo: ''
+    dateTo: '',
   });
 
   // Fetch transactions com dados reais do banco
@@ -81,13 +81,12 @@ export function TransactionsPage() {
           position: 'top-right',
         });
       }
-
     } catch (err) {
       console.error('Erro ao carregar transações:', err);
       const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar transações';
       setError(errorMessage);
       setTransactions([]);
-      
+
       // Mostrar toast de erro apenas se não for problema de rede comum
       if (!errorMessage.includes('Failed to fetch')) {
         toast.error(errorMessage, {
@@ -98,14 +97,14 @@ export function TransactionsPage() {
     } finally {
       setLoading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMaster, databases, transactions.length]);
 
   // Effect otimizado para evitar loops - carrega apenas uma vez
   useEffect(() => {
     let isMounted = true;
     let hasLoaded = false;
-    
+
     const loadTransactions = async () => {
       if (isMounted && !hasLoaded) {
         hasLoaded = true;
@@ -114,7 +113,7 @@ export function TransactionsPage() {
     };
 
     loadTransactions();
-    
+
     return () => {
       isMounted = false;
     };
@@ -123,18 +122,19 @@ export function TransactionsPage() {
   // Transações filtradas
   const filteredTransactions = useMemo(() => {
     return transactions.filter(transaction => {
-      const matchesSearch = !filters.search || 
+      const matchesSearch =
+        !filters.search ||
         transaction.description.toLowerCase().includes(filters.search.toLowerCase()) ||
         transaction.category.toLowerCase().includes(filters.search.toLowerCase());
-      
+
       const matchesType = filters.type === 'ALL' || transaction.type === filters.type;
-      
+
       const matchesCategory = !filters.category || transaction.category === filters.category;
-      
+
       const transactionDate = new Date(transaction.date);
       const matchesDateFrom = !filters.dateFrom || transactionDate >= new Date(filters.dateFrom);
       const matchesDateTo = !filters.dateTo || transactionDate <= new Date(filters.dateTo);
-      
+
       return matchesSearch && matchesType && matchesCategory && matchesDateFrom && matchesDateTo;
     });
   }, [transactions, filters]);
@@ -144,16 +144,16 @@ export function TransactionsPage() {
     const income = filteredTransactions
       .filter(t => t.type === 'INCOME')
       .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-    
+
     const expenses = filteredTransactions
-      .filter(t => t.type === 'EXPENSE')  
+      .filter(t => t.type === 'EXPENSE')
       .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-    
+
     return {
       income,
       expenses,
       balance: income - expenses,
-      total: filteredTransactions.length
+      total: filteredTransactions.length,
     };
   }, [filteredTransactions]);
 
@@ -161,7 +161,7 @@ export function TransactionsPage() {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
+      currency: 'BRL',
     }).format(Math.abs(amount));
   };
 
@@ -172,7 +172,7 @@ export function TransactionsPage() {
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -184,144 +184,121 @@ export function TransactionsPage() {
       transition={{ duration: 0.3 }}
       className="transactions-page p-6"
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto max-w-7xl">
         {/* Header */}
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-cyber-primary flex items-center gap-3">
-            <CreditCard className="w-8 h-8" />
+          <h1 className="text-cyber-primary flex items-center gap-3 text-3xl font-bold">
+            <CreditCard className="h-8 w-8" />
             Transações
           </h1>
-          <p className="text-white-muted mt-2">
-            Gerenciamento Financeiro Avançado
-          </p>
+          <p className="text-white-muted mt-2">Gerenciamento Financeiro Avançado</p>
         </header>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <motion.div 
-            className="glass p-6 rounded-lg"
-            whileHover={{ scale: 1.02 }}
-          >
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+          <motion.div className="glass rounded-lg p-6" whileHover={{ scale: 1.02 }}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white-muted text-sm">Receitas</p>
-                <p className="text-2xl font-bold text-green-400">
-                  {formatCurrency(stats.income)}
-                </p>
+                <p className="text-2xl font-bold text-green-400">{formatCurrency(stats.income)}</p>
               </div>
-              <TrendingUp className="w-8 h-8 text-green-400" />
+              <TrendingUp className="h-8 w-8 text-green-400" />
             </div>
           </motion.div>
 
-          <motion.div 
-            className="glass p-6 rounded-lg"
-            whileHover={{ scale: 1.02 }}
-          >
+          <motion.div className="glass rounded-lg p-6" whileHover={{ scale: 1.02 }}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white-muted text-sm">Despesas</p>
-                <p className="text-2xl font-bold text-red-400">
-                  {formatCurrency(stats.expenses)}
-                </p>
+                <p className="text-2xl font-bold text-red-400">{formatCurrency(stats.expenses)}</p>
               </div>
-              <TrendingDown className="w-8 h-8 text-red-400" />
+              <TrendingDown className="h-8 w-8 text-red-400" />
             </div>
           </motion.div>
 
-          <motion.div 
-            className="glass p-6 rounded-lg"
-            whileHover={{ scale: 1.02 }}
-          >
+          <motion.div className="glass rounded-lg p-6" whileHover={{ scale: 1.02 }}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white-muted text-sm">Saldo</p>
-                <p className={`text-2xl font-bold ${stats.balance >= 0 ? 'text-cyber-primary' : 'text-red-400'}`}>
+                <p
+                  className={`text-2xl font-bold ${stats.balance >= 0 ? 'text-cyber-primary' : 'text-red-400'}`}
+                >
                   {formatCurrency(stats.balance)}
                 </p>
               </div>
-              <DollarSign className="w-8 h-8 text-cyber-primary" />
+              <DollarSign className="text-cyber-primary h-8 w-8" />
             </div>
           </motion.div>
 
-          <motion.div 
-            className="glass p-6 rounded-lg"
-            whileHover={{ scale: 1.02 }}
-          >
+          <motion.div className="glass rounded-lg p-6" whileHover={{ scale: 1.02 }}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white-muted text-sm">Total</p>
-                <p className="text-2xl font-bold text-cyber-primary">
-                  {stats.total}
-                </p>
+                <p className="text-cyber-primary text-2xl font-bold">{stats.total}</p>
               </div>
-              <Calendar className="w-8 h-8 text-cyber-primary" />
+              <Calendar className="text-cyber-primary h-8 w-8" />
             </div>
           </motion.div>
         </div>
 
         {/* Actions Bar */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="mb-6 flex flex-col gap-4 md:flex-row">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white-muted w-4 h-4" />
+              <Search className="text-white-muted absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
               <input
                 type="text"
                 placeholder="Buscar transações..."
                 value={filters.search}
-                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                className="input pl-10 w-full"
+                onChange={e => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                className="input w-full pl-10"
               />
             </div>
           </div>
-          
+
           <div className="flex gap-3">
             <button className="btn btn-secondary flex items-center gap-2">
-              <Filter className="w-4 h-4" />
+              <Filter className="h-4 w-4" />
               Filtros
             </button>
             <button className="btn btn-secondary flex items-center gap-2">
-              <Upload className="w-4 h-4" />
+              <Upload className="h-4 w-4" />
               Importar
             </button>
             <button className="btn btn-secondary flex items-center gap-2">
-              <Download className="w-4 h-4" />
+              <Download className="h-4 w-4" />
               Exportar
             </button>
             <button className="btn btn-primary flex items-center gap-2">
-              <Plus className="w-4 h-4" />
+              <Plus className="h-4 w-4" />
               Nova Transação
             </button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="glass rounded-lg overflow-hidden">
+        <div className="glass overflow-hidden rounded-lg">
           {loading ? (
             <div className="flex items-center justify-center p-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyber-primary"></div>
-              <span className="ml-3 text-white-muted">Carregando transações...</span>
+              <div className="border-cyber-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
+              <span className="text-white-muted ml-3">Carregando transações...</span>
             </div>
           ) : error ? (
             <div className="p-8 text-center">
-              <div className="text-red-400 mb-4">⚠️ {error}</div>
-              <button 
-                onClick={fetchTransactions}
-                className="btn btn-primary"
-              >
+              <div className="mb-4 text-red-400">⚠️ {error}</div>
+              <button onClick={fetchTransactions} className="btn btn-primary">
                 Tentar Novamente
               </button>
             </div>
           ) : filteredTransactions.length === 0 ? (
             <div className="p-12 text-center">
-              <CreditCard className="w-16 h-16 text-white-muted mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-white-primary mb-2">
+              <CreditCard className="text-white-muted mx-auto mb-4 h-16 w-16" />
+              <h3 className="text-white-primary mb-2 text-lg font-medium">
                 Nenhuma Transação Encontrada
               </h3>
-              <p className="text-white-muted mb-6">
-                Comece adicionando sua primeira transação
-              </p>
+              <p className="text-white-muted mb-6">Comece adicionando sua primeira transação</p>
               <button className="btn btn-primary">
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="mr-2 h-4 w-4" />
                 Adicionar Transação
               </button>
             </div>
@@ -330,11 +307,11 @@ export function TransactionsPage() {
               <table className="w-full">
                 <thead className="bg-black-secondary/50">
                   <tr>
-                    <th className="text-left p-4 text-white-secondary font-medium">Data</th>
-                    <th className="text-left p-4 text-white-secondary font-medium">Descrição</th>
-                    <th className="text-left p-4 text-white-secondary font-medium">Categoria</th>
-                    <th className="text-left p-4 text-white-secondary font-medium">Conta</th>
-                    <th className="text-right p-4 text-white-secondary font-medium">Valor</th>
+                    <th className="text-white-secondary p-4 text-left font-medium">Data</th>
+                    <th className="text-white-secondary p-4 text-left font-medium">Descrição</th>
+                    <th className="text-white-secondary p-4 text-left font-medium">Categoria</th>
+                    <th className="text-white-secondary p-4 text-left font-medium">Conta</th>
+                    <th className="text-white-secondary p-4 text-right font-medium">Valor</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -344,30 +321,30 @@ export function TransactionsPage() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="border-t border-cyber-border-muted hover:bg-black-secondary/30 transition-colors"
+                      className="border-cyber-border-muted hover:bg-black-secondary/30 border-t transition-colors"
                     >
-                      <td className="p-4 text-white-muted text-sm">
+                      <td className="text-white-muted p-4 text-sm">
                         {formatDate(transaction.date)}
                       </td>
                       <td className="p-4">
-                        <div className="font-medium text-white-primary">
+                        <div className="text-white-primary font-medium">
                           {transaction.description}
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-cyber-primary/10 text-cyber-primary">
+                        <span className="bg-cyber-primary/10 text-cyber-primary inline-flex items-center rounded-full px-2 py-1 text-xs font-medium">
                           {transaction.category}
                         </span>
                       </td>
-                      <td className="p-4 text-white-muted text-sm">
+                      <td className="text-white-muted p-4 text-sm">
                         {transaction.account || 'N/A'}
                       </td>
                       <td className="p-4 text-right">
-                        <span className={`font-bold ${
-                          transaction.type === 'INCOME' 
-                            ? 'text-green-400' 
-                            : 'text-red-400'
-                        }`}>
+                        <span
+                          className={`font-bold ${
+                            transaction.type === 'INCOME' ? 'text-green-400' : 'text-red-400'
+                          }`}
+                        >
                           {transaction.type === 'INCOME' ? '+' : '-'}
                           {formatCurrency(transaction.amount)}
                         </span>
@@ -381,10 +358,8 @@ export function TransactionsPage() {
         </div>
 
         {/* Status Bar */}
-        <div className="mt-6 flex justify-between items-center text-sm text-white-muted">
-          <div>
-            Sistema Online • {formatDate(new Date().toISOString())}
-          </div>
+        <div className="text-white-muted mt-6 flex items-center justify-between text-sm">
+          <div>Sistema Online • {formatDate(new Date().toISOString())}</div>
           <div>
             {isMaster && (
               <span className="text-cyber-primary font-medium">

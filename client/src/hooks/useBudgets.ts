@@ -31,10 +31,13 @@ export const useBudgets = () => {
     setError,
   } = useBudgetStore();
 
-  const getAuthHeaders = useCallback(() => ({
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  }), [token]);
+  const getAuthHeaders = useCallback(
+    () => ({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    }),
+    [token]
+  );
 
   const fetchBudgets = useCallback(async () => {
     if (!token) {
@@ -66,106 +69,115 @@ export const useBudgets = () => {
     }
   }, [token, getAuthHeaders, setBudgets, setLoading, setError]);
 
-  const createBudget = useCallback(async (data: CreateBudgetData) => {
-    if (!token) {
-      toast.error('Authentication required');
-      return null;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await fetch(`${API_BASE}/budgets`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || errorData.error || 'Failed to create budget');
+  const createBudget = useCallback(
+    async (data: CreateBudgetData) => {
+      if (!token) {
+        toast.error('Authentication required');
+        return null;
       }
 
-      const newBudget = await response.json();
-      addBudget(newBudget);
-      toast.success('Budget created successfully');
-      return newBudget;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create budget';
-      setError(errorMessage);
-      toast.error(errorMessage);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [token, getAuthHeaders, addBudget, setLoading, setError]);
+      setLoading(true);
 
-  const updateBudgetById = useCallback(async (id: string, data: UpdateBudgetData) => {
-    if (!token) {
-      toast.error('Authentication required');
-      return null;
-    }
+      try {
+        const response = await fetch(`${API_BASE}/budgets`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(data),
+        });
 
-    setLoading(true);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.details || errorData.error || 'Failed to create budget');
+        }
 
-    try {
-      const response = await fetch(`${API_BASE}/budgets/${id}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data),
-      });
+        const newBudget = await response.json();
+        addBudget(newBudget);
+        toast.success('Budget created successfully');
+        return newBudget;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to create budget';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, getAuthHeaders, addBudget, setLoading, setError]
+  );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || errorData.error || 'Failed to update budget');
+  const updateBudgetById = useCallback(
+    async (id: string, data: UpdateBudgetData) => {
+      if (!token) {
+        toast.error('Authentication required');
+        return null;
       }
 
-      const updatedBudget = await response.json();
-      updateBudget(id, updatedBudget);
-      toast.success('Budget updated successfully');
-      return updatedBudget;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update budget';
-      setError(errorMessage);
-      toast.error(errorMessage);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [token, getAuthHeaders, updateBudget, setLoading, setError]);
+      setLoading(true);
 
-  const deleteBudget = useCallback(async (id: string) => {
-    if (!token) {
-      toast.error('Authentication required');
-      return false;
-    }
+      try {
+        const response = await fetch(`${API_BASE}/budgets/${id}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(data),
+        });
 
-    setLoading(true);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.details || errorData.error || 'Failed to update budget');
+        }
 
-    try {
-      const response = await fetch(`${API_BASE}/budgets/${id}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders(),
-      });
+        const updatedBudget = await response.json();
+        updateBudget(id, updatedBudget);
+        toast.success('Budget updated successfully');
+        return updatedBudget;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to update budget';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, getAuthHeaders, updateBudget, setLoading, setError]
+  );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || errorData.error || 'Failed to delete budget');
+  const deleteBudget = useCallback(
+    async (id: string) => {
+      if (!token) {
+        toast.error('Authentication required');
+        return false;
       }
 
-      const result = await response.json();
-      removeBudget(id);
-      toast.success(result.message || 'Budget deleted successfully');
-      return true;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete budget';
-      setError(errorMessage);
-      toast.error(errorMessage);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [token, getAuthHeaders, removeBudget, setLoading, setError]);
+      setLoading(true);
+
+      try {
+        const response = await fetch(`${API_BASE}/budgets/${id}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders(),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.details || errorData.error || 'Failed to delete budget');
+        }
+
+        const result = await response.json();
+        removeBudget(id);
+        toast.success(result.message || 'Budget deleted successfully');
+        return true;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to delete budget';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, getAuthHeaders, removeBudget, setLoading, setError]
+  );
 
   return {
     budgets,

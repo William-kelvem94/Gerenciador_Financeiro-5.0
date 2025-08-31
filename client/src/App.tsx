@@ -40,25 +40,22 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
-          <div className="min-h-screen bg-black text-white transition-colors duration-300">
+        <div className="min-h-screen bg-black text-white transition-colors duration-300">
           <Routes>
             {/* Public routes */}
-            <Route 
-              path="/login" 
-              element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <CyberLoginPage />} 
+            <Route
+              path="/login"
+              element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <CyberLoginPage />}
             />
             {/* <Route 
               path="/register" 
               element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />} 
             /> */}
-            <Route 
-              path="/auth/callback" 
-              element={<AuthCallback />} 
-            />
-            
+            <Route path="/auth/callback" element={<AuthCallback />} />
+
             {/* Protected routes */}
-            <Route 
-              path="/" 
+            <Route
+              path="/"
               element={isAuthenticated ? <Layout /> : <Navigate to="/login" replace />}
             >
               <Route index element={<Navigate to="/dashboard" replace />} />
@@ -71,31 +68,28 @@ function App() {
             </Route>
 
             {/* 404 fallback */}
-            <Route 
-              path="*" 
+            <Route
+              path="*"
               element={
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="min-h-screen flex items-center justify-center bg-black"
+                  className="flex min-h-screen items-center justify-center bg-black"
                 >
-                  <div className="text-center card p-8">
-                    <h1 className="text-6xl font-bold text-cyber-primary mb-4 text-glow">404</h1>
+                  <div className="card p-8 text-center">
+                    <h1 className="text-cyber-primary text-glow mb-4 text-6xl font-bold">404</h1>
                     <p className="text-white-secondary mb-8">Página não encontrada no nexus</p>
-                    <button 
-                      onClick={() => window.history.back()}
-                      className="btn-primary"
-                    >
+                    <button onClick={() => window.history.back()} className="btn-primary">
                       Voltar ao Sistema
                     </button>
                   </div>
                 </motion.div>
-              } 
+              }
             />
           </Routes>
 
           {/* Global toast notifications */}
-          <Toaster 
+          <Toaster
             position="top-right"
             toastOptions={{
               duration: 4000,

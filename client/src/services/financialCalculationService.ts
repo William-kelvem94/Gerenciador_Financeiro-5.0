@@ -41,7 +41,7 @@ export class FinancialCalculationService {
       return {
         value: 0,
         isValid: false,
-        error: `Valor inválido${context ? ` para ${context}` : ''}: não é um número`
+        error: `Valor inválido${context ? ` para ${context}` : ''}: não é um número`,
       };
     }
 
@@ -49,7 +49,7 @@ export class FinancialCalculationService {
       return {
         value: 0,
         isValid: false,
-        error: `Valor inválido${context ? ` para ${context}` : ''}: infinito ou muito grande`
+        error: `Valor inválido${context ? ` para ${context}` : ''}: infinito ou muito grande`,
       };
     }
 
@@ -58,7 +58,7 @@ export class FinancialCalculationService {
         value: this.MAX_SAFE_VALUE,
         isValid: false,
         error: `Valor muito alto${context ? ` para ${context}` : ''}: limitado ao máximo permitido`,
-        warnings: [`Valor original: ${value}, limitado a: ${this.MAX_SAFE_VALUE}`]
+        warnings: [`Valor original: ${value}, limitado a: ${this.MAX_SAFE_VALUE}`],
       };
     }
 
@@ -67,13 +67,13 @@ export class FinancialCalculationService {
         value: this.MIN_SAFE_VALUE,
         isValid: false,
         error: `Valor muito baixo${context ? ` para ${context}` : ''}: limitado ao mínimo permitido`,
-        warnings: [`Valor original: ${value}, limitado a: ${this.MIN_SAFE_VALUE}`]
+        warnings: [`Valor original: ${value}, limitado a: ${this.MIN_SAFE_VALUE}`],
       };
     }
 
     return {
       value: this.roundToPrecision(value),
-      isValid: true
+      isValid: true,
     };
   }
 
@@ -88,13 +88,15 @@ export class FinancialCalculationService {
   /**
    * Calcula o total de receitas com validação
    */
-  public static calculateTotalIncome(transactions: Array<{ amount: number; type: string }>): FinancialCalculationResult {
+  public static calculateTotalIncome(
+    transactions: Array<{ amount: number; type: string }>
+  ): FinancialCalculationResult {
     try {
       if (!Array.isArray(transactions)) {
         return {
           value: 0,
           isValid: false,
-          error: 'Lista de transações inválida'
+          error: 'Lista de transações inválida',
         };
       }
 
@@ -105,31 +107,31 @@ export class FinancialCalculationService {
       for (const transaction of transactions) {
         if (transaction.type === 'income') {
           const validation = this.validateNumber(transaction.amount, 'receita');
-          
+
           if (!validation.isValid) {
             hasInvalidTransactions = true;
             if (validation.warnings) {
               warnings.push(...validation.warnings);
             }
           }
-          
+
           total += validation.value;
         }
       }
 
       const finalValidation = this.validateNumber(total, 'total de receitas');
-      
+
       return {
         value: finalValidation.value,
         isValid: finalValidation.isValid && !hasInvalidTransactions,
         error: finalValidation.error,
-        warnings: warnings.length > 0 ? warnings : undefined
+        warnings: warnings.length > 0 ? warnings : undefined,
       };
     } catch (error) {
       return {
         value: 0,
         isValid: false,
-        error: `Erro no cálculo de receitas: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
+        error: `Erro no cálculo de receitas: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
       };
     }
   }
@@ -137,13 +139,15 @@ export class FinancialCalculationService {
   /**
    * Calcula o total de despesas com validação
    */
-  public static calculateTotalExpenses(transactions: Array<{ amount: number; type: string }>): FinancialCalculationResult {
+  public static calculateTotalExpenses(
+    transactions: Array<{ amount: number; type: string }>
+  ): FinancialCalculationResult {
     try {
       if (!Array.isArray(transactions)) {
         return {
           value: 0,
           isValid: false,
-          error: 'Lista de transações inválida'
+          error: 'Lista de transações inválida',
         };
       }
 
@@ -154,31 +158,31 @@ export class FinancialCalculationService {
       for (const transaction of transactions) {
         if (transaction.type === 'expense') {
           const validation = this.validateNumber(transaction.amount, 'despesa');
-          
+
           if (!validation.isValid) {
             hasInvalidTransactions = true;
             if (validation.warnings) {
               warnings.push(...validation.warnings);
             }
           }
-          
+
           total += validation.value;
         }
       }
 
       const finalValidation = this.validateNumber(total, 'total de despesas');
-      
+
       return {
         value: finalValidation.value,
         isValid: finalValidation.isValid && !hasInvalidTransactions,
         error: finalValidation.error,
-        warnings: warnings.length > 0 ? warnings : undefined
+        warnings: warnings.length > 0 ? warnings : undefined,
       };
     } catch (error) {
       return {
         value: 0,
         isValid: false,
-        error: `Erro no cálculo de despesas: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
+        error: `Erro no cálculo de despesas: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
       };
     }
   }
@@ -196,10 +200,7 @@ export class FinancialCalculationService {
           value: 0,
           isValid: false,
           error: 'Valores de entrada inválidos para cálculo do saldo',
-          warnings: [
-            ...(incomeValidation.warnings || []),
-            ...(expensesValidation.warnings || [])
-          ]
+          warnings: [...(incomeValidation.warnings || []), ...(expensesValidation.warnings || [])],
         };
       }
 
@@ -209,7 +210,7 @@ export class FinancialCalculationService {
       return {
         value: 0,
         isValid: false,
-        error: `Erro no cálculo do saldo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
+        error: `Erro no cálculo do saldo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
       };
     }
   }
@@ -217,24 +218,27 @@ export class FinancialCalculationService {
   /**
    * Calcula resumo completo das transações
    */
-  public static calculateTransactionSummary(transactions: Array<{ amount: number; type: string }>): TransactionSummary {
+  public static calculateTransactionSummary(
+    transactions: Array<{ amount: number; type: string }>
+  ): TransactionSummary {
     const totalIncome = this.calculateTotalIncome(transactions);
     const totalExpenses = this.calculateTotalExpenses(transactions);
     const netBalance = this.calculateNetBalance(totalIncome.value, totalExpenses.value);
-    
+
     const transactionCount = Array.isArray(transactions) ? transactions.length : 0;
     const totalTransactionValue = totalIncome.value + totalExpenses.value;
-    
-    const averageTransaction = transactionCount > 0 
-      ? this.validateNumber(totalTransactionValue / transactionCount, 'média de transações')
-      : { value: 0, isValid: true };
+
+    const averageTransaction =
+      transactionCount > 0
+        ? this.validateNumber(totalTransactionValue / transactionCount, 'média de transações')
+        : { value: 0, isValid: true };
 
     return {
       totalIncome,
       totalExpenses,
       netBalance,
       averageTransaction,
-      transactionCount
+      transactionCount,
     };
   }
 
@@ -242,9 +246,9 @@ export class FinancialCalculationService {
    * Analisa orçamento com projeções
    */
   public static analyzeBudget(
-    budgetAmount: number, 
-    spentAmount: number, 
-    startDate: Date, 
+    budgetAmount: number,
+    spentAmount: number,
+    startDate: Date,
     endDate: Date,
     currentDate: Date = new Date()
   ): BudgetAnalysis {
@@ -257,27 +261,28 @@ export class FinancialCalculationService {
         spentAmount: spentValidation.value,
         remainingAmount: { value: 0, isValid: false, error: 'Valores de entrada inválidos' },
         percentageUsed: { value: 0, isValid: false, error: 'Valores de entrada inválidos' },
-        isOverBudget: false
+        isOverBudget: false,
       };
     }
 
     const remaining = budgetValidation.value - spentValidation.value;
     const remainingAmount = this.validateNumber(remaining, 'valor restante');
-    
-    const percentage = budgetValidation.value > 0 
-      ? (spentValidation.value / budgetValidation.value) * 100 
-      : 0;
+
+    const percentage =
+      budgetValidation.value > 0 ? (spentValidation.value / budgetValidation.value) * 100 : 0;
     const percentageUsed = this.validateNumber(percentage, 'percentual usado');
 
     const isOverBudget = spentValidation.value > budgetValidation.value;
 
     // Calcular dias restantes e projeção
     const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const daysElapsed = Math.ceil((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysElapsed = Math.ceil(
+      (currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
     const daysRemaining = Math.max(0, totalDays - daysElapsed);
 
     let projectedSpending: FinancialCalculationResult | undefined;
-    
+
     if (daysElapsed > 0 && daysRemaining > 0) {
       const dailySpendingRate = spentValidation.value / daysElapsed;
       const projectedTotal = dailySpendingRate * totalDays;
@@ -291,7 +296,7 @@ export class FinancialCalculationService {
       percentageUsed,
       isOverBudget,
       daysRemaining,
-      projectedSpending
+      projectedSpending,
     };
   }
 
@@ -300,13 +305,13 @@ export class FinancialCalculationService {
    */
   public static formatCurrency(value: number, currency: string = 'BRL'): string {
     const validation = this.validateNumber(value);
-    
+
     try {
       return new Intl.NumberFormat('pt-BR', {
         style: 'currency',
         currency: currency,
         minimumFractionDigits: this.PRECISION,
-        maximumFractionDigits: this.PRECISION
+        maximumFractionDigits: this.PRECISION,
       }).format(validation.value);
     } catch {
       return `R$ ${validation.value.toFixed(this.PRECISION)}`;
@@ -322,7 +327,7 @@ export class FinancialCalculationService {
         return {
           value: 0,
           isValid: false,
-          error: 'Valor deve ser uma string'
+          error: 'Valor deve ser uma string',
         };
       }
 
@@ -333,13 +338,13 @@ export class FinancialCalculationService {
         .replace(/\.(?=.*\.)/g, ''); // Remove pontos duplicados
 
       const numericValue = parseFloat(cleanValue);
-      
+
       return this.validateNumber(numericValue, 'conversão de string monetária');
     } catch (error) {
       return {
         value: 0,
         isValid: false,
-        error: `Erro na conversão: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
+        error: `Erro na conversão: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
       };
     }
   }

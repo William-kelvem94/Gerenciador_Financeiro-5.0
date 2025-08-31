@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import PhoenixLogo from './PhoenixLogo';
+import { PhoenixLogo } from './PhoenixLogo';
 
 export interface LoadingScreenProps {
   message?: string;
@@ -12,26 +12,33 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ message = 'Carregando sis
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-black-secondary/90 via-cyber-primary/10 to-black-tertiary/90 backdrop-blur-xl"
+      className="from-black-secondary/90 via-cyber-primary/10 to-black-tertiary/90 fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br backdrop-blur-xl"
     >
       <div className="flex flex-col items-center space-y-8">
-        <PhoenixLogo size="xl" className="animate-spin-slow text-cyber-primary text-glow drop-shadow-neon" />
-        <span className="text-cyber-primary text-2xl font-cyber animate-pulse-neon text-glow">{message}</span>
-        <div className="w-32 h-2 bg-gradient-to-r from-cyber-primary to-cyber-secondary rounded-full animate-pulse-neon shadow-neon"></div>
+        <PhoenixLogo
+          size="xl"
+          className="animate-spin-slow text-cyber-primary text-glow drop-shadow-neon"
+        />
+        <span className="text-cyber-primary font-cyber animate-pulse-neon text-glow text-2xl">
+          {message}
+        </span>
+        <div className="from-cyber-primary to-cyber-secondary animate-pulse-neon shadow-neon h-2 w-32 rounded-full bg-gradient-to-r"></div>
       </div>
-      <div className="absolute inset-0 pointer-events-none z-0">
+      <div className="pointer-events-none absolute inset-0 z-0">
         <div className="matrix-rain opacity-10"></div>
-        <div className="absolute top-1/2 left-1/2 w-16 h-16 border-2 border-cyber-accent rounded-full animate-spin-slow opacity-30"></div>
+        <div className="border-cyber-accent animate-spin-slow absolute top-1/2 left-1/2 h-16 w-16 rounded-full border-2 opacity-30"></div>
         {/* Matrix rain effect cyberpunk */}
-        <div className="fixed inset-0 pointer-events-none opacity-10">
+        <div className="pointer-events-none fixed inset-0 opacity-10">
           {Array.from({ length: 20 }).map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-px bg-cyber-primary"
-              style={{
-                left: `${Math.random() * 100}%`,
-                height: '100px',
-              } as React.CSSProperties}
+              className="bg-cyber-primary absolute w-px"
+              style={
+                {
+                  left: `${Math.random() * 100}%`,
+                  height: '100px',
+                } as React.CSSProperties
+              }
               animate={{
                 y: [-100, window.innerHeight],
               }}
@@ -49,4 +56,4 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ message = 'Carregando sis
   );
 };
 
-export default LoadingScreen;
+export { LoadingScreen };

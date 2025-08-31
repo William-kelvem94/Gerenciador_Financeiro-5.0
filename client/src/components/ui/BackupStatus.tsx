@@ -11,7 +11,7 @@ export function BackupStatus({ className = '', showDetails = false }: BackupStat
   const [backupInfo, setBackupInfo] = useState({
     hasBackup: false,
     lastBackup: undefined as Date | undefined,
-    backupCount: 0
+    backupCount: 0,
   });
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -21,7 +21,7 @@ export function BackupStatus({ className = '', showDetails = false }: BackupStat
       setBackupInfo({
         hasBackup: info.hasBackup,
         lastBackup: info.lastBackup,
-        backupCount: info.backupCount
+        backupCount: info.backupCount,
       });
     };
 
@@ -42,7 +42,7 @@ export function BackupStatus({ className = '', showDetails = false }: BackupStat
       setBackupInfo({
         hasBackup: info.hasBackup,
         lastBackup: info.lastBackup,
-        backupCount: info.backupCount
+        backupCount: info.backupCount,
       });
     }, 1000);
   };
@@ -58,13 +58,13 @@ export function BackupStatus({ className = '', showDetails = false }: BackupStat
   };
 
   const getStatusIcon = () => {
-    if (!backupInfo.hasBackup) return <AlertTriangle className="w-4 h-4" />;
+    if (!backupInfo.hasBackup) return <AlertTriangle className="h-4 w-4" />;
     if (backupInfo.lastBackup) {
       const timeDiff = Date.now() - backupInfo.lastBackup.getTime();
       const minutesDiff = timeDiff / (1000 * 60);
-      if (minutesDiff > 5) return <Clock className="w-4 h-4" />;
+      if (minutesDiff > 5) return <Clock className="h-4 w-4" />;
     }
-    return <CheckCircle className="w-4 h-4" />;
+    return <CheckCircle className="h-4 w-4" />;
   };
 
   const getStatusText = () => {
@@ -84,28 +84,26 @@ export function BackupStatus({ className = '', showDetails = false }: BackupStat
     return (
       <button
         onClick={() => setIsExpanded(true)}
-        className={`flex items-center space-x-2 ${getStatusColor()} hover:opacity-80 transition-opacity ${className}`}
+        className={`flex items-center space-x-2 ${getStatusColor()} transition-opacity hover:opacity-80 ${className}`}
         title="Status do backup automático"
       >
-        <Shield className="w-4 h-4" />
+        <Shield className="h-4 w-4" />
         {getStatusIcon()}
       </button>
     );
   }
 
   return (
-    <div className={`glass p-4 rounded-lg border border-cyber-primary/20 ${className}`}>
-      <div className="flex items-center justify-between mb-3">
+    <div className={`glass border-cyber-primary/20 rounded-lg border p-4 ${className}`}>
+      <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Shield className="w-5 h-5 text-cyber-primary" />
-          <h3 className="font-mono text-sm font-medium text-white">
-            Backup Automático
-          </h3>
+          <Shield className="text-cyber-primary h-5 w-5" />
+          <h3 className="font-mono text-sm font-medium text-white">Backup Automático</h3>
         </div>
         {!showDetails && (
           <button
             onClick={() => setIsExpanded(false)}
-            className="text-white-muted hover:text-white transition-colors"
+            className="text-white-muted transition-colors hover:text-white"
           >
             ×
           </button>
@@ -114,47 +112,45 @@ export function BackupStatus({ className = '', showDetails = false }: BackupStat
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-white-muted font-mono">Status:</span>
+          <span className="text-white-muted font-mono text-sm">Status:</span>
           <div className={`flex items-center space-x-1 ${getStatusColor()}`}>
             {getStatusIcon()}
-            <span className="text-sm font-mono">{getStatusText()}</span>
+            <span className="font-mono text-sm">{getStatusText()}</span>
           </div>
         </div>
 
         {backupInfo.hasBackup && (
           <div className="flex items-center justify-between">
-            <span className="text-sm text-white-muted font-mono">Backups:</span>
-            <span className="text-sm font-mono text-cyber-accent">
-              {backupInfo.backupCount}
-            </span>
+            <span className="text-white-muted font-mono text-sm">Backups:</span>
+            <span className="text-cyber-accent font-mono text-sm">{backupInfo.backupCount}</span>
           </div>
         )}
 
         {backupInfo.lastBackup && (
           <div className="flex items-center justify-between">
-            <span className="text-sm text-white-muted font-mono">Último:</span>
-            <span className="text-sm font-mono text-white">
+            <span className="text-white-muted font-mono text-sm">Último:</span>
+            <span className="font-mono text-sm text-white">
               {backupInfo.lastBackup.toLocaleTimeString('pt-BR')}
             </span>
           </div>
         )}
 
-        <div className="pt-2 border-t border-cyber-primary/10">
+        <div className="border-cyber-primary/10 border-t pt-2">
           <button
             onClick={handleForceBackup}
-            className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-cyber-primary/20 hover:bg-cyber-primary/30 rounded-lg transition-colors"
+            className="bg-cyber-primary/20 hover:bg-cyber-primary/30 flex w-full items-center justify-center space-x-2 rounded-lg px-3 py-2 transition-colors"
           >
-            <RefreshCw className="w-4 h-4" />
-            <span className="text-sm font-mono">Backup Manual</span>
+            <RefreshCw className="h-4 w-4" />
+            <span className="font-mono text-sm">Backup Manual</span>
           </button>
         </div>
       </div>
 
       {!backupInfo.hasBackup && (
-        <div className="mt-3 p-3 bg-cyber-danger/10 border border-cyber-danger/30 rounded-lg">
+        <div className="bg-cyber-danger/10 border-cyber-danger/30 mt-3 rounded-lg border p-3">
           <div className="flex items-start space-x-2">
-            <AlertTriangle className="w-4 h-4 text-cyber-danger mt-0.5" />
-            <div className="text-xs text-cyber-danger font-mono">
+            <AlertTriangle className="text-cyber-danger mt-0.5 h-4 w-4" />
+            <div className="text-cyber-danger font-mono text-xs">
               <p className="font-medium">Backup não disponível</p>
               <p className="mt-1 opacity-80">
                 Os dados são salvos apenas no localStorage. Use o backup manual para proteção extra.

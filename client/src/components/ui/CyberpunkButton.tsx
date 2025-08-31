@@ -18,8 +18,10 @@ const CyberpunkButton = ({
   className = '',
 }: CyberpunkButtonProps) => {
   const variantClasses = {
-    primary: 'bg-cyan-500/20 border-cyan-400 text-cyan-400 hover:bg-cyan-500/30 hover:text-cyan-300',
-    secondary: 'bg-purple-500/20 border-purple-400 text-purple-400 hover:bg-purple-500/30 hover:text-purple-300',
+    primary:
+      'bg-cyan-500/20 border-cyan-400 text-cyan-400 hover:bg-cyan-500/30 hover:text-cyan-300',
+    secondary:
+      'bg-purple-500/20 border-purple-400 text-purple-400 hover:bg-purple-500/30 hover:text-purple-300',
     danger: 'bg-red-500/20 border-red-400 text-red-400 hover:bg-red-500/30 hover:text-red-300',
   };
 
@@ -38,7 +40,7 @@ const CyberpunkButton = ({
     return (
       <div className={`${baseClasses} ${variantClasses[variant]} ${className}`}>
         <div className="flex items-center justify-center">
-          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>
+          <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
           Processing...
         </div>
       </div>

@@ -47,12 +47,12 @@ export const useUIStore = create<UIState>()(
         data: null,
       },
 
-      setTheme: (theme) => {
+      setTheme: theme => {
         set({ theme });
-        
+
         // Apply theme to document
         document.documentElement.setAttribute('data-theme', theme);
-        
+
         if (theme === 'dark' || theme === 'cyberpunk') {
           document.documentElement.classList.add('dark');
         } else {
@@ -64,15 +64,15 @@ export const useUIStore = create<UIState>()(
         set(state => ({ sidebarCollapsed: !state.sidebarCollapsed }));
       },
 
-      setSidebarCollapsed: (collapsed) => {
+      setSidebarCollapsed: collapsed => {
         set({ sidebarCollapsed: collapsed });
       },
 
-      setLoading: (loading) => {
+      setLoading: loading => {
         set({ isLoading: loading });
       },
 
-      addNotification: (notification) => {
+      addNotification: notification => {
         const id = Date.now().toString();
         const newNotification: Notification = {
           ...notification,
@@ -92,7 +92,7 @@ export const useUIStore = create<UIState>()(
         }
       },
 
-      removeNotification: (id) => {
+      removeNotification: id => {
         set(state => ({
           notifications: state.notifications.filter(n => n.id !== id),
         }));

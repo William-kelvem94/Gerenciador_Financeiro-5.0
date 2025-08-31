@@ -1,15 +1,8 @@
-import React, {
-  createContext,
-  useEffect,
-  useState,
-  ReactNode,
-  useMemo,
-  useCallback,
-} from 'react';
+import React, { createContext, useEffect, useState, ReactNode, useMemo, useCallback } from 'react';
 import { CyberpunkTheme, ThemeContextType, SoundConfig, AnimationConfig } from '../types/theme';
 import { availableThemes, defaultTheme } from '../themes/cyberpunk/index';
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const THEME_STORAGE_KEY = 'will-finance-theme';
 const SOUND_STORAGE_KEY = 'will-finance-sound-config';
@@ -162,25 +155,28 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   };
 
   // Preview theme (aplica temporariamente, retorna função para restaurar)
-  const previewTheme = useCallback((themeId: string) => {
-    const theme = availableThemes.find(t => t.id === themeId);
-    if (theme) {
-      const root = document.documentElement;
-      root.style.setProperty('--color-primary', theme.colors.primary);
-      root.style.setProperty('--color-secondary', theme.colors.secondary);
-      root.style.setProperty('--color-accent', theme.colors.accent);
-      // ... outras propriedades
+  const previewTheme = useCallback(
+    (themeId: string) => {
+      const theme = availableThemes.find(t => t.id === themeId);
+      if (theme) {
+        const root = document.documentElement;
+        root.style.setProperty('--color-primary', theme.colors.primary);
+        root.style.setProperty('--color-secondary', theme.colors.secondary);
+        root.style.setProperty('--color-accent', theme.colors.accent);
+        // ... outras propriedades
 
-      return () => {
-        const current = currentTheme;
-        root.style.setProperty('--color-primary', current.colors.primary);
-        root.style.setProperty('--color-secondary', current.colors.secondary);
-        root.style.setProperty('--color-accent', current.colors.accent);
-        // ... restaurar outras propriedades
-      };
-    }
-    return undefined;
-  }, [currentTheme]);
+        return () => {
+          const current = currentTheme;
+          root.style.setProperty('--color-primary', current.colors.primary);
+          root.style.setProperty('--color-secondary', current.colors.secondary);
+          root.style.setProperty('--color-accent', current.colors.accent);
+          // ... restaurar outras propriedades
+        };
+      }
+      return undefined;
+    },
+    [currentTheme]
+  );
 
   const exportTheme = useCallback((): string => {
     return JSON.stringify(
@@ -218,24 +214,30 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     }
   };
 
-  const playSound = useCallback((soundType: string) => {
-    if (!soundConfig.keyboardClicks && soundType === 'click') return;
-    if (!soundConfig.notifications && soundType.includes('notification')) return;
-    if (!soundConfig.transactions && soundType.includes('transaction')) return;
+  const playSound = useCallback(
+    (soundType: string) => {
+      if (!soundConfig.keyboardClicks && soundType === 'click') return;
+      if (!soundConfig.notifications && soundType.includes('notification')) return;
+      if (!soundConfig.transactions && soundType.includes('transaction')) return;
 
-    // Implementação real de áudio aqui
-    console.log(`Playing sound: ${soundType} at volume ${soundConfig.volume}`);
-  }, [soundConfig]);
+      // Implementação real de áudio aqui
+      console.log(`Playing sound: ${soundType} at volume ${soundConfig.volume}`);
+    },
+    [soundConfig]
+  );
 
-  const setTheme = useCallback((themeId: string) => {
-    const theme = availableThemes.find(t => t.id === themeId);
-    if (theme) {
-      setCurrentTheme(theme);
-      if (soundConfig.notifications) {
-        playSound('theme-change');
+  const setTheme = useCallback(
+    (themeId: string) => {
+      const theme = availableThemes.find(t => t.id === themeId);
+      if (theme) {
+        setCurrentTheme(theme);
+        if (soundConfig.notifications) {
+          playSound('theme-change');
+        }
       }
-    }
-  }, [soundConfig.notifications, playSound]);
+    },
+    [soundConfig.notifications, playSound]
+  );
 
   const value: ThemeContextType = useMemo(
     () => ({
@@ -268,5 +270,3 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
-
-

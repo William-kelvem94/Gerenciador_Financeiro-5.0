@@ -20,7 +20,7 @@ const CyberpunkProgress = ({
   size = 'md',
 }: CyberpunkProgressProps) => {
   const percentage = Math.min((value / max) * 100, 100);
-  
+
   const variantClasses = {
     primary: 'from-cyan-400 via-blue-500 to-purple-600',
     secondary: 'from-purple-400 via-pink-500 to-red-500',
@@ -45,58 +45,60 @@ const CyberpunkProgress = ({
 
   return (
     <div className="space-y-2">
-        {label ? (
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-cyan-400 font-mono uppercase tracking-wider">
-              {label}
-            </span>
-            {showPercentage && (
-              <span className="text-xs text-cyan-300/80 font-mono" data-testid="progress-percentage">
-                {Math.round(percentage)}%
-              </span>
-            )}
-          </div>
-        ) : (
-          showPercentage && (
-            <span className="text-xs text-cyan-300/80 font-mono block text-right" data-testid="progress-percentage">
+      {label ? (
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-sm font-medium tracking-wider text-cyan-400 uppercase">
+            {label}
+          </span>
+          {showPercentage && (
+            <span className="font-mono text-xs text-cyan-300/80" data-testid="progress-percentage">
               {Math.round(percentage)}%
             </span>
-          )
-        )}
-      
-      <div className={`relative w-full bg-gray-900/50 rounded-full border border-cyan-500/20 ${sizeClasses[size]} overflow-hidden`}>
+          )}
+        </div>
+      ) : (
+        showPercentage && (
+          <span
+            className="block text-right font-mono text-xs text-cyan-300/80"
+            data-testid="progress-percentage"
+          >
+            {Math.round(percentage)}%
+          </span>
+        )
+      )}
+
+      <div
+        className={`relative w-full rounded-full border border-cyan-500/20 bg-gray-900/50 ${sizeClasses[size]} overflow-hidden`}
+      >
         {/* Background grid effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent animate-pulse" />
-        
+        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent" />
+
         {/* Progress bar */}
         <div
-          className={`
-            h-full bg-gradient-to-r ${variantClasses[variant]} 
-            transition-all duration-700 ease-out relative overflow-hidden
-            ${animated ? 'animate-pulse' : ''}
-            shadow-lg ${glowColors[variant]}
-          `}
+          className={`h-full bg-gradient-to-r ${variantClasses[variant]} relative overflow-hidden transition-all duration-700 ease-out ${animated ? 'animate-pulse' : ''} shadow-lg ${glowColors[variant]} `}
           style={{ width: `${percentage}%` }}
         >
           {/* Scanning effect */}
           {animated && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-scan" />
+            <div className="animate-scan absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
           )}
-          
+
           {/* Data stream effect */}
           <div className="absolute inset-0 opacity-40">
-            <div className="h-full w-full bg-gradient-to-r from-transparent via-current to-transparent animate-data-stream" />
+            <div className="animate-data-stream h-full w-full bg-gradient-to-r from-transparent via-current to-transparent" />
           </div>
         </div>
-        
+
         {/* Border glow */}
-        <div className={`absolute inset-0 rounded-full border border-current/50 ${glowColors[variant]}`} />
+        <div
+          className={`absolute inset-0 rounded-full border border-current/50 ${glowColors[variant]}`}
+        />
       </div>
-      
+
       {/* Value display */}
       {showPercentage && size === 'lg' && (
         <div className="text-center">
-          <span className="text-lg font-mono font-bold text-cyan-400 drop-shadow-lg">
+          <span className="font-mono text-lg font-bold text-cyan-400 drop-shadow-lg">
             {value.toLocaleString()} / {max.toLocaleString()}
           </span>
         </div>

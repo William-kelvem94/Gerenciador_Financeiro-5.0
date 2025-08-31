@@ -15,7 +15,9 @@ export class CyberpunkSoundSystem {
 
   private async initializeAudioContext() {
     try {
-      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioContextClass =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       this.audioContext = new AudioContextClass();
     } catch (error) {
       console.warn('Web Audio API not supported:', error);
@@ -119,7 +121,7 @@ export class CyberpunkSoundSystem {
     const ambientSounds = {
       'blade-runner': () => this.generateRainSound(),
       'cyberpunk-2077': () => this.generateCitySound(),
-      'matrix': () => this.generateDataSound(),
+      matrix: () => this.generateDataSound(),
       'ghost-shell': () => this.generateMinimalSound(),
     };
 

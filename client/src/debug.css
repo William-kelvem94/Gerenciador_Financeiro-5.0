@@ -1,14 +1,14 @@
 /* DEBUG CSS - para verificar se as cores estão carregando */
 .debug-test {
-  background-color: #00FFFF; /* Cyber primary */
-  color: #FFFFFF;
+  background-color: #00ffff; /* Cyber primary */
+  color: #ffffff;
   padding: 10px;
   margin: 10px;
-  border: 1px solid #FF00FF;
+  border: 1px solid #ff00ff;
 }
 
 .debug-tailwind {
-  @apply bg-cyber-primary text-cyber-dark p-4 m-4 border border-cyber-secondary;
+  @apply bg-cyber-primary text-cyber-dark border-cyber-secondary m-4 border p-4;
 }
 
 /* Teste das variáveis CSS */

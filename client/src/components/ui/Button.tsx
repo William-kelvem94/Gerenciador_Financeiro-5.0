@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { z } from 'zod';
 
 const ButtonPropsSchema = z.object({
-  children: z.union([z.string(), z.number(), z.array(z.unknown()), z.unknown()]),
+  children: z.union([z.string(), z.number(), z.array(z.any()), z.any()]),
   onClick: z.function().optional(),
   variant: z.enum(['primary', 'secondary', 'danger']).default('primary'),
   disabled: z.boolean().optional(),
@@ -26,7 +26,14 @@ export default function Button({
   type = 'button',
   className = '',
 }: ButtonProps) {
-  const validated = ButtonPropsSchema.parse({ children, onClick, variant, disabled, type, className });
+  const validated = ButtonPropsSchema.parse({
+    children,
+    onClick,
+    variant,
+    disabled,
+    type,
+    className,
+  });
   return (
     <motion.button
       type={validated.type}

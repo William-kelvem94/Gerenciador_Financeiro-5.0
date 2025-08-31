@@ -10,7 +10,15 @@ interface ThemeCustomizerProps {
 type TabType = 'themes' | 'colors' | 'effects' | 'sounds' | 'preview';
 
 export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClose }) => {
-  const { currentTheme, availableThemes, setTheme, customizeTheme, resetTheme, exportTheme, importTheme } = useTheme();
+  const {
+    currentTheme,
+    availableThemes,
+    setTheme,
+    customizeTheme,
+    resetTheme,
+    exportTheme,
+    importTheme,
+  } = useTheme();
   const [activeTab, setActiveTab] = useState<TabType>('themes');
   const [customColors, setCustomColors] = useState(currentTheme.colors);
   const [previewMode, setPreviewMode] = useState(false);
@@ -26,12 +34,12 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
     const keys = path.split('.');
     const newColors = { ...customColors };
     let current: Record<string, unknown> = newColors;
-    
+
     for (let i = 0; i < keys.length - 1; i++) {
       current = current[keys[i]] as Record<string, unknown>;
     }
     current[keys[keys.length - 1]] = value;
-    
+
     setCustomColors(newColors);
     customizeTheme({ colors: newColors });
   };
@@ -53,7 +61,7 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = e => {
         const content = e.target?.result as string;
         importTheme(content);
       };
@@ -65,14 +73,10 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm">
       <div className="flex h-full">
         {/* Sidebar */}
-        <div className="w-80 bg-bg-card border-r border-primary/20">
-          <div className="p-6 border-b border-primary/20">
-            <h2 className="text-2xl font-bold text-primary neon-glow">
-              Customização Cyberpunk
-            </h2>
-            <p className="text-text-secondary mt-2">
-              Personalize sua experiência financeira
-            </p>
+        <div className="bg-bg-card border-primary/20 w-80 border-r">
+          <div className="border-primary/20 border-b p-6">
+            <h2 className="text-primary neon-glow text-2xl font-bold">Customização Cyberpunk</h2>
+            <p className="text-text-secondary mt-2">Personalize sua experiência financeira</p>
           </div>
 
           {/* Tabs */}
@@ -87,46 +91,41 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
               <button
                 key={id}
                 onClick={() => setActiveTab(id as TabType)}
-                className={`flex items-center space-x-3 px-6 py-4 text-left transition-all relative overflow-hidden group ${
+                className={`group relative flex items-center space-x-3 overflow-hidden px-6 py-4 text-left transition-all ${
                   activeTab === id
-                    ? 'bg-primary/20 text-primary border-r-2 border-primary'
+                    ? 'bg-primary/20 text-primary border-primary border-r-2'
                     : 'text-text-secondary hover:bg-primary/10 hover:text-primary'
                 }`}
               >
                 {/* Cyberpunk hover effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -translate-x-full group-hover:translate-x-full transform" />
+                <div className="via-primary/10 absolute inset-0 -translate-x-full transform bg-gradient-to-r from-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:translate-x-full group-hover:opacity-100" />
                 <Icon size={20} className="relative z-10" />
                 <span className="relative z-10">{label}</span>
                 {activeTab === id && (
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-l-lg animate-pulse" />
+                  <div className="bg-primary absolute top-1/2 right-0 h-8 w-1 -translate-y-1/2 animate-pulse rounded-l-lg" />
                 )}
               </button>
             ))}
           </div>
 
           {/* Actions */}
-          <div className="absolute bottom-6 left-6 right-6">
+          <div className="absolute right-6 bottom-6 left-6">
             <div className="flex space-x-2">
               <button
                 onClick={handleExport}
-                className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-primary/20 text-primary rounded-lg hover:bg-primary/30 transition-colors"
+                className="bg-primary/20 text-primary hover:bg-primary/30 flex flex-1 items-center justify-center space-x-2 rounded-lg px-4 py-2 transition-colors"
               >
                 <Download size={16} />
                 <span>Exportar</span>
               </button>
-              <label className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-secondary/20 text-secondary rounded-lg hover:bg-secondary/30 transition-colors cursor-pointer">
+              <label className="bg-secondary/20 text-secondary hover:bg-secondary/30 flex flex-1 cursor-pointer items-center justify-center space-x-2 rounded-lg px-4 py-2 transition-colors">
                 <Upload size={16} />
                 <span>Importar</span>
-                <input
-                  type="file"
-                  accept=".json"
-                  onChange={handleImport}
-                  className="hidden"
-                />
+                <input type="file" accept=".json" onChange={handleImport} className="hidden" />
               </label>
               <button
                 onClick={resetTheme}
-                className="flex items-center justify-center px-4 py-2 bg-error/20 text-error rounded-lg hover:bg-error/30 transition-colors"
+                className="bg-error/20 text-error hover:bg-error/30 flex items-center justify-center rounded-lg px-4 py-2 transition-colors"
               >
                 <RotateCcw size={16} />
               </button>
@@ -135,21 +134,21 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto p-6">
           {activeTab === 'themes' && (
             <div>
-              <h3 className="text-xl font-bold text-primary mb-6">Temas Pré-definidos</h3>
+              <h3 className="text-primary mb-6 text-xl font-bold">Temas Pré-definidos</h3>
               <div className="grid grid-cols-2 gap-6">
-                {availableThemes.map((theme) => (
+                {availableThemes.map(theme => (
                   <button
                     key={theme.id}
-                    className={`relative p-4 rounded-lg border-2 cursor-pointer transition-all text-left w-full ${
+                    className={`relative w-full cursor-pointer rounded-lg border-2 p-4 text-left transition-all ${
                       currentTheme.id === theme.id
                         ? 'border-primary bg-primary/10'
                         : 'border-primary/20 hover:border-primary/40'
                     }`}
                     onClick={() => setTheme(theme.id)}
-                    onKeyDown={(e) => {
+                    onKeyDown={e => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         setTheme(theme.id);
@@ -157,35 +156,35 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
                     }}
                     aria-label={`Selecionar tema ${theme.name}`}
                   >
-                    <div className="aspect-video rounded-lg mb-4 overflow-hidden">
+                    <div className="mb-4 aspect-video overflow-hidden rounded-lg">
                       <div
-                        className="w-full h-full"
+                        className="h-full w-full"
                         style={{
                           background: `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.secondary})`,
                         }}
                       >
-                        <div className="p-4 h-full flex items-end">
+                        <div className="flex h-full items-end p-4">
                           <div className="space-y-1">
                             <div
-                              className="w-12 h-2 rounded"
+                              className="h-2 w-12 rounded"
                               style={{ backgroundColor: theme.colors.text.primary }}
                             />
                             <div
-                              className="w-8 h-2 rounded"
+                              className="h-2 w-8 rounded"
                               style={{ backgroundColor: theme.colors.text.secondary }}
                             />
                             <div
-                              className="w-6 h-2 rounded"
+                              className="h-2 w-6 rounded"
                               style={{ backgroundColor: theme.colors.accent }}
                             />
                           </div>
                         </div>
                       </div>
                     </div>
-                    <h4 className="font-bold text-primary">{theme.name}</h4>
-                    <p className="text-text-secondary text-sm mt-1">{theme.description}</p>
+                    <h4 className="text-primary font-bold">{theme.name}</h4>
+                    <p className="text-text-secondary mt-1 text-sm">{theme.description}</p>
                     {currentTheme.id === theme.id && (
-                      <div className="absolute top-2 right-2 w-3 h-3 bg-primary rounded-full neon-glow" />
+                      <div className="bg-primary neon-glow absolute top-2 right-2 h-3 w-3 rounded-full" />
                     )}
                   </button>
                 ))}
@@ -195,40 +194,55 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
 
           {activeTab === 'colors' && (
             <div>
-              <h3 className="text-xl font-bold text-primary mb-6">Personalizar Cores</h3>
+              <h3 className="text-primary mb-6 text-xl font-bold">Personalizar Cores</h3>
               <div className="space-y-6">
                 {/* Primary Colors */}
                 <div>
-                  <h4 className="font-semibold text-primary mb-3">Cores Principais</h4>
+                  <h4 className="text-primary mb-3 font-semibold">Cores Principais</h4>
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label htmlFor="color-primary" className="block text-text-secondary text-sm mb-2">Primária</label>
+                      <label
+                        htmlFor="color-primary"
+                        className="text-text-secondary mb-2 block text-sm"
+                      >
+                        Primária
+                      </label>
                       <input
                         id="color-primary"
                         type="color"
                         value={customColors.primary}
-                        onChange={(e) => handleColorChange('primary', e.target.value)}
-                        className="w-full h-10 rounded-lg border border-primary/20"
+                        onChange={e => handleColorChange('primary', e.target.value)}
+                        className="border-primary/20 h-10 w-full rounded-lg border"
                       />
                     </div>
                     <div>
-                      <label htmlFor="color-secondary" className="block text-text-secondary text-sm mb-2">Secundária</label>
+                      <label
+                        htmlFor="color-secondary"
+                        className="text-text-secondary mb-2 block text-sm"
+                      >
+                        Secundária
+                      </label>
                       <input
                         id="color-secondary"
                         type="color"
                         value={customColors.secondary}
-                        onChange={(e) => handleColorChange('secondary', e.target.value)}
-                        className="w-full h-10 rounded-lg border border-primary/20"
+                        onChange={e => handleColorChange('secondary', e.target.value)}
+                        className="border-primary/20 h-10 w-full rounded-lg border"
                       />
                     </div>
                     <div>
-                      <label htmlFor="color-accent" className="block text-text-secondary text-sm mb-2">Destaque</label>
+                      <label
+                        htmlFor="color-accent"
+                        className="text-text-secondary mb-2 block text-sm"
+                      >
+                        Destaque
+                      </label>
                       <input
                         id="color-accent"
                         type="color"
                         value={customColors.accent}
-                        onChange={(e) => handleColorChange('accent', e.target.value)}
-                        className="w-full h-10 rounded-lg border border-primary/20"
+                        onChange={e => handleColorChange('accent', e.target.value)}
+                        className="border-primary/20 h-10 w-full rounded-lg border"
                       />
                     </div>
                   </div>
@@ -236,26 +250,36 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
 
                 {/* Background Colors */}
                 <div>
-                  <h4 className="font-semibold text-primary mb-3">Cores de Fundo</h4>
+                  <h4 className="text-primary mb-3 font-semibold">Cores de Fundo</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="color-bg-primary" className="block text-text-secondary text-sm mb-2">Fundo Principal</label>
+                      <label
+                        htmlFor="color-bg-primary"
+                        className="text-text-secondary mb-2 block text-sm"
+                      >
+                        Fundo Principal
+                      </label>
                       <input
                         id="color-bg-primary"
                         type="color"
                         value={customColors.background.primary}
-                        onChange={(e) => handleColorChange('background.primary', e.target.value)}
-                        className="w-full h-10 rounded-lg border border-primary/20"
+                        onChange={e => handleColorChange('background.primary', e.target.value)}
+                        className="border-primary/20 h-10 w-full rounded-lg border"
                       />
                     </div>
                     <div>
-                      <label htmlFor="color-bg-card" className="block text-text-secondary text-sm mb-2">Fundo Cartão</label>
+                      <label
+                        htmlFor="color-bg-card"
+                        className="text-text-secondary mb-2 block text-sm"
+                      >
+                        Fundo Cartão
+                      </label>
                       <input
                         id="color-bg-card"
                         type="color"
                         value={customColors.background.card}
-                        onChange={(e) => handleColorChange('background.card', e.target.value)}
-                        className="w-full h-10 rounded-lg border border-primary/20"
+                        onChange={e => handleColorChange('background.card', e.target.value)}
+                        className="border-primary/20 h-10 w-full rounded-lg border"
                       />
                     </div>
                   </div>
@@ -263,26 +287,36 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
 
                 {/* Neon Effects */}
                 <div>
-                  <h4 className="font-semibold text-primary mb-3">Efeitos Neon</h4>
+                  <h4 className="text-primary mb-3 font-semibold">Efeitos Neon</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="color-neon-glow" className="block text-text-secondary text-sm mb-2">Brilho</label>
+                      <label
+                        htmlFor="color-neon-glow"
+                        className="text-text-secondary mb-2 block text-sm"
+                      >
+                        Brilho
+                      </label>
                       <input
                         id="color-neon-glow"
                         type="color"
                         value={customColors.neon.glow}
-                        onChange={(e) => handleColorChange('neon.glow', e.target.value)}
-                        className="w-full h-10 rounded-lg border border-primary/20"
+                        onChange={e => handleColorChange('neon.glow', e.target.value)}
+                        className="border-primary/20 h-10 w-full rounded-lg border"
                       />
                     </div>
                     <div>
-                      <label htmlFor="color-neon-pulse" className="block text-text-secondary text-sm mb-2">Pulso</label>
+                      <label
+                        htmlFor="color-neon-pulse"
+                        className="text-text-secondary mb-2 block text-sm"
+                      >
+                        Pulso
+                      </label>
                       <input
                         id="color-neon-pulse"
                         type="color"
                         value={customColors.neon.pulse}
-                        onChange={(e) => handleColorChange('neon.pulse', e.target.value)}
-                        className="w-full h-10 rounded-lg border border-primary/20"
+                        onChange={e => handleColorChange('neon.pulse', e.target.value)}
+                        className="border-primary/20 h-10 w-full rounded-lg border"
                       />
                     </div>
                   </div>
@@ -293,34 +327,55 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
 
           {activeTab === 'effects' && (
             <div>
-              <h3 className="text-xl font-bold text-primary mb-6">Efeitos Visuais</h3>
+              <h3 className="text-primary mb-6 text-xl font-bold">Efeitos Visuais</h3>
               <div className="space-y-6">
                 {[
-                  { key: 'glitch', label: 'Efeito Glitch', description: 'Distorções visuais cyberpunk' },
-                  { key: 'scanlines', label: 'Scanlines', description: 'Linhas de varredura retrô' },
-                  { key: 'glow', label: 'Brilho Neon', description: 'Efeitos de brilho nos elementos' },
-                  { key: 'particles', label: 'Partículas', description: 'Animações de partículas flutuantes' },
+                  {
+                    key: 'glitch',
+                    label: 'Efeito Glitch',
+                    description: 'Distorções visuais cyberpunk',
+                  },
+                  {
+                    key: 'scanlines',
+                    label: 'Scanlines',
+                    description: 'Linhas de varredura retrô',
+                  },
+                  {
+                    key: 'glow',
+                    label: 'Brilho Neon',
+                    description: 'Efeitos de brilho nos elementos',
+                  },
+                  {
+                    key: 'particles',
+                    label: 'Partículas',
+                    description: 'Animações de partículas flutuantes',
+                  },
                 ].map(({ key, label, description }) => (
-                  <div key={key} className="flex items-center justify-between p-4 bg-bg-card rounded-lg border border-primary/20">
+                  <div
+                    key={key}
+                    className="bg-bg-card border-primary/20 flex items-center justify-between rounded-lg border p-4"
+                  >
                     <div>
-                      <h4 className="font-semibold text-primary">{label}</h4>
+                      <h4 className="text-primary font-semibold">{label}</h4>
                       <p className="text-text-secondary text-sm">{description}</p>
                     </div>
                     <button
-                      onClick={() => customizeTheme({
-                        effects: {
-                          ...currentTheme.effects,
-                          [key]: !currentTheme.effects[key as keyof typeof currentTheme.effects]
-                        }
-                      })}
-                      className={`w-12 h-6 rounded-full transition-all ${
+                      onClick={() =>
+                        customizeTheme({
+                          effects: {
+                            ...currentTheme.effects,
+                            [key]: !currentTheme.effects[key as keyof typeof currentTheme.effects],
+                          },
+                        })
+                      }
+                      className={`h-6 w-12 rounded-full transition-all ${
                         currentTheme.effects[key as keyof typeof currentTheme.effects]
                           ? 'bg-primary'
                           : 'bg-primary/20'
                       }`}
                     >
                       <div
-                        className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                        className={`h-5 w-5 rounded-full bg-white transition-transform ${
                           currentTheme.effects[key as keyof typeof currentTheme.effects]
                             ? 'translate-x-6'
                             : 'translate-x-0.5'
@@ -335,25 +390,27 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
 
           {activeTab === 'sounds' && (
             <div>
-              <h3 className="text-xl font-bold text-primary mb-6">Configurações de Som</h3>
+              <h3 className="text-primary mb-6 text-xl font-bold">Configurações de Som</h3>
               <div className="space-y-6">
-                <div className="p-4 bg-bg-card rounded-lg border border-primary/20">
-                  <h4 className="font-semibold text-primary mb-2">Volume Geral</h4>
+                <div className="bg-bg-card border-primary/20 rounded-lg border p-4">
+                  <h4 className="text-primary mb-2 font-semibold">Volume Geral</h4>
                   <input
                     type="range"
                     min="0"
                     max="1"
                     step="0.1"
                     value={currentTheme.sounds.volume}
-                    onChange={(e) => customizeTheme({
-                      sounds: {
-                        ...currentTheme.sounds,
-                        volume: parseFloat(e.target.value)
-                      }
-                    })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      customizeTheme({
+                        sounds: {
+                          ...currentTheme.sounds,
+                          volume: parseFloat(e.target.value),
+                        },
+                      })
+                    }
                     className="w-full"
                   />
-                  <div className="flex justify-between text-text-secondary text-sm mt-1">
+                  <div className="text-text-secondary mt-1 flex justify-between text-sm">
                     <span>Silencioso</span>
                     <span>Máximo</span>
                   </div>
@@ -366,21 +423,26 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
                     { key: 'notifications', label: 'Notificações' },
                     { key: 'transactions', label: 'Transações' },
                   ].map(({ key, label }) => (
-                    <div key={key} className="flex items-center justify-between p-4 bg-bg-card rounded-lg border border-primary/20">
+                    <div
+                      key={key}
+                      className="bg-bg-card border-primary/20 flex items-center justify-between rounded-lg border p-4"
+                    >
                       <span className="text-primary font-medium">{label}</span>
                       <button
-                        onClick={() => customizeTheme({
-                          sounds: {
-                            ...currentTheme.sounds,
-                            enabled: !currentTheme.sounds.enabled
-                          }
-                        })}
-                        className={`w-12 h-6 rounded-full transition-all ${
+                        onClick={() =>
+                          customizeTheme({
+                            sounds: {
+                              ...currentTheme.sounds,
+                              enabled: !currentTheme.sounds.enabled,
+                            },
+                          })
+                        }
+                        className={`h-6 w-12 rounded-full transition-all ${
                           currentTheme.sounds.enabled ? 'bg-primary' : 'bg-primary/20'
                         }`}
                       >
                         <div
-                          className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                          className={`h-5 w-5 rounded-full bg-white transition-transform ${
                             currentTheme.sounds.enabled ? 'translate-x-6' : 'translate-x-0.5'
                           }`}
                         />
@@ -394,22 +456,22 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
 
           {activeTab === 'preview' && (
             <div>
-              <h3 className="text-xl font-bold text-primary mb-6">Preview do Sistema</h3>
+              <h3 className="text-primary mb-6 text-xl font-bold">Preview do Sistema</h3>
               <div className="space-y-6">
                 {/* Preview mode toggle */}
-                <div className="flex items-center justify-between p-4 bg-bg-card rounded-lg border border-primary/20">
+                <div className="bg-bg-card border-primary/20 flex items-center justify-between rounded-lg border p-4">
                   <div>
-                    <h4 className="font-semibold text-primary">Modo Preview</h4>
+                    <h4 className="text-primary font-semibold">Modo Preview</h4>
                     <p className="text-text-secondary text-sm">Veja as mudanças em tempo real</p>
                   </div>
                   <button
                     onClick={() => setPreviewMode(!previewMode)}
-                    className={`w-12 h-6 rounded-full transition-all ${
+                    className={`h-6 w-12 rounded-full transition-all ${
                       previewMode ? 'bg-primary' : 'bg-primary/20'
                     }`}
                   >
                     <div
-                      className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                      className={`h-5 w-5 rounded-full bg-white transition-transform ${
                         previewMode ? 'translate-x-6' : 'translate-x-0.5'
                       }`}
                     />
@@ -419,22 +481,22 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
                 {/* Component previews */}
                 <div className="grid grid-cols-2 gap-4">
                   {/* Button preview */}
-                  <div className="p-4 bg-bg-card rounded-lg border border-primary/20">
-                    <h5 className="text-primary font-medium mb-3">Botões</h5>
+                  <div className="bg-bg-card border-primary/20 rounded-lg border p-4">
+                    <h5 className="text-primary mb-3 font-medium">Botões</h5>
                     <div className="space-y-2">
-                      <button className="w-full px-4 py-2 bg-primary/20 text-primary border border-primary/40 rounded-lg hover:bg-primary/30 transition-all">
+                      <button className="bg-primary/20 text-primary border-primary/40 hover:bg-primary/30 w-full rounded-lg border px-4 py-2 transition-all">
                         Primário
                       </button>
-                      <button className="w-full px-4 py-2 bg-secondary/20 text-secondary border border-secondary/40 rounded-lg hover:bg-secondary/30 transition-all">
+                      <button className="bg-secondary/20 text-secondary border-secondary/40 hover:bg-secondary/30 w-full rounded-lg border px-4 py-2 transition-all">
                         Secundário
                       </button>
                     </div>
                   </div>
 
                   {/* Card preview */}
-                  <div className="p-4 bg-bg-card rounded-lg border border-primary/20">
-                    <h5 className="text-primary font-medium mb-3">Cards</h5>
-                    <div className="p-3 bg-bg-primary rounded-lg border border-primary/20">
+                  <div className="bg-bg-card border-primary/20 rounded-lg border p-4">
+                    <h5 className="text-primary mb-3 font-medium">Cards</h5>
+                    <div className="bg-bg-primary border-primary/20 rounded-lg border p-3">
                       <div className="flex items-center justify-between">
                         <span className="text-text-primary">Saldo</span>
                         <span className="text-success font-bold">R$ 1.234,56</span>
@@ -443,33 +505,33 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
                   </div>
 
                   {/* Neon effects preview */}
-                  <div className="p-4 bg-bg-card rounded-lg border border-primary/20">
-                    <h5 className="text-primary font-medium mb-3">Efeitos Neon</h5>
+                  <div className="bg-bg-card border-primary/20 rounded-lg border p-4">
+                    <h5 className="text-primary mb-3 font-medium">Efeitos Neon</h5>
                     <div className="space-y-2">
                       <div className="text-primary neon-glow">Texto com brilho</div>
-                      <div className="w-full h-2 bg-primary/20 rounded-full overflow-hidden">
-                        <div className="h-full w-3/4 bg-gradient-to-r from-primary to-accent animate-pulse"></div>
+                      <div className="bg-primary/20 h-2 w-full overflow-hidden rounded-full">
+                        <div className="from-primary to-accent h-full w-3/4 animate-pulse bg-gradient-to-r"></div>
                       </div>
                     </div>
                   </div>
 
                   {/* Loading preview */}
-                  <div className="p-4 bg-bg-card rounded-lg border border-primary/20">
-                    <h5 className="text-primary font-medium mb-3">Loading</h5>
+                  <div className="bg-bg-card border-primary/20 rounded-lg border p-4">
+                    <h5 className="text-primary mb-3 font-medium">Loading</h5>
                     <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                      <div className="border-primary/30 border-t-primary h-4 w-4 animate-spin rounded-full border-2"></div>
                       <span className="text-text-secondary">Carregando...</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Live theme data */}
-                <div className="p-4 bg-bg-card rounded-lg border border-primary/20">
-                  <h5 className="text-primary font-medium mb-3 flex items-center">
+                <div className="bg-bg-card border-primary/20 rounded-lg border p-4">
+                  <h5 className="text-primary mb-3 flex items-center font-medium">
                     <Sparkles size={16} className="mr-2" />
                     Dados do Tema Atual
                   </h5>
-                  <div className="text-xs font-mono text-text-secondary bg-bg-primary p-3 rounded overflow-auto max-h-32">
+                  <div className="text-text-secondary bg-bg-primary max-h-32 overflow-auto rounded p-3 font-mono text-xs">
                     <pre>{JSON.stringify(currentTheme, null, 2)}</pre>
                   </div>
                 </div>
@@ -481,7 +543,7 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClos
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 bg-bg-card border border-primary/20 rounded-lg text-text-secondary hover:text-primary hover:border-primary/40 transition-all"
+          className="bg-bg-card border-primary/20 text-text-secondary hover:text-primary hover:border-primary/40 absolute top-6 right-6 rounded-lg border p-2 transition-all"
         >
           ✕
         </button>

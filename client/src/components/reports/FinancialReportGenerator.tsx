@@ -23,26 +23,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     padding: 30,
     fontSize: 12,
-    fontFamily: 'Helvetica'
+    fontFamily: 'Helvetica',
   },
   header: {
     marginBottom: 20,
     borderBottom: '2px solid #0891b2',
-    paddingBottom: 10
+    paddingBottom: 10,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#0891b2',
-    marginBottom: 5
+    marginBottom: 5,
   },
   subtitle: {
     fontSize: 14,
     color: '#666666',
-    marginBottom: 3
+    marginBottom: 3,
   },
   section: {
-    marginBottom: 20
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 16,
@@ -51,20 +51,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: '#f3f4f6',
     padding: 8,
-    borderLeft: '4px solid #0891b2'
+    borderLeft: '4px solid #0891b2',
   },
   table: {
     width: 'auto',
-    marginBottom: 10
+    marginBottom: 10,
   },
   tableRow: {
     margin: 'auto',
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
   tableHeader: {
     backgroundColor: '#0891b2',
     color: 'white',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   tableCell: {
     margin: 'auto',
@@ -72,31 +72,31 @@ const styles = StyleSheet.create({
     padding: 8,
     fontSize: 10,
     borderBottom: '1px solid #e5e7eb',
-    flex: 1
+    flex: 1,
   },
   summaryCard: {
     backgroundColor: '#f8fafc',
     padding: 15,
     marginBottom: 10,
     borderRadius: 8,
-    border: '1px solid #e2e8f0'
+    border: '1px solid #e2e8f0',
   },
   summaryTitle: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#1e293b',
-    marginBottom: 5
+    marginBottom: 5,
   },
   summaryValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#0891b2'
+    color: '#0891b2',
   },
   positive: {
-    color: '#059669'
+    color: '#059669',
   },
   negative: {
-    color: '#dc2626'
+    color: '#dc2626',
   },
   footer: {
     position: 'absolute',
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     color: '#666666',
     fontSize: 10,
     borderTop: '1px solid #e5e7eb',
-    paddingTop: 10
+    paddingTop: 10,
   },
   chart: {
     width: '100%',
@@ -116,8 +116,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8fafc',
     border: '1px solid #e2e8f0',
     borderRadius: 8,
-    padding: 10
-  }
+    padding: 10,
+  },
 });
 
 // Interface para dados do relatório
@@ -157,9 +157,12 @@ const FinancialReportPDF: React.FC<{ data: ReportData }> = ({ data }) => (
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Relatório Financeiro Familiar</Text>
-        <Text style={styles.subtitle}>Usuário: {data.user.name} ({data.user.role})</Text>
         <Text style={styles.subtitle}>
-          Período: {new Date(data.period.start).toLocaleDateString()} - {new Date(data.period.end).toLocaleDateString()}
+          Usuário: {data.user.name} ({data.user.role})
+        </Text>
+        <Text style={styles.subtitle}>
+          Período: {new Date(data.period.start).toLocaleDateString()} -{' '}
+          {new Date(data.period.end).toLocaleDateString()}
         </Text>
         <Text style={styles.subtitle}>
           Gerado em: {new Date().toLocaleDateString()} às {new Date().toLocaleTimeString()}
@@ -169,7 +172,7 @@ const FinancialReportPDF: React.FC<{ data: ReportData }> = ({ data }) => (
       {/* Resumo Executivo */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>📊 Resumo Executivo</Text>
-        
+
         <View style={styles.summaryCard}>
           <Text style={styles.summaryTitle}>Total de Receitas</Text>
           <Text style={[styles.summaryValue, styles.positive]}>
@@ -186,7 +189,12 @@ const FinancialReportPDF: React.FC<{ data: ReportData }> = ({ data }) => (
 
         <View style={styles.summaryCard}>
           <Text style={styles.summaryTitle}>Saldo Final</Text>
-          <Text style={[styles.summaryValue, data.summary.balance >= 0 ? styles.positive : styles.negative]}>
+          <Text
+            style={[
+              styles.summaryValue,
+              data.summary.balance >= 0 ? styles.positive : styles.negative,
+            ]}
+          >
             R$ {data.summary.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </Text>
         </View>
@@ -200,14 +208,14 @@ const FinancialReportPDF: React.FC<{ data: ReportData }> = ({ data }) => (
       {/* Análise por Categoria */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>🏷️ Análise por Categoria</Text>
-        
+
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
             <Text style={styles.tableCell}>Categoria</Text>
             <Text style={styles.tableCell}>Valor</Text>
             <Text style={styles.tableCell}>% do Total</Text>
           </View>
-          
+
           {Object.entries(data.categoryBreakdown).map(([category, amount]) => (
             <View style={styles.tableRow} key={category}>
               <Text style={styles.tableCell}>{category}</Text>
@@ -225,7 +233,7 @@ const FinancialReportPDF: React.FC<{ data: ReportData }> = ({ data }) => (
       {/* Tendência Mensal */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>📈 Tendência Mensal</Text>
-        
+
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
             <Text style={styles.tableCell}>Mês</Text>
@@ -233,8 +241,8 @@ const FinancialReportPDF: React.FC<{ data: ReportData }> = ({ data }) => (
             <Text style={styles.tableCell}>Despesas</Text>
             <Text style={styles.tableCell}>Saldo</Text>
           </View>
-          
-          {data.monthlyTrend.map((month) => (
+
+          {data.monthlyTrend.map(month => (
             <View style={styles.tableRow} key={month.month}>
               <Text style={styles.tableCell}>{month.month}</Text>
               <Text style={[styles.tableCell, styles.positive]}>
@@ -243,7 +251,9 @@ const FinancialReportPDF: React.FC<{ data: ReportData }> = ({ data }) => (
               <Text style={[styles.tableCell, styles.negative]}>
                 R$ {month.expenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </Text>
-              <Text style={[styles.tableCell, month.balance >= 0 ? styles.positive : styles.negative]}>
+              <Text
+                style={[styles.tableCell, month.balance >= 0 ? styles.positive : styles.negative]}
+              >
                 R$ {month.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </Text>
             </View>
@@ -275,37 +285,39 @@ const FinancialReportPDF: React.FC<{ data: ReportData }> = ({ data }) => (
             <Text style={[styles.tableCell, { flex: 0.8 }]}>Tipo</Text>
             <Text style={[styles.tableCell, { flex: 1 }]}>Valor</Text>
           </View>
-          
-          {data.transactions.slice(0, 50).map((transaction) => (
+
+          {data.transactions.slice(0, 50).map(transaction => (
             <View style={styles.tableRow} key={transaction.id}>
               <Text style={[styles.tableCell, { flex: 0.8 }]}>
                 {new Date(transaction.date).toLocaleDateString('pt-BR')}
               </Text>
               <Text style={[styles.tableCell, { flex: 2 }]}>
-                {transaction.description.length > 30 
+                {transaction.description.length > 30
                   ? transaction.description.substring(0, 30) + '...'
-                  : transaction.description
-                }
+                  : transaction.description}
               </Text>
               <Text style={[styles.tableCell, { flex: 1 }]}>{transaction.category}</Text>
               <Text style={[styles.tableCell, { flex: 0.8 }]}>
                 {transaction.type === 'income' ? '💰' : '💸'}
               </Text>
-              <Text style={[
-                styles.tableCell, 
-                { flex: 1 },
-                transaction.type === 'income' ? styles.positive : styles.negative
-              ]}>
-                R$ {Math.abs(transaction.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              <Text
+                style={[
+                  styles.tableCell,
+                  { flex: 1 },
+                  transaction.type === 'income' ? styles.positive : styles.negative,
+                ]}
+              >
+                R${' '}
+                {Math.abs(transaction.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </Text>
             </View>
           ))}
         </View>
-        
+
         {data.transactions.length > 50 && (
           <Text style={{ textAlign: 'center', color: '#666666', marginTop: 10 }}>
-            Mostrando as primeiras 50 transações de {data.transactions.length} total.
-            Para ver todas, exporte o relatório completo.
+            Mostrando as primeiras 50 transações de {data.transactions.length} total. Para ver
+            todas, exporte o relatório completo.
           </Text>
         )}
       </View>
@@ -325,37 +337,45 @@ const generateSampleData = (user: FamilyUser): ReportData => {
 
   const categories = ['Alimentação', 'Transporte', 'Saúde', 'Educação', 'Lazer', 'Casa', 'Outros'];
   const transactions = [];
-  
+
   // Gerar transações de exemplo
   for (let i = 0; i < 50; i++) {
     const isIncome = Math.random() > 0.7; // 30% de chance de ser receita
-    const amount = isIncome 
+    const amount = isIncome
       ? Math.random() * 5000 + 1000 // Receitas entre 1000-6000
-      : Math.random() * 800 + 50;   // Despesas entre 50-850
+      : Math.random() * 800 + 50; // Despesas entre 50-850
 
-    const date = new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
-    
+    const date = new Date(
+      startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime())
+    );
+
     transactions.push({
       id: `tx_${i}`,
       date: date.toISOString(),
-      description: isIncome 
+      description: isIncome
         ? `Receita ${i + 1} - Salário/Freelance`
         : `Despesa ${i + 1} - ${categories[Math.floor(Math.random() * categories.length)]}`,
       amount: isIncome ? amount : -amount,
-      type: isIncome ? 'income' as const : 'expense' as const,
-      category: isIncome ? 'Receita' : categories[Math.floor(Math.random() * categories.length)]
+      type: isIncome ? ('income' as const) : ('expense' as const),
+      category: isIncome ? 'Receita' : categories[Math.floor(Math.random() * categories.length)],
     });
   }
 
   // Calcular resumo
-  const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-  const totalExpenses = Math.abs(transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0));
-  
+  const totalIncome = transactions
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0);
+  const totalExpenses = Math.abs(
+    transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)
+  );
+
   // Calcular breakdown por categoria
   const categoryBreakdown: Record<string, number> = {};
-  transactions.filter(t => t.type === 'expense').forEach(t => {
-    categoryBreakdown[t.category] = (categoryBreakdown[t.category] || 0) + Math.abs(t.amount);
-  });
+  transactions
+    .filter(t => t.type === 'expense')
+    .forEach(t => {
+      categoryBreakdown[t.category] = (categoryBreakdown[t.category] || 0) + Math.abs(t.amount);
+    });
 
   // Gerar tendência mensal
   const monthlyTrend = [];
@@ -363,12 +383,12 @@ const generateSampleData = (user: FamilyUser): ReportData => {
     const monthDate = new Date();
     monthDate.setMonth(monthDate.getMonth() - i);
     const monthName = monthDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-    
+
     monthlyTrend.push({
       month: monthName,
       income: totalIncome / 3 + (Math.random() - 0.5) * 1000,
       expenses: totalExpenses / 3 + (Math.random() - 0.5) * 500,
-      balance: (totalIncome - totalExpenses) / 3 + (Math.random() - 0.5) * 800
+      balance: (totalIncome - totalExpenses) / 3 + (Math.random() - 0.5) * 800,
     });
   }
 
@@ -376,17 +396,19 @@ const generateSampleData = (user: FamilyUser): ReportData => {
     user,
     period: {
       start: startDate.toISOString(),
-      end: endDate.toISOString()
+      end: endDate.toISOString(),
     },
-    transactions: transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    transactions: transactions.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    ),
     summary: {
       totalIncome,
       totalExpenses,
       balance: totalIncome - totalExpenses,
-      transactionCount: transactions.length
+      transactionCount: transactions.length,
     },
     categoryBreakdown,
-    monthlyTrend
+    monthlyTrend,
   };
 };
 
@@ -407,10 +429,10 @@ export const FinancialReportGenerator: React.FC = () => {
     try {
       // Simular carregamento de dados
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       const data = generateSampleData(selectedUser);
       setReportData(data);
-      
+
       toast.success('Relatório gerado com sucesso!');
     } catch (error) {
       toast.error('Erro ao gerar relatório');
@@ -460,7 +482,7 @@ export const FinancialReportGenerator: React.FC = () => {
       // Converter para canvas e depois para imagem
       const canvas = await html2canvas(element, {
         backgroundColor: '#ffffff',
-        scale: 2
+        scale: 2,
       });
 
       // Criar PDF com jsPDF
@@ -483,7 +505,9 @@ export const FinancialReportGenerator: React.FC = () => {
         heightLeft -= pageHeight;
       }
 
-      pdf.save(`relatorio-financeiro-${reportData.user.name}-${new Date().toISOString().split('T')[0]}.pdf`);
+      pdf.save(
+        `relatorio-financeiro-${reportData.user.name}-${new Date().toISOString().split('T')[0]}.pdf`
+      );
       toast.success('Relatório exportado como PDF!');
     } catch (error) {
       toast.error('Erro ao exportar para PDF');
@@ -494,21 +518,21 @@ export const FinancialReportGenerator: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Seleção de usuário e controles */}
-      <div className="bg-gray-900/50 backdrop-blur-sm border border-cyan-500/20 rounded-xl p-6">
-        <h2 className="text-xl font-bold text-white mb-4">📊 Gerador de Relatórios Financeiros</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div className="rounded-xl border border-cyan-500/20 bg-gray-900/50 p-6 backdrop-blur-sm">
+        <h2 className="mb-4 text-xl font-bold text-white">📊 Gerador de Relatórios Financeiros</h2>
+
+        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-300">
               Usuário para o relatório
             </label>
             <select
               value={selectedUser?.id || ''}
-              onChange={(e) => {
+              onChange={e => {
                 const user = users.find(u => u.id === e.target.value);
                 setSelectedUser(user || null);
               }}
-              className="w-full px-3 py-2 bg-gray-800/50 border border-gray-600/50 rounded-lg text-white focus:border-cyan-400/50 focus:outline-none"
+              className="w-full rounded-lg border border-gray-600/50 bg-gray-800/50 px-3 py-2 text-white focus:border-cyan-400/50 focus:outline-none"
             >
               <option value="">Selecione um usuário</option>
               {users.map(user => (
@@ -524,26 +548,24 @@ export const FinancialReportGenerator: React.FC = () => {
           <motion.button
             onClick={generateReport}
             disabled={!selectedUser || isGenerating}
-            className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 disabled:bg-gray-600 text-white rounded-lg transition-colors"
+            className="flex items-center gap-2 rounded-lg bg-cyan-500 px-4 py-2 text-white transition-colors hover:bg-cyan-600 disabled:bg-gray-600"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             {isGenerating ? (
               <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                 Gerando...
               </>
             ) : (
-              <>
-                📊 Gerar Relatório
-              </>
+              <>📊 Gerar Relatório</>
             )}
           </motion.button>
 
           {reportData && (
             <motion.button
               onClick={exportToHTML}
-              className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-white transition-colors hover:bg-green-600"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -555,14 +577,14 @@ export const FinancialReportGenerator: React.FC = () => {
 
       {/* Preview do relatório */}
       {reportData && (
-        <div className="bg-gray-900/50 backdrop-blur-sm border border-cyan-500/20 rounded-xl p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="rounded-xl border border-cyan-500/20 bg-gray-900/50 p-6 backdrop-blur-sm">
+          <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-bold text-white">Preview do Relatório</h3>
-            
+
             <PDFDownloadLink
               document={<FinancialReportPDF data={reportData} />}
               fileName={`relatorio-financeiro-${reportData.user.name}-${new Date().toISOString().split('T')[0]}.pdf`}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-purple-500 px-4 py-2 text-white transition-colors hover:bg-purple-600"
             >
               {({ _blob, _url, loading, _error }) =>
                 loading ? '⏳ Carregando...' : '📁 Download PDF (React-PDF)'
@@ -571,30 +593,43 @@ export const FinancialReportGenerator: React.FC = () => {
           </div>
 
           {/* Resumo rápido */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-4">
-              <div className="text-green-400 text-sm font-medium">Receitas</div>
+          <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div className="rounded-lg border border-green-500/30 bg-green-500/20 p-4">
+              <div className="text-sm font-medium text-green-400">Receitas</div>
               <div className="text-xl font-bold text-white">
-                R$ {reportData.summary.totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                R${' '}
+                {reportData.summary.totalIncome.toLocaleString('pt-BR', {
+                  minimumFractionDigits: 2,
+                })}
               </div>
             </div>
-            
-            <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4">
-              <div className="text-red-400 text-sm font-medium">Despesas</div>
+
+            <div className="rounded-lg border border-red-500/30 bg-red-500/20 p-4">
+              <div className="text-sm font-medium text-red-400">Despesas</div>
               <div className="text-xl font-bold text-white">
-                R$ {reportData.summary.totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                R${' '}
+                {reportData.summary.totalExpenses.toLocaleString('pt-BR', {
+                  minimumFractionDigits: 2,
+                })}
               </div>
             </div>
-            
-            <div className={`${reportData.summary.balance >= 0 ? 'bg-cyan-500/20 border-cyan-500/30' : 'bg-red-500/20 border-red-500/30'} rounded-lg p-4`}>
-              <div className={`${reportData.summary.balance >= 0 ? 'text-cyan-400' : 'text-red-400'} text-sm font-medium`}>Saldo</div>
+
+            <div
+              className={`${reportData.summary.balance >= 0 ? 'border-cyan-500/30 bg-cyan-500/20' : 'border-red-500/30 bg-red-500/20'} rounded-lg p-4`}
+            >
+              <div
+                className={`${reportData.summary.balance >= 0 ? 'text-cyan-400' : 'text-red-400'} text-sm font-medium`}
+              >
+                Saldo
+              </div>
               <div className="text-xl font-bold text-white">
-                R$ {reportData.summary.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                R${' '}
+                {reportData.summary.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </div>
             </div>
-            
-            <div className="bg-gray-500/20 border border-gray-500/30 rounded-lg p-4">
-              <div className="text-gray-400 text-sm font-medium">Transações</div>
+
+            <div className="rounded-lg border border-gray-500/30 bg-gray-500/20 p-4">
+              <div className="text-sm font-medium text-gray-400">Transações</div>
               <div className="text-xl font-bold text-white">
                 {reportData.summary.transactionCount}
               </div>
@@ -602,23 +637,29 @@ export const FinancialReportGenerator: React.FC = () => {
           </div>
 
           {/* Últimas transações */}
-          <div className="bg-gray-800/30 rounded-lg p-4">
-            <h4 className="text-white font-medium mb-3">Últimas Transações</h4>
-            <div className="space-y-2 max-h-48 overflow-y-auto">
+          <div className="rounded-lg bg-gray-800/30 p-4">
+            <h4 className="mb-3 font-medium text-white">Últimas Transações</h4>
+            <div className="max-h-48 space-y-2 overflow-y-auto">
               {reportData.transactions.slice(0, 10).map(transaction => (
-                <div key={transaction.id} className="flex items-center justify-between p-2 bg-gray-700/30 rounded">
+                <div
+                  key={transaction.id}
+                  className="flex items-center justify-between rounded bg-gray-700/30 p-2"
+                >
                   <div className="flex items-center gap-3">
-                    <span className="text-lg">
-                      {transaction.type === 'income' ? '💰' : '💸'}
-                    </span>
+                    <span className="text-lg">{transaction.type === 'income' ? '💰' : '💸'}</span>
                     <div>
-                      <div className="text-white text-sm">{transaction.description}</div>
-                      <div className="text-gray-400 text-xs">{transaction.category}</div>
+                      <div className="text-sm text-white">{transaction.description}</div>
+                      <div className="text-xs text-gray-400">{transaction.category}</div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className={`font-bold ${transaction.type === 'income' ? 'text-green-400' : 'text-red-400'}`}>
-                      R$ {Math.abs(transaction.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    <div
+                      className={`font-bold ${transaction.type === 'income' ? 'text-green-400' : 'text-red-400'}`}
+                    >
+                      R${' '}
+                      {Math.abs(transaction.amount).toLocaleString('pt-BR', {
+                        minimumFractionDigits: 2,
+                      })}
                     </div>
                     <div className="text-xs text-gray-400">
                       {new Date(transaction.date).toLocaleDateString('pt-BR')}

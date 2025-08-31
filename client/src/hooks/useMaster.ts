@@ -9,10 +9,10 @@ export const useMaster = () => {
   }
   const { master, currentUser } = context;
   const isMaster = currentUser?.id === master?.id;
-  
+
   return {
     master,
     isMaster,
-    masterData: master
+    masterData: master,
   };
 };

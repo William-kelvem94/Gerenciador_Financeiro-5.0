@@ -27,21 +27,19 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-          <div className="min-h-screen flex items-center justify-center bg-black p-4">
-          <div className="max-w-md w-full text-center">
+        <div className="flex min-h-screen items-center justify-center bg-black p-4">
+          <div className="w-full max-w-md text-center">
             <div className="mb-8">
-              <AlertTriangle className="w-16 h-16 text-cyber-warning mx-auto mb-4" />
-              <h1 className="text-2xl font-cyber text-cyber-primary mb-2">
-                System Error
-              </h1>
+              <AlertTriangle className="text-cyber-warning mx-auto mb-4 h-16 w-16" />
+              <h1 className="font-cyber text-cyber-primary mb-2 text-2xl">System Error</h1>
               <p className="text-white-secondary mb-6">
                 Something went wrong in the financial matrix
               </p>
             </div>
 
-            <div className="bg-black-secondary border border-cyber-border rounded-lg p-4 mb-6 text-left">
-              <h3 className="text-sm font-mono text-cyber-accent mb-2">Error Details:</h3>
-              <code className="text-xs text-white-muted break-all">
+            <div className="bg-black-secondary border-cyber-border mb-6 rounded-lg border p-4 text-left">
+              <h3 className="text-cyber-accent mb-2 font-mono text-sm">Error Details:</h3>
+              <code className="text-white-muted text-xs break-all">
                 {this.state.error?.message || 'Unknown error occurred'}
               </code>
             </div>
@@ -49,20 +47,20 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="space-y-3">
               <button
                 onClick={() => window.location.reload()}
-                className="w-full px-4 py-2 bg-cyber-primary text-cyber-dark rounded-lg hover:bg-cyber-secondary transition-colors font-medium"
+                className="bg-cyber-primary text-cyber-dark hover:bg-cyber-secondary w-full rounded-lg px-4 py-2 font-medium transition-colors"
               >
                 Reload Application
               </button>
-              
+
               <button
                 onClick={() => this.setState({ hasError: false, error: null })}
-                className="w-full px-4 py-2 border border-cyber-border text-white hover:bg-black-secondary transition-colors rounded-lg"
+                className="border-cyber-border hover:bg-black-secondary w-full rounded-lg border px-4 py-2 text-white transition-colors"
               >
                 Try Again
               </button>
             </div>
 
-            <p className="text-xs text-white-muted mt-6">
+            <p className="text-white-muted mt-6 text-xs">
               If the problem persists, please contact support.
             </p>
           </div>

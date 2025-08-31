@@ -49,7 +49,9 @@ export class TransactionService {
     } else if (transaction.amount < this.MIN_AMOUNT) {
       errors.push(`Valor mínimo é R$ ${this.MIN_AMOUNT.toFixed(2)}`);
     } else if (transaction.amount > this.MAX_AMOUNT) {
-      errors.push(`Valor máximo é R$ ${this.MAX_AMOUNT.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+      errors.push(
+        `Valor máximo é R$ ${this.MAX_AMOUNT.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+      );
     }
 
     // Validar tipo
@@ -86,16 +88,18 @@ export class TransactionService {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
   /**
    * Cria uma nova transação com validação
    */
-  public static createTransaction(transactionData: Omit<Transaction, 'id' | 'timestamp'>): Transaction {
+  public static createTransaction(
+    transactionData: Omit<Transaction, 'id' | 'timestamp'>
+  ): Transaction {
     const validation = this.validateTransaction(transactionData);
-    
+
     if (!validation.isValid) {
       const errorMessage = `Erro ao criar transação: ${validation.errors.join(', ')}`;
       toast.error(errorMessage);
@@ -112,7 +116,7 @@ export class TransactionService {
       ...transactionData,
       id: uuidv4(), // ID único universal
       timestamp: new Date().toISOString(),
-      amount: parseFloat(transactionData.amount.toFixed(2)) // Garantir precisão decimal
+      amount: parseFloat(transactionData.amount.toFixed(2)), // Garantir precisão decimal
     };
 
     toast.success(`Transação "${newTransaction.description}" criada com sucesso!`);
@@ -123,7 +127,7 @@ export class TransactionService {
    * Atualiza uma transação existente
    */
   public static updateTransaction(
-    id: string, 
+    id: string,
     updates: Partial<Omit<Transaction, 'id' | 'timestamp'>>,
     originalTransaction: Transaction
   ): Transaction {
@@ -146,7 +150,7 @@ export class TransactionService {
       ...updatedData,
       id,
       timestamp: originalTransaction.timestamp,
-      amount: parseFloat(updatedData.amount.toFixed(2))
+      amount: parseFloat(updatedData.amount.toFixed(2)),
     };
 
     toast.success(`Transação "${updatedTransaction.description}" atualizada!`);
@@ -170,7 +174,7 @@ export class TransactionService {
         }
 
         const amount = parseFloat(curr.amount.toFixed(2));
-        
+
         if (isNaN(amount)) {
           console.warn('Valor inválido na transação:', curr);
           return acc;
@@ -202,7 +206,10 @@ export class TransactionService {
   /**
    * Calcula total por tipo com validação
    */
-  private static calculateTotalByType(transactions: Transaction[], type: 'income' | 'expense'): number {
+  private static calculateTotalByType(
+    transactions: Transaction[],
+    type: 'income' | 'expense'
+  ): number {
     if (!Array.isArray(transactions)) {
       return 0;
     }
@@ -224,7 +231,7 @@ export class TransactionService {
    * Filtra transações por critérios
    */
   public static filterTransactions(
-    transactions: Transaction[], 
+    transactions: Transaction[],
     filters: {
       search?: string;
       type?: 'all' | 'income' | 'expense';
@@ -241,8 +248,10 @@ export class TransactionService {
       // Filtro por busca
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
-        if (!transaction.description.toLowerCase().includes(searchLower) &&
-            !transaction.category.toLowerCase().includes(searchLower)) {
+        if (
+          !transaction.description.toLowerCase().includes(searchLower) &&
+          !transaction.category.toLowerCase().includes(searchLower)
+        ) {
           return false;
         }
       }
@@ -290,15 +299,21 @@ export class TransactionService {
     const expenseTransactions = transactions.filter(t => t.type === 'expense');
 
     // Agrupar por categoria
-    const expensesByCategory = expenseTransactions.reduce((acc, t) => {
-      acc[t.category] = (acc[t.category] || 0) + t.amount;
-      return acc;
-    }, {} as Record<string, number>);
+    const expensesByCategory = expenseTransactions.reduce(
+      (acc, t) => {
+        acc[t.category] = (acc[t.category] || 0) + t.amount;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
-    const incomeByCategory = incomeTransactions.reduce((acc, t) => {
-      acc[t.category] = (acc[t.category] || 0) + t.amount;
-      return acc;
-    }, {} as Record<string, number>);
+    const incomeByCategory = incomeTransactions.reduce(
+      (acc, t) => {
+        acc[t.category] = (acc[t.category] || 0) + t.amount;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     return {
       summary: {
@@ -306,16 +321,23 @@ export class TransactionService {
         totalExpenses,
         balance,
         transactionCount: transactions.length,
-        averageTransaction: transactions.length > 0 ? (totalIncome + totalExpenses) / transactions.length : 0
+        averageTransaction:
+          transactions.length > 0 ? (totalIncome + totalExpenses) / transactions.length : 0,
       },
       breakdown: {
         incomeByCategory,
-        expensesByCategory
+        expensesByCategory,
       },
       period: {
-        startDate: transactions.length > 0 ? transactions.reduce((min, t) => t.date < min ? t.date : min, transactions[0].date) : null,
-        endDate: transactions.length > 0 ? transactions.reduce((max, t) => t.date > max ? t.date : max, transactions[0].date) : null
-      }
+        startDate:
+          transactions.length > 0
+            ? transactions.reduce((min, t) => (t.date < min ? t.date : min), transactions[0].date)
+            : null,
+        endDate:
+          transactions.length > 0
+            ? transactions.reduce((max, t) => (t.date > max ? t.date : max), transactions[0].date)
+            : null,
+      },
     };
   }
 
@@ -334,7 +356,7 @@ export class TransactionService {
       return {
         isValid: false,
         issues: ['Dados de transação não são um array válido'],
-        fixedTransactions: []
+        fixedTransactions: [],
       };
     }
 
@@ -368,14 +390,16 @@ export class TransactionService {
 
         fixedTransactions.push(transaction);
       } catch (error) {
-        issues.push(`Transação ${index}: Erro ao processar - ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+        issues.push(
+          `Transação ${index}: Erro ao processar - ${error instanceof Error ? error.message : 'Erro desconhecido'}`
+        );
       }
     });
 
     return {
       isValid: issues.length === 0,
       issues,
-      fixedTransactions
+      fixedTransactions,
     };
   }
 }

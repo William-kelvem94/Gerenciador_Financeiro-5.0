@@ -18,9 +18,9 @@ interface CyberpunkParticlesProps {
   speed?: number;
 }
 
-export const CyberpunkParticles: React.FC<CyberpunkParticlesProps> = ({ 
-  count = 50, 
-  speed = 1 
+export const CyberpunkParticles: React.FC<CyberpunkParticlesProps> = ({
+  count = 50,
+  speed = 1,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
@@ -83,30 +83,49 @@ export const CyberpunkParticles: React.FC<CyberpunkParticlesProps> = ({
       particle.life++;
 
       // Fade out over time
-      particle.opacity = Math.max(0, 1 - (particle.life / particle.maxLife));
+      particle.opacity = Math.max(0, 1 - particle.life / particle.maxLife);
 
       // Add some drift
       particle.vx += (Math.random() - 0.5) * 0.02;
       particle.vy += Math.random() * 0.01;
 
       // Reset particle if it's out of bounds or dead
-      if (particle.y < -50 || particle.x < -50 || particle.x > canvas.width + 50 || particle.life >= particle.maxLife) {
+      if (
+        particle.y < -50 ||
+        particle.x < -50 ||
+        particle.x > canvas.width + 50 ||
+        particle.life >= particle.maxLife
+      ) {
         Object.assign(particle, createParticle());
       }
     };
 
     const drawParticle = (particle: Particle) => {
       ctx.save();
-      
+
       // Create glow effect
       const glowSize = particle.size * 3;
       const gradient = ctx.createRadialGradient(
-        particle.x, particle.y, 0,
-        particle.x, particle.y, glowSize
+        particle.x,
+        particle.y,
+        0,
+        particle.x,
+        particle.y,
+        glowSize
       );
-      
-      gradient.addColorStop(0, `${particle.color}${Math.floor(particle.opacity * 255).toString(16).padStart(2, '0')}`);
-      gradient.addColorStop(0.5, `${particle.color}${Math.floor(particle.opacity * 128).toString(16).padStart(2, '0')}`);
+
+      gradient.addColorStop(
+        0,
+        `${particle.color}${Math.floor(particle.opacity * 255)
+          .toString(16)
+          .padStart(2, '0')}`
+      );
+      gradient.addColorStop(
+        0.5,
+        `${particle.color}${Math.floor(particle.opacity * 128)
+          .toString(16)
+          .padStart(2, '0')}`
+      );
       gradient.addColorStop(1, 'transparent');
 
       // Draw glow
@@ -116,7 +135,9 @@ export const CyberpunkParticles: React.FC<CyberpunkParticlesProps> = ({
       ctx.fill();
 
       // Draw core particle
-      ctx.fillStyle = `${particle.color}${Math.floor(particle.opacity * 255).toString(16).padStart(2, '0')}`;
+      ctx.fillStyle = `${particle.color}${Math.floor(particle.opacity * 255)
+        .toString(16)
+        .padStart(2, '0')}`;
       ctx.beginPath();
       ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
       ctx.fill();
@@ -156,7 +177,7 @@ export const CyberpunkParticles: React.FC<CyberpunkParticlesProps> = ({
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
+      className="pointer-events-none fixed inset-0 z-0"
       style={{
         opacity: 0.6,
         mixBlendMode: 'screen',
@@ -187,9 +208,10 @@ export const MatrixRain: React.FC = () => {
     window.addEventListener('resize', updateCanvasSize);
 
     // Matrix characters
-    const chars = 'ラドクリフ上田ハネムーン01$€¥£₹₽₿アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨランリルレロワヲン';
+    const chars =
+      'ラドクリフ上田ハネムーン01$€¥£₹₽₿アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨランリルレロワヲン';
     const charArray = chars.split('');
-    
+
     const fontSize = 14;
     const columns = canvas.width / fontSize;
     const drops: number[] = [];
@@ -210,7 +232,7 @@ export const MatrixRain: React.FC = () => {
       for (let i = 0; i < drops.length; i++) {
         // Random character
         const text = charArray[Math.floor(Math.random() * charArray.length)];
-        
+
         // Draw character
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
@@ -245,7 +267,7 @@ export const MatrixRain: React.FC = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
+      className="pointer-events-none fixed inset-0 z-0"
       style={{
         opacity: 0.3,
       }}
@@ -263,7 +285,7 @@ export const CyberpunkGrid: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 pointer-events-none z-0"
+      className="pointer-events-none fixed inset-0 z-0"
       style={{
         backgroundImage: `
           linear-gradient(rgba(${hexToRgb(currentTheme.colors.primary)}, 0.1) 1px, transparent 1px),
@@ -280,10 +302,6 @@ export const CyberpunkGrid: React.FC = () => {
 const hexToRgb = (hex: string): string => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   if (!result) return '0, 0, 0';
-  
-  return [
-    parseInt(result[1], 16),
-    parseInt(result[2], 16),
-    parseInt(result[3], 16)
-  ].join(', ');
+
+  return [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)].join(', ');
 };

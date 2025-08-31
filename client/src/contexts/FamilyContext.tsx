@@ -2,7 +2,14 @@
  * Provedor de contexto para gerenciamento familiar
  * Sistema hierárquico de usuários com permissões granulares
  */
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useCallback,
+} from 'react';
 import { toast } from 'react-toastify';
 
 export interface FamilyUser {
@@ -46,22 +53,24 @@ interface FamilyContextType {
   users: FamilyUser[];
   databases: FamilyDatabase[];
   currentUser: FamilyUser | null;
-  
+
   // Ações de usuário
   addUser: (user: Omit<FamilyUser, 'id' | 'createdAt' | 'isActive'>) => Promise<FamilyUser>;
   updateUser: (id: string, updates: Partial<FamilyUser>) => Promise<boolean>;
   removeUser: (id: string) => Promise<boolean>;
   setCurrentUser: (user: FamilyUser | null) => void;
-  
+
   // Ações de database
-  createDatabase: (database: Omit<FamilyDatabase, 'id' | 'createdAt' | 'isActive'>) => Promise<FamilyDatabase>;
+  createDatabase: (
+    database: Omit<FamilyDatabase, 'id' | 'createdAt' | 'isActive'>
+  ) => Promise<FamilyDatabase>;
   updateDatabase: (id: string, updates: Partial<FamilyDatabase>) => Promise<boolean>;
   removeDatabase: (id: string) => Promise<boolean>;
-  
+
   // Verificações de permissão
   hasPermission: (userId: string, resource: string, action: string) => boolean;
   canAccessDatabase: (userId: string, databaseId: string) => boolean;
-  
+
   // Utilitários
   getUsersByRole: (role: FamilyUser['role']) => FamilyUser[];
   getActiveUsers: () => FamilyUser[];
@@ -73,7 +82,7 @@ interface FamilyContextType {
   };
 }
 
-const FamilyContext = createContext<FamilyContextType | null>(null);
+export const FamilyContext = createContext<FamilyContextType | null>(null);
 
 // Permissões padrão por role
 const DEFAULT_PERMISSIONS: Record<FamilyUser['role'], Permission[]> = {
@@ -81,45 +90,45 @@ const DEFAULT_PERMISSIONS: Record<FamilyUser['role'], Permission[]> = {
     {
       resource: '*',
       actions: ['create', 'read', 'update', 'delete', 'admin'],
-      scope: 'all'
-    }
+      scope: 'all',
+    },
   ],
   admin: [
     {
       resource: 'transactions',
       actions: ['create', 'read', 'update', 'delete'],
-      scope: 'family'
+      scope: 'family',
     },
     {
       resource: 'budgets',
       actions: ['create', 'read', 'update', 'delete'],
-      scope: 'family'
+      scope: 'family',
     },
     {
       resource: 'reports',
       actions: ['create', 'read'],
-      scope: 'family'
-    }
+      scope: 'family',
+    },
   ],
   user: [
     {
       resource: 'transactions',
       actions: ['create', 'read', 'update'],
-      scope: 'own'
+      scope: 'own',
     },
     {
       resource: 'budgets',
       actions: ['read'],
-      scope: 'own'
-    }
+      scope: 'own',
+    },
   ],
   child: [
     {
       resource: 'transactions',
       actions: ['read'],
-      scope: 'own'
-    }
-  ]
+      scope: 'own',
+    },
+  ],
 };
 
 interface FamilyProviderProps {
@@ -132,53 +141,62 @@ export const FamilyProvider: React.FC<FamilyProviderProps> = ({ children }) => {
   const [databases, setDatabases] = useState<FamilyDatabase[]>([]);
   const [currentUser, setCurrentUser] = useState<FamilyUser | null>(null);
 
-  const addUser = useCallback(async (userData: Omit<FamilyUser, 'id' | 'createdAt' | 'isActive'>): Promise<FamilyUser> => {
-    try {
-      // Verificar se email já existe
-      if (users.some(u => u.email === userData.email)) {
-        throw new Error('Email já está em uso');
+  const addUser = useCallback(
+    async (userData: Omit<FamilyUser, 'id' | 'createdAt' | 'isActive'>): Promise<FamilyUser> => {
+      try {
+        // Verificar se email já existe
+        if (users.some(u => u.email === userData.email)) {
+          throw new Error('Email já está em uso');
+        }
+
+        const newUser: FamilyUser = {
+          ...userData,
+          id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          createdAt: new Date().toISOString(),
+          isActive: true,
+          permissions:
+            userData.permissions || DEFAULT_PERMISSIONS[userData.role] || DEFAULT_PERMISSIONS.user,
+        };
+
+        setUsers(prev => [...prev, newUser]);
+
+        if (userData.role === 'master') {
+          setMaster(newUser);
+        }
+
+        toast.success(`Usuário ${newUser.name} adicionado com sucesso!`);
+        return newUser;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Erro ao adicionar usuário';
+        toast.error(message);
+        throw error;
       }
+    },
+    [users]
+  );
 
-      const newUser: FamilyUser = {
-        ...userData,
-        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        createdAt: new Date().toISOString(),
-        isActive: true,
-        permissions: userData.permissions || DEFAULT_PERMISSIONS[userData.role] || DEFAULT_PERMISSIONS.user
-      };
+  const createDatabase = useCallback(
+    async (
+      dbData: Omit<FamilyDatabase, 'id' | 'createdAt' | 'isActive'>
+    ): Promise<FamilyDatabase> => {
+      try {
+        const newDatabase: FamilyDatabase = {
+          ...dbData,
+          id: `db_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          createdAt: new Date().toISOString(),
+          isActive: true,
+        };
 
-      setUsers(prev => [...prev, newUser]);
-
-      if (userData.role === 'master') {
-        setMaster(newUser);
+        setDatabases(prev => [...prev, newDatabase]);
+        toast.success(`Database ${newDatabase.displayName} criado!`);
+        return newDatabase;
+      } catch {
+        toast.error('Erro ao criar database');
+        throw new Error('Erro ao criar database');
       }
-
-      toast.success(`Usuário ${newUser.name} adicionado com sucesso!`);
-      return newUser;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao adicionar usuário';
-      toast.error(message);
-      throw error;
-    }
-  }, [users]);
-
-  const createDatabase = useCallback(async (dbData: Omit<FamilyDatabase, 'id' | 'createdAt' | 'isActive'>): Promise<FamilyDatabase> => {
-    try {
-      const newDatabase: FamilyDatabase = {
-        ...dbData,
-        id: `db_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        createdAt: new Date().toISOString(),
-        isActive: true
-      };
-
-      setDatabases(prev => [...prev, newDatabase]);
-      toast.success(`Database ${newDatabase.displayName} criado!`);
-      return newDatabase;
-    } catch {
-      toast.error('Erro ao criar database');
-      throw new Error('Erro ao criar database');
-    }
-  }, []);
+    },
+    []
+  );
 
   const initializeDefaultUsers = useCallback(async () => {
     const defaultUsers = [
@@ -187,22 +205,22 @@ export const FamilyProvider: React.FC<FamilyProviderProps> = ({ children }) => {
         email: 'admin@familia.com',
         role: 'master' as const,
         databases: ['db-family', 'db-master', 'db-pai', 'db-mae'],
-        permissions: DEFAULT_PERMISSIONS.master
+        permissions: DEFAULT_PERMISSIONS.master,
       },
       {
         name: 'Pai',
         email: 'pai@familia.com',
         role: 'admin' as const,
         databases: ['db-family', 'db-pai'],
-        permissions: DEFAULT_PERMISSIONS.admin
+        permissions: DEFAULT_PERMISSIONS.admin,
       },
       {
         name: 'Mãe',
         email: 'mae@familia.com',
         role: 'admin' as const,
         databases: ['db-family', 'db-mae'],
-        permissions: DEFAULT_PERMISSIONS.admin
-      }
+        permissions: DEFAULT_PERMISSIONS.admin,
+      },
     ];
 
     for (const userData of defaultUsers) {
@@ -216,22 +234,28 @@ export const FamilyProvider: React.FC<FamilyProviderProps> = ({ children }) => {
         displayName: 'Financeiro Familiar',
         description: 'Contas compartilhadas da família',
         owner: users.find(u => u.role === 'master')?.id || '',
-        members: users.map(u => u.id)
+        members: users.map(u => u.id),
       },
       {
         name: 'db-pai',
         displayName: 'Contas do Pai',
         description: 'Contas pessoais do pai',
         owner: users.find(u => u.email === 'pai@familia.com')?.id || '',
-        members: [users.find(u => u.role === 'master')?.id || '', users.find(u => u.email === 'pai@familia.com')?.id || ''].filter(Boolean)
+        members: [
+          users.find(u => u.role === 'master')?.id || '',
+          users.find(u => u.email === 'pai@familia.com')?.id || '',
+        ].filter(Boolean),
       },
       {
         name: 'db-mae',
         displayName: 'Contas da Mãe',
         description: 'Contas pessoais da mãe',
         owner: users.find(u => u.email === 'mae@familia.com')?.id || '',
-        members: [users.find(u => u.role === 'master')?.id || '', users.find(u => u.email === 'mae@familia.com')?.id || ''].filter(Boolean)
-      }
+        members: [
+          users.find(u => u.role === 'master')?.id || '',
+          users.find(u => u.email === 'mae@familia.com')?.id || '',
+        ].filter(Boolean),
+      },
     ];
 
     for (const dbData of defaultDatabases) {
@@ -252,7 +276,7 @@ export const FamilyProvider: React.FC<FamilyProviderProps> = ({ children }) => {
         if (savedUsers) {
           const parsedUsers = JSON.parse(savedUsers);
           setUsers(parsedUsers);
-          
+
           // Encontrar master
           const masterUser = parsedUsers.find((u: FamilyUser) => u.role === 'master');
           if (masterUser) {
@@ -301,75 +325,84 @@ export const FamilyProvider: React.FC<FamilyProviderProps> = ({ children }) => {
   }, [currentUser]);
 
   // Atualizar usuário
-  const updateUser = useCallback(async (id: string, updates: Partial<FamilyUser>): Promise<boolean> => {
-    try {
-      setUsers(prev => prev.map(user => {
-        if (user.id === id) {
-          const updatedUser = { ...user, ...updates };
-          
-          // Atualizar master se necessário
-          if (updatedUser.role === 'master') {
-            setMaster(updatedUser);
-          }
-          
-          // Atualizar currentUser se é o mesmo
-          if (currentUser?.id === id) {
-            setCurrentUser(updatedUser);
-          }
-          
-          return updatedUser;
-        }
-        return user;
-      }));
+  const updateUser = useCallback(
+    async (id: string, updates: Partial<FamilyUser>): Promise<boolean> => {
+      try {
+        setUsers(prev =>
+          prev.map(user => {
+            if (user.id === id) {
+              const updatedUser = { ...user, ...updates };
 
-      toast.success('Usuário atualizado com sucesso!');
-      return true;
-    } catch {
-      toast.error('Erro ao atualizar usuário');
-      return false;
-    }
-  }, [currentUser]);
+              // Atualizar master se necessário
+              if (updatedUser.role === 'master') {
+                setMaster(updatedUser);
+              }
+
+              // Atualizar currentUser se é o mesmo
+              if (currentUser?.id === id) {
+                setCurrentUser(updatedUser);
+              }
+
+              return updatedUser;
+            }
+            return user;
+          })
+        );
+
+        toast.success('Usuário atualizado com sucesso!');
+        return true;
+      } catch {
+        toast.error('Erro ao atualizar usuário');
+        return false;
+      }
+    },
+    [currentUser]
+  );
 
   // Remover usuário
-  const removeUser = useCallback(async (id: string): Promise<boolean> => {
-    try {
-      const userToRemove = users.find(u => u.id === id);
-      if (!userToRemove) {
-        throw new Error('Usuário não encontrado');
-      }
+  const removeUser = useCallback(
+    async (id: string): Promise<boolean> => {
+      try {
+        const userToRemove = users.find(u => u.id === id);
+        if (!userToRemove) {
+          throw new Error('Usuário não encontrado');
+        }
 
-      if (userToRemove.role === 'master') {
-        throw new Error('Não é possível remover o usuário master');
-      }
+        if (userToRemove.role === 'master') {
+          throw new Error('Não é possível remover o usuário master');
+        }
 
-      setUsers(prev => prev.filter(u => u.id !== id));
-      
-      if (currentUser?.id === id) {
-        setCurrentUser(null);
-      }
+        setUsers(prev => prev.filter(u => u.id !== id));
 
-      toast.success(`Usuário ${userToRemove.name} removido`);
-      return true;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao remover usuário';
-      toast.error(message);
-      return false;
-    }
-  }, [users, currentUser]);
+        if (currentUser?.id === id) {
+          setCurrentUser(null);
+        }
+
+        toast.success(`Usuário ${userToRemove.name} removido`);
+        return true;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Erro ao remover usuário';
+        toast.error(message);
+        return false;
+      }
+    },
+    [users, currentUser]
+  );
 
   // Atualizar database
-  const updateDatabase = useCallback(async (id: string, updates: Partial<FamilyDatabase>): Promise<boolean> => {
-    try {
-      setDatabases(prev => prev.map(db => 
-        db.id === id ? { ...db, ...updates } : db
-      ));
-      toast.success('Database atualizado!');
-      return true;
-    } catch {
-      toast.error('Erro ao atualizar database');
-      return false;
-    }
-  }, []);
+  const updateDatabase = useCallback(
+    async (id: string, updates: Partial<FamilyDatabase>): Promise<boolean> => {
+      try {
+        setDatabases(prev => prev.map(db => (db.id === id ? { ...db, ...updates } : db)));
+        toast.success('Database atualizado!');
+        return true;
+      } catch {
+        toast.error('Erro ao atualizar database');
+        return false;
+      }
+    },
+    []
+  );
 
   // Remover database
   const removeDatabase = useCallback(async (id: string): Promise<boolean> => {
@@ -384,47 +417,56 @@ export const FamilyProvider: React.FC<FamilyProviderProps> = ({ children }) => {
   }, []);
 
   // Verificar permissão
-  const hasPermission = useCallback((userId: string, resource: string, action: string): boolean => {
-    const user = users.find(u => u.id === userId);
-    if (!user) return false;
+  const hasPermission = useCallback(
+    (userId: string, resource: string, action: string): boolean => {
+      const user = users.find(u => u.id === userId);
+      if (!user) return false;
 
-    // Master tem todas as permissões
-    if (user.role === 'master') return true;
+      // Master tem todas as permissões
+      if (user.role === 'master') return true;
 
-    // Verificar permissões específicas
-    return user.permissions.some(permission => {
-      // Wildcard resource
-      if (permission.resource === '*') {
-        return permission.actions.includes(action as any);
-      }
-      
-      // Resource específico
-      if (permission.resource === resource) {
-        return permission.actions.includes(action as any);
-      }
-      
-      return false;
-    });
-  }, [users]);
+      // Verificar permissões específicas
+      return user.permissions.some(permission => {
+        // Wildcard resource
+        if (permission.resource === '*') {
+          return permission.actions.includes(action as any);
+        }
+
+        // Resource específico
+        if (permission.resource === resource) {
+          return permission.actions.includes(action as any);
+        }
+
+        return false;
+      });
+    },
+    [users]
+  );
 
   // Verificar acesso a database
-  const canAccessDatabase = useCallback((userId: string, databaseId: string): boolean => {
-    const user = users.find(u => u.id === userId);
-    const database = databases.find(db => db.id === databaseId);
-    
-    if (!user || !database) return false;
-    
-    // Master tem acesso a tudo
-    if (user.role === 'master') return true;
-    
-    // Verificar se é membro do database
-    return database.members.includes(userId) || database.owner === userId;
-  }, [users, databases]);
+  const canAccessDatabase = useCallback(
+    (userId: string, databaseId: string): boolean => {
+      const user = users.find(u => u.id === userId);
+      const database = databases.find(db => db.id === databaseId);
+
+      if (!user || !database) return false;
+
+      // Master tem acesso a tudo
+      if (user.role === 'master') return true;
+
+      // Verificar se é membro do database
+      return database.members.includes(userId) || database.owner === userId;
+    },
+    [users, databases]
+  );
 
   // Obter usuários por role
-  const getUsersByRole = useCallback((role: FamilyUser['role']): FamilyUser[] => {
-    return users.filter(u => u.role === role);
-  }, [users]);
+  const getUsersByRole = useCallback(
+    (role: FamilyUser['role']): FamilyUser[] => {
+      return users.filter(u => u.role === role);
+    },
+    [users]
+  );
 
   // Obter usuários ativos
   const getActiveUsers = useCallback((): FamilyUser[] => {
@@ -434,16 +476,19 @@ export const FamilyProvider: React.FC<FamilyProviderProps> = ({ children }) => {
   // Obter estatísticas da família
   const getFamilyStats = useCallback(() => {
     const activeUsers = getActiveUsers();
-    const usersByRole = users.reduce((acc, user) => {
-      acc[user.role] = (acc[user.role] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const usersByRole = users.reduce(
+      (acc, user) => {
+        acc[user.role] = (acc[user.role] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     return {
       totalUsers: users.length,
       activeUsers: activeUsers.length,
       totalDatabases: databases.length,
-      usersByRole
+      usersByRole,
     };
   }, [users, databases, getActiveUsers]);
 
@@ -453,33 +498,29 @@ export const FamilyProvider: React.FC<FamilyProviderProps> = ({ children }) => {
     users,
     databases,
     currentUser,
-    
+
     // Ações de usuário
     addUser,
     updateUser,
     removeUser,
     setCurrentUser,
-    
+
     // Ações de database
     createDatabase,
     updateDatabase,
     removeDatabase,
-    
+
     // Verificações
     hasPermission,
     canAccessDatabase,
-    
+
     // Utilitários
     getUsersByRole,
     getActiveUsers,
-    getFamilyStats
+    getFamilyStats,
   };
 
-  return (
-    <FamilyContext.Provider value={contextValue}>
-      {children}
-    </FamilyContext.Provider>
-  );
+  return <FamilyContext.Provider value={contextValue}>{children}</FamilyContext.Provider>;
 };
 
 // Hook para usar o contexto
@@ -491,4 +532,3 @@ export const useFamily = (): FamilyContextType => {
   }
   return context;
 };
-

@@ -1,4 +1,3 @@
-
 import { render, screen } from '@testing-library/react';
 import { useEffect } from 'react';
 import { describe, it, expect, vi } from 'vitest';
@@ -14,21 +13,21 @@ type MockNavigateProps = {
 };
 
 // Mock do router com tipagem forte
-vi.mock('react-router-dom', async (importOriginal) => {
+vi.mock('react-router-dom', async importOriginal => {
   const actualModule = await importOriginal<typeof import('react-router-dom')>();
   return {
     ...actualModule,
     BrowserRouter: ({ children }: MockRouterProps) => (
       <div data-testid="browser-router">{children}</div>
     ),
-    Routes: ({ children }: MockRouterProps) => (
-      <div data-testid="routes">{children}</div>
-    ),
+    Routes: ({ children }: MockRouterProps) => <div data-testid="routes">{children}</div>,
     Route: ({ children }: { children?: React.ReactNode }) => (
       <div data-testid="route">{children}</div>
     ),
     Navigate: ({ to }: MockNavigateProps) => (
-      <div data-testid="navigate" data-to={to}>Navigate to {to}</div>
+      <div data-testid="navigate" data-to={to}>
+        Navigate to {to}
+      </div>
     ),
     useNavigate: () => vi.fn(),
     useLocation: () => ({ pathname: '/' }),
@@ -55,10 +54,10 @@ vi.mock('../contexts/ThemeContext', () => ({
         accent: '#ffff00',
         background: { primary: '#000011', card: '#001122' },
         text: { primary: '#ffffff', secondary: '#cccccc' },
-        neon: { glow: '#00ffff', pulse: '#ff00ff' }
+        neon: { glow: '#00ffff', pulse: '#ff00ff' },
       },
       effects: { glitch: true, scanlines: true, glow: true, particles: true },
-      sounds: { enabled: true, volume: 0.5 }
+      sounds: { enabled: true, volume: 0.5 },
     },
     availableThemes: [],
     setTheme: vi.fn(),
@@ -79,9 +78,9 @@ describe('App', () => {
   });
 
   it('deve aplicar o tema cyberpunk corretamente', () => {
-  render(<App />);
-  // O ThemeProvider aplica a classe no body
-  expect(document.body.classList.contains('theme-cyberpunk')).toBe(true);
+    render(<App />);
+    // O ThemeProvider aplica a classe no body
+    expect(document.body.classList.contains('theme-cyberpunk')).toBe(true);
   });
 
   it('deve conter as rotas principais', () => {

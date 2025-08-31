@@ -22,7 +22,7 @@ const MASTER_USERS: Record<string, MasterUser> = {
     role: 'master',
     databases: ['db-family', 'db-pai', 'db-mae'],
     permissions: ['create', 'read', 'update', 'delete', 'admin'],
-    displayName: 'Administrador Master'
+    displayName: 'Administrador Master',
   },
   'pai@familia.com': {
     id: 'user-002',
@@ -30,7 +30,7 @@ const MASTER_USERS: Record<string, MasterUser> = {
     role: 'admin',
     databases: ['db-pai', 'db-family'],
     permissions: ['create', 'read', 'update', 'delete'],
-    displayName: 'Pai - Administrador'
+    displayName: 'Pai - Administrador',
   },
   'mae@familia.com': {
     id: 'user-003',
@@ -38,8 +38,8 @@ const MASTER_USERS: Record<string, MasterUser> = {
     role: 'admin',
     databases: ['db-mae', 'db-family'],
     permissions: ['create', 'read', 'update', 'delete'],
-    displayName: 'Mãe - Administradora'
-  }
+    displayName: 'Mãe - Administradora',
+  },
 };
 
 export function useMasterUser() {
@@ -50,12 +50,12 @@ export function useMasterUser() {
   useEffect(() => {
     if (isAuthenticated && firebaseUser) {
       const userEmail = firebaseUser.email;
-      
+
       if (userEmail && MASTER_USERS[userEmail]) {
         const master = MASTER_USERS[userEmail];
         setMasterUser(master);
         setIsMaster(master.role === 'master');
-        
+
         console.log('🔑 Usuário master detectado:', master);
       } else {
         // Usuário Firebase comum
@@ -102,6 +102,6 @@ export function useMasterUser() {
     getUserDisplayName,
     getUserRole,
     databases: masterUser?.databases || [],
-    permissions: masterUser?.permissions || []
+    permissions: masterUser?.permissions || [],
   };
 }
