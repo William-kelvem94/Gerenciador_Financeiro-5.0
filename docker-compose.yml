@@ -1,0 +1,108 @@
+# Will Finance 5.0 - Production Docker Configuration
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: will-finance-db
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-willfinance}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./server/prisma/seed.sql:/docker-entrypoint-initdb.d/seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - will-finance-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: will-finance-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - will-finance-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: will-finance-backend
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${DB_USERNAME:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/${DB_DATABASE:-willfinance}
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - will-finance-network
+
+  # Frontend (Production Build)
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: will-finance-frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=http://localhost:8080/api
+    depends_on:
+      - backend
+    networks:
+      - will-finance-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: will-finance-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./infra/nginx/conf.d:/etc/nginx/conf.d
+      - ./infra/ssl:/etc/nginx/ssl
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - will-finance-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  will-finance-network:
+    driver: bridge
