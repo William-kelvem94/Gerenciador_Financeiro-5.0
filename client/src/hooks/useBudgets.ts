@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { toast } from 'react-hot-toast';
-import { useAuthStore } from '../stores/authStore';
-import { useBudgetStore } from '../stores/budgetStore';
+import { useAuthStore } from '@/stores/authStore';
+import { useBudgetStore } from '@/stores/budgetStore';
 
 const API_BASE = 'http://localhost:8080/api';
 

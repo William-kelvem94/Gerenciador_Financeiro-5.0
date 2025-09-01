@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { toast } from 'react-hot-toast';
-import { useAuthStore } from '../stores/authStore';
-import { useTransactionStore, TransactionFilters } from '../stores/transactionStore';
+import { useAuthStore } from '@/stores/authStore';
+import { useTransactionStore, TransactionFilters } from '@/stores/transactionStore';
 
 const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:8080/api';
 

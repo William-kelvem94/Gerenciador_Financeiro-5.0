@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { CyberpunkButton, CyberpunkProgress, CyberpunkCard } from '../ui';
-import { useTransactionStore } from '../../stores/transactionStore';
+import { useTransactionStore } from '@/stores/transactionStore';
 import { api } from '../../lib/api';
 import { toast } from 'react-hot-toast';
 

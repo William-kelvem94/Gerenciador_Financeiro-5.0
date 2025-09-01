@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useAuthStore } from '../../stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
 import toast from 'react-hot-toast';
 import { PhoenixLogo } from '../../components/ui/PhoenixLogo';
 import { Lock, Mail, Eye, EyeOff, Zap, UserPlus, LogIn } from 'lucide-react';

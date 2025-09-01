@@ -11,6 +11,9 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
@@ -20,5 +23,7 @@
     "strict": true,
     "esModuleInterop": true,
     "moduleResolution": "node"
-  }
+  },
+  "exclude": ["src/utils/index.ts"]
 }
+

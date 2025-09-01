@@ -1,8 +1,8 @@
 import React from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useAuthStore } from '../../stores/authStore';
-import { PhoenixLogo } from '../ui/PhoenixLogo';
+import { useAuthStore } from '@/stores/authStore';
+import { PhoenixLogo } from '@/components/ui/PhoenixLogo';
 import {
   LayoutDashboard,
   CreditCard,

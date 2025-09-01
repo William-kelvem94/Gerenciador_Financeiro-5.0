@@ -7,10 +7,10 @@ import {
   Req,
   ValidationPipe,
 } from '@nestjs/common';
-import { AccountsService } from './accounts.service';
-import { AuthGuard } from '../auth/auth.guard';
-import { AuthenticatedRequest } from '../types/user.types';
-import { CreateAccountDto } from './dto/create-account.dto';
+import { AccountsService } from '@/services/accounts.service';
+import { AuthGuard } from '@/middlewares/auth.guard';
+import { AuthenticatedRequest } from '@/types/user.types';
+import { CreateAccountDto } from '@/types/dto/create-account.dto';
 import { Account } from '@prisma/client';
 
 @Controller('accounts')

@@ -3,7 +3,7 @@
  * Não interfere com o sistema de autenticação Firebase existente
  */
 import { useState, useEffect } from 'react';
-import { useAuthStore } from '../stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
 
 export interface MasterUser {
   id: string;

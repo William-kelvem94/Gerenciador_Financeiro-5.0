@@ -13,10 +13,10 @@ import {
   LineElement,
   Filler,
 } from 'chart.js';
-import { useTransactionStore } from '../../stores/transactionStore';
-import { useAuthStore } from '../../stores/authStore';
-import { CyberpunkProgress } from '../ui/CyberpunkProgress';
-import { CyberpunkCard } from '../ui/CyberpunkCard';
+import { useTransactionStore } from '@/stores/transactionStore';
+import { useAuthStore } from '@/stores/authStore';
+import { CyberpunkProgress } from '@/components/ui/CyberpunkProgress';
+import { CyberpunkCard } from '@/components/ui/CyberpunkCard';
 import { format, startOfMonth, endOfMonth, subMonths, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

@@ -3,17 +3,17 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { ToastContainer } from 'react-toastify';
 import { motion } from 'framer-motion';
-import { useAuthStore } from './stores/authStore';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { Layout } from './components/layout/Layout';
-import { CyberLoginPage } from './pages/Login/CyberLoginPage';
-import CyberDashboard from './pages/Dashboard/CyberDashboard';
-import { TransactionsPage } from './pages/Transactions/TransactionsPage';
-import { BudgetsPage } from './pages/Budgets/BudgetsPage';
-import { ReportsPage } from './pages/Reports/ReportsPage';
-import { SettingsPage } from './pages/Settings/SettingsPage';
-import ImportExportPage from './pages/ImportExport/ImportExportPage';
-import { AuthCallback } from './components/auth/AuthCallback';
+import { useAuthStore } from '@/stores/authStore';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { Layout } from '@/layouts/Layout';
+import { CyberLoginPage } from '@/pages/Login/CyberLoginPage';
+import CyberDashboard from '@/pages/Dashboard/CyberDashboard';
+import { TransactionsPage } from '@/pages/Transactions/TransactionsPage';
+import { BudgetsPage } from '@/pages/Budgets/BudgetsPage';
+import { ReportsPage } from '@/pages/Reports/ReportsPage';
+import { SettingsPage } from '@/pages/Settings/SettingsPage';
+import ImportExportPage from '@/pages/ImportExport/ImportExportPage';
+import { AuthCallback } from '@/components/auth/AuthCallback';
 
 // Importar estilos do react-toastify
 import 'react-toastify/dist/ReactToastify.css';

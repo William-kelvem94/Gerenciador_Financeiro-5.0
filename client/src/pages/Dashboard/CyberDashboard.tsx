@@ -15,7 +15,7 @@ import {
   Wallet,
   BarChart3,
 } from 'lucide-react';
-import { useAuthStore } from '../../stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
 
 interface DashboardStats {
   income: number;
