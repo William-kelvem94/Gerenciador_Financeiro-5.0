@@ -1,0 +1,32 @@
+feat: Implement comprehensive enterprise-grade refactoring and Dockerization
+
+This commit introduces a major overhaul across the entire project, focusing on enhancing scalability, maintainability, and deployment capabilities.
+
+Key changes include:
+
+- **Full Dockerization & Deployment Pipeline:**
+  - Added new `DOCKER.md` for detailed deployment instructions.
+  - Introduced robust Docker Compose configurations (`docker-compose.yml`) and multi-stage Dockerfiles for both client and server.
+  - Developed comprehensive deployment scripts (`.ps1`, `.sh`) for various environments, including health checks and graceful shutdowns.
+  - Integrated Prometheus, Grafana, and Loki for advanced monitoring and logging.
+
+- **Frontend State Management & Testing Overhaul:**
+  - Migrated frontend state management to Zustand, introducing dedicated stores for authentication, transactions, and budgets (`authStore.ts`, `transactionStore.ts`, `budgetStore.ts`).
+  - Implemented new React Contexts for family, settings, and theme management.
+  - Significantly expanded and improved client-side testing infrastructure with new test utilities (`test-utils.tsx`, `setupTests.ts`) and dedicated tests for hooks and stores.
+  - Updated UI components (`FinancialDashboard.tsx`, `FamilyUserSelector.tsx`, `FinancialReportGenerator.tsx`, `Table.tsx`) for better type safety, accessibility, and integration with new state management.
+
+- **Backend Architecture & Database Optimization:**
+  - Migrated database provider from SQLite to PostgreSQL in `prisma/schema.prisma`.
+  - Implemented extensive database indexing across all models (`User`, `Account`, `Category`, `Transaction`, `Budget`, `Goal`, `Notification`, `AiInsight`) for significant performance improvements.
+  - Refactored `PrismaService` to include enterprise-grade features like advanced logging, transactional operations, and robust health checks.
+  - Introduced DTOs (`auth.dto.ts`) for improved data validation and type safety in API endpoints.
+  - Enhanced `main.ts` for production-ready application bootstrapping, including advanced CORS, global validation pipes, and graceful shutdown hooks.
+  - Removed legacy `server/src/utils/index.ts` and `server/test/app.controller.spec.ts` for a cleaner, more modular NestJS architecture.
+
+- **TypeScript & Code Quality:**
+  - Addressed and resolved all major TypeScript compilation errors by refining `tsconfig.json` and `tsconfig.build.json` for stricter type checking and optimized build processes.
+  - Ensured consistent type usage across frontend and backend, particularly for transaction and budget types (e.g., `income` -> `INCOME`).
+  - Added detailed documentation (`docs/BATCH_1_CONCLUSAO_STORES_TYPING.md`, `docs/BATCH_3_CONCLUIDO.md`, `docs/CORRECAO_TYPESCRIPT_COMPLETA.md`) outlining the scope and impact of these refactoring batches.
+
+This release lays a solid foundation for future feature development, ensuring high performance, scalability, and maintainability across the entire Will Finance 5.0 application.
