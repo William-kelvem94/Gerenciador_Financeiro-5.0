@@ -43,7 +43,7 @@ export class AccountsService {
     });
   }
 
-  async remove(id: string, userId: string): Promise<Account> {
+  async remove(id: string): Promise<Account> {
     return this.prisma.account.delete({
       where: { id },
     });

@@ -135,6 +135,7 @@ interface FamilyProviderProps {
   children: ReactNode;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const FamilyProvider: React.FC<FamilyProviderProps> = ({ children }) => {
   const [master, setMaster] = useState<FamilyUser | null>(null);
   const [users, setUsers] = useState<FamilyUser[]>([]);

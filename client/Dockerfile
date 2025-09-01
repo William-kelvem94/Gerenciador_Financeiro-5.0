@@ -1,80 +1,115 @@
-# === 🏗️ WILL FINANCE 6.0 - CLIENT DOCKERFILE ENTERPRISE === #
-# Multi-stage build optimized for production deployment
-# Following security best practices and performance optimization
+# === 🏗️ WILL FINANCE 5.0 - FRONTEND DOCKERFILE ENTERPRISE === #
+# Multi-stage production-ready React/Vite container
 
-# === BUILD STAGE === #
+# Stage 1: Build application
 FROM node:20-alpine AS builder
+
+# Build arguments
+ARG VITE_API_URL=http://localhost:3001
+ARG VITE_APP_NAME="Will Finance 5.0"
+ARG VITE_APP_VERSION="5.0.0"
+
+# Metadata
+LABEL maintainer="Will Finance Team" \
+      version="5.0" \
+      description="Will Finance 5.0 Frontend - Enterprise Financial Management System"
 
 WORKDIR /app
 
-# Install required packages in a single RUN layer for efficiency
+# Install system dependencies
 RUN apk --no-cache add \
     curl \
-    dumb-init \
     git \
     && apk upgrade --no-cache
 
-# Copy package files and build configuration for optimal Docker layer caching
+# Copy package files for better caching
 COPY package*.json ./
 COPY tsconfig*.json ./
 COPY *.config.* ./
 
-# Install dependencies with clean cache in one step
-RUN npm ci --legacy-peer-deps --silent && \
-    npm cache clean --force
+# Install dependencies
+RUN npm install --legacy-peer-deps
 
-# Copy source files (separate layer for better caching)
-COPY src ./src
-COPY public ./public
-COPY index.html .
+# Copy source code
+COPY . .
 
-# Build the application for production with optimizations
-RUN npm run build && \
-    npm run build:analyze
+# Set build environment variables
+ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_APP_NAME=${VITE_APP_NAME}
+ENV VITE_APP_VERSION=${VITE_APP_VERSION}
+ENV NODE_ENV=production
 
-# === PRODUCTION STAGE === #
+# Build application
+RUN npm run build
+
+# Stage 2: Production runtime with Nginx
 FROM nginx:1.25-alpine AS production
 
-# Metadata for enterprise tracking
-LABEL maintainer="Will Finance Team <team@willfinance.com>" \
-      version="6.0.0" \
-      description="Will Finance 6.0 Client - Enterprise Financial Management System" \
-      org.opencontainers.image.source="https://github.com/willfinance/will-finance-5.0"
-
-# Install required packages and security updates
+# Install additional packages for production
 RUN apk --no-cache add \
     curl \
-    ca-certificates \
-    && apk upgrade --no-cache \
-    && rm -rf /var/cache/apk/*
+    bash \
+    tini
 
-# Copy optimized nginx configuration
-COPY nginx/nginx.prod.conf /etc/nginx/conf.d/default.conf
-COPY nginx/conf.d /etc/nginx/conf.d
+# Create nginx user and directories
+RUN mkdir -p /var/www/html && \
+    chown -R nginx:nginx /var/www/html && \
+    mkdir -p /var/cache/nginx/client_temp && \
+    mkdir -p /var/cache/nginx/proxy_temp && \
+    mkdir -p /var/cache/nginx/fastcgi_temp && \
+    mkdir -p /var/cache/nginx/uwsgi_temp && \
+    mkdir -p /var/cache/nginx/scgi_temp && \
+    chown -R nginx:nginx /var/cache/nginx
 
-# Copy built application from builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copy built application
+COPY --from=builder /app/dist /var/www/html
 
-# Create non-root user and set secure permissions
-RUN addgroup -g 1001 -S appgroup && \
-    adduser -S appuser -u 1001 -G appgroup && \
-    chown -R appuser:appgroup \
-        /var/cache/nginx \
-        /var/run \
-        /var/log/nginx \
-        /usr/share/nginx/html \
-        /etc/nginx/conf.d && \
-    chmod -R 755 /usr/share/nginx/html
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Switch to non-root user for security
-USER appuser
+# Create custom nginx config for SPA
+RUN echo 'server {\n\
+    listen 80;\n\
+    server_name localhost;\n\
+    root /var/www/html;\n\
+    index index.html;\n\
+    \n\
+    # Security headers\n\
+    add_header X-Frame-Options "SAMEORIGIN" always;\n\
+    add_header X-Content-Type-Options "nosniff" always;\n\
+    add_header X-XSS-Protection "1; mode=block" always;\n\
+    \n\
+    # Handle SPA routing\n\
+    location / {\n\
+        try_files $uri $uri/ /index.html;\n\
+    }\n\
+    \n\
+    # Static assets caching\n\
+    location /assets {\n\
+        expires 1y;\n\
+        add_header Cache-Control "public, immutable";\n\
+    }\n\
+    \n\
+    # Health check\n\
+    location /health {\n\
+        access_log off;\n\
+        return 200 "healthy\\n";\n\
+        add_header Content-Type text/plain;\n\
+    }\n\
+}' > /etc/nginx/conf.d/default.conf
 
-# Expose port 3000
+# Remove default nginx config
+RUN rm -f /etc/nginx/conf.d/default.conf.bak
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:80/health || exit 1
+
+# Expose port
 EXPOSE 80
 
-# Health check with improved configuration
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -fsS --max-time 5 http://localhost:80/health || exit 1
+# Use tini as init system
+ENTRYPOINT ["tini", "--"]
 
-# Start nginx with optimized configuration
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]

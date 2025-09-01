@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -41,6 +41,9 @@ model User {
   notifications      Notification[]
   transactions       Transaction[]
 
+  @@index([email])
+  @@index([createdAt])
+  @@index([lastLoginAt])
   @@map("users")
 }
 
@@ -54,9 +57,6 @@ model Account {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   userId        String
-  accountNumber String?
-  bankName      String?
-  closingDay    Int?
   color         String        @default("#3B82F6")
   creditLimit   Float?
   description   String?
@@ -66,6 +66,10 @@ model Account {
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions  Transaction[]
 
+  @@index([userId])
+  @@index([type])
+  @@index([isActive])
+  @@index([createdAt])
   @@map("accounts")
 }
 
@@ -86,6 +90,10 @@ model Category {
   transactions Transaction[]
 
   @@unique([name, userId])
+  @@index([userId])
+  @@index([type])
+  @@index([isActive])
+  @@index([isSystem])
   @@map("categories")
 }
 
@@ -117,6 +125,16 @@ model Transaction {
   category      Category @relation(fields: [categoryId], references: [id])
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([type])
+  @@index([date])
+  @@index([status])
+  @@index([isRecurring])
+  @@index([userId, date])
+  @@index([userId, type])
+  @@index([accountId, date])
   @@map("transactions")
 }
 
@@ -132,11 +150,18 @@ model Budget {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   userId          String
-  alertPercentage Float    @default(80)
-  categoryId      String
-  category        Category @relation(fields: [categoryId], references: [id])
+  categoryId      String?
+  alertThreshold  Float?
+  description     String?
+  category        Category? @relation(fields: [categoryId], references: [id])
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+  @@index([categoryId])
+  @@index([isActive])
+  @@index([period])
+  @@index([startDate, endDate])
+  @@index([userId, isActive])
   @@map("budgets")
 }
 
@@ -155,6 +180,10 @@ model Goal {
   targetDate    DateTime?
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+  @@index([isCompleted])
+  @@index([targetDate])
+  @@index([userId, isCompleted])
   @@map("goals")
 }
 
@@ -169,6 +198,11 @@ model Notification {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
+  @@index([userId, isRead])
   @@map("notifications")
 }
 
@@ -184,5 +218,11 @@ model AiInsight {
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+  @@index([type])
+  @@index([isRead])
+  @@index([confidence])
+  @@index([createdAt])
+  @@index([userId, isRead])
   @@map("ai_insights")
 }

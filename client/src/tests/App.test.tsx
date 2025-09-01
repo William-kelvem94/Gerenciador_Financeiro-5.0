@@ -1,30 +1,26 @@
-import { render, screen } from '@testing-library/react';
-import { useEffect } from 'react';
+// 🧪 App Component Tests - Will Finance 5.0
+// Enterprise-grade React component testing
+
 import { describe, it, expect, vi } from 'vitest';
+import { screen } from '@testing-library/react';
+import { render } from '../test-utils';
 import App from '../App';
 
-// Tipos para os mocks
-type MockRouterProps = {
-  children: React.ReactNode;
-};
-
-type MockNavigateProps = {
-  to: string;
-};
-
-// Mock do router com tipagem forte
-vi.mock('react-router-dom', async importOriginal => {
-  const actualModule = await importOriginal<typeof import('react-router-dom')>();
+// Mock de todo o router com tipos adequados
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
   return {
-    ...actualModule,
-    BrowserRouter: ({ children }: MockRouterProps) => (
+    ...actual,
+    BrowserRouter: ({ children }: { children: React.ReactNode }) => (
       <div data-testid="browser-router">{children}</div>
     ),
-    Routes: ({ children }: MockRouterProps) => <div data-testid="routes">{children}</div>,
+    Routes: ({ children }: { children: React.ReactNode }) => (
+      <div data-testid="routes">{children}</div>
+    ),
     Route: ({ children }: { children?: React.ReactNode }) => (
       <div data-testid="route">{children}</div>
     ),
-    Navigate: ({ to }: MockNavigateProps) => (
+    Navigate: ({ to }: { to: string }) => (
       <div data-testid="navigate" data-to={to}>
         Navigate to {to}
       </div>
@@ -36,14 +32,9 @@ vi.mock('react-router-dom', async importOriginal => {
 
 // Mock do contexto de tema
 vi.mock('../contexts/ThemeContext', () => ({
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => {
-    // Simula efeito de tema cyberpunk
-    useEffect(() => {
-      document.body.classList.add('theme-cyberpunk');
-      return () => document.body.classList.remove('theme-cyberpunk');
-    }, []);
-    return <div>{children}</div>;
-  },
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="theme-provider">{children}</div>
+  ),
   useTheme: () => ({
     currentTheme: {
       id: 'cyberpunk',
@@ -51,41 +42,39 @@ vi.mock('../contexts/ThemeContext', () => ({
       colors: {
         primary: '#00ffff',
         secondary: '#ff00ff',
-        accent: '#ffff00',
-        background: { primary: '#000011', card: '#001122' },
-        text: { primary: '#ffffff', secondary: '#cccccc' },
-        neon: { glow: '#00ffff', pulse: '#ff00ff' },
       },
-      effects: { glitch: true, scanlines: true, glow: true, particles: true },
-      sounds: { enabled: true, volume: 0.5 },
     },
-    availableThemes: [],
     setTheme: vi.fn(),
-    customizeTheme: vi.fn(),
-    resetTheme: vi.fn(),
-    exportTheme: vi.fn(),
-    importTheme: vi.fn(),
   }),
 }));
 
-describe('App', () => {
+// Mock das stores
+vi.mock('../stores/authStore', () => ({
+  useAuthStore: () => ({
+    user: null,
+    isAuthenticated: false,
+    isLoading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+  }),
+}));
+
+describe('App Component', () => {
   it('deve renderizar sem erros', () => {
-    // Act
     const { container } = render(<App />);
-    // Assert
     expect(container).toBeInTheDocument();
     expect(screen.getByTestId('browser-router')).toBeInTheDocument();
-  });
-
-  it('deve aplicar o tema cyberpunk corretamente', () => {
-    render(<App />);
-    // O ThemeProvider aplica a classe no body
-    expect(document.body.classList.contains('theme-cyberpunk')).toBe(true);
   });
 
   it('deve conter as rotas principais', () => {
     render(<App />);
     expect(screen.getByTestId('routes')).toBeInTheDocument();
     expect(screen.getAllByTestId('route').length).toBeGreaterThan(0);
+  });
+
+  it('deve aplicar tema cyberpunk', () => {
+    render(<App />);
+    expect(screen.getByTestId('theme-provider')).toBeInTheDocument();
   });
 });

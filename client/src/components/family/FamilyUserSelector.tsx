@@ -232,7 +232,16 @@ export const FamilyUserSelector: React.FC = () => {
       </AnimatePresence>
 
       {/* Overlay para fechar */}
-      {isOpen && <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={() => setIsOpen(false)}
+          onKeyDown={(e) => e.key === 'Escape' && setIsOpen(false)}
+          role="button"
+          tabIndex={0}
+          aria-label="Fechar seletor de usuário"
+        />
+      )}
     </div>
   );
 };

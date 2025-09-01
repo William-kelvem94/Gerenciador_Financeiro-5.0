@@ -13,12 +13,13 @@ import {
   LineElement,
   Filler,
 } from 'chart.js';
-import { useTransactionStore } from '@/stores/transactionStore';
+import { useTransactionStore } from '../../stores/transactionStore';
 import { useAuthStore } from '@/stores/authStore';
 import { CyberpunkProgress } from '@/components/ui/CyberpunkProgress';
 import { CyberpunkCard } from '@/components/ui/CyberpunkCard';
 import { format, startOfMonth, endOfMonth, subMonths, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import styles from './FinancialDashboard.module.css';
 
 // Registrar componentes do Chart.js
 ChartJS.register(
@@ -89,19 +90,19 @@ const FinancialDashboard: React.FC = () => {
     });
 
     const currentIncome = currentMonthTransactions
-      .filter(tx => tx.type === 'income')
+      .filter(tx => tx.type === 'INCOME')
       .reduce((sum, tx) => sum + tx.amount, 0);
 
     const currentExpenses = currentMonthTransactions
-      .filter(tx => tx.type === 'expense')
+      .filter(tx => tx.type === 'EXPENSE')
       .reduce((sum, tx) => sum + tx.amount, 0);
 
     const lastMonthIncome = lastMonthTransactions
-      .filter(tx => tx.type === 'income')
+      .filter(tx => tx.type === 'INCOME')
       .reduce((sum, tx) => sum + tx.amount, 0);
 
     const lastMonthExpenses = lastMonthTransactions
-      .filter(tx => tx.type === 'expense')
+      .filter(tx => tx.type === 'EXPENSE')
       .reduce((sum, tx) => sum + tx.amount, 0);
 
     const currentBalance = currentIncome - currentExpenses;
@@ -137,7 +138,7 @@ const FinancialDashboard: React.FC = () => {
           acc[month] = { income: 0, expenses: 0 };
         }
 
-        if (tx.type === 'income') {
+        if (tx.type === 'INCOME') {
           acc[month].income += tx.amount;
         } else {
           acc[month].expenses += tx.amount;
@@ -185,10 +186,10 @@ const FinancialDashboard: React.FC = () => {
     if (!transactions.length) return null;
 
     const categoryData = transactions
-      .filter(tx => tx.type === 'expense')
+      .filter(tx => tx.type === 'EXPENSE')
       .reduce(
         (acc, tx) => {
-          const category = tx.category?.name || 'Outros';
+          const category = tx.category || 'Outros';
           acc[category] = (acc[category] || 0) + tx.amount;
           return acc;
         },
@@ -394,8 +395,8 @@ const FinancialDashboard: React.FC = () => {
             <p className="stat-value text-cyber-warning font-mono text-2xl">R$ 2.500,00</p>
             <div className="progress-bar bg-cyber-primary/10 mt-2 h-3 w-full rounded-full">
               <div
-                className="progress-fill from-cyber-danger to-cyber-accent animate-pulse-neon h-3 rounded-full bg-gradient-to-r"
-                style={{ width: `${Math.min(((summary?.totalExpenses || 0) / 2500) * 100, 100)}%` }}
+                className={`progress-fill from-cyber-danger to-cyber-accent animate-pulse-neon h-3 rounded-full bg-gradient-to-r ${styles.progressBar}`}
+                data-progress={Math.min(((summary?.totalExpenses || 0) / 2500) * 100, 100)}
               />
             </div>
           </div>
@@ -409,7 +410,7 @@ const FinancialDashboard: React.FC = () => {
           <h3 className="chart-title text-cyber-primary mb-4 text-lg font-bold">
             Receitas vs Despesas (6 meses)
           </h3>
-          <div className="chart-container" style={{ height: '300px' }}>
+          <div className={`chart-container ${styles.chartContainer}`}>
             {barChartData && (
               <Bar
                 data={barChartData}
@@ -427,7 +428,7 @@ const FinancialDashboard: React.FC = () => {
           <h3 className="chart-title text-cyber-primary mb-4 text-lg font-bold">
             Gastos por Categoria
           </h3>
-          <div className="chart-container" style={{ height: '300px' }}>
+          <div className={`chart-container ${styles.chartContainer}`}>
             {pieChartData && <Pie data={pieChartData} options={pieOptions} />}
           </div>
         </CyberpunkCard>
@@ -438,7 +439,7 @@ const FinancialDashboard: React.FC = () => {
         <h3 className="chart-title text-cyber-primary mb-4 text-lg font-bold">
           Evolução do Saldo (30 dias)
         </h3>
-        <div className="chart-container" style={{ height: '400px' }}>
+        <div className={`chart-container ${styles.chartContainerTall}`}>
           {lineChartData && (
             <Line
               data={lineChartData}

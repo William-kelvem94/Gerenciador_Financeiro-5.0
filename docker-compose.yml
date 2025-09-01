@@ -1,0 +1,528 @@
+# === 🚀 WILL FINANCE 5.0 PRO - ENTERPRISE DOCKER COMPOSE === #
+# Full-stack containerized financial management system with enterprise features
+# Includes: Frontend, Backend, Database, Nginx, Redis, Monitoring, Security � WILL FINANCE 5.0 PRO - ENTERPRISE DOCKER COMPOSE === #
+# Full-stack containerized financial management system with enterprise features
+# Includes: Frontend, Backend, Database, Nginx, Redis, Monitoring, Security
+
+version: '3.8'
+
+# ===== VOLUMES ===== #
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/postgres
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/redis
+  nginx_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/logs/nginx
+  app_uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/uploads
+  app_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/logs/app
+  ssl_certs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/ssl
+  prometheus_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/prometheus
+  grafana_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/grafana
+  loki_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/loki
+
+# ===== NETWORKS ===== #
+networks:
+  will-finance-frontend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.1.0/24
+  will-finance-backend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.2.0/24
+  will-finance-data:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.3.0/24
+    internal: true
+
+# ===== SERVICES ===== #
+services:
+  # ===== DATABASE - PostgreSQL 15 Enterprise ===== #
+  postgres:
+    image: postgres:15-alpine
+    container_name: will-finance-db
+    restart: unless-stopped
+    user: postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-will_finance_pro}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-WillFinance2024!Enterprise}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+      PGDATA: /var/lib/postgresql/data/pgdata
+      # Performance optimizations
+      POSTGRES_SHARED_PRELOAD_LIBRARIES: "pg_stat_statements"
+      POSTGRES_MAX_CONNECTIONS: 200
+      POSTGRES_SHARED_BUFFERS: 256MB
+      POSTGRES_EFFECTIVE_CACHE_SIZE: 1GB
+      POSTGRES_WORK_MEM: 4MB
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/db/init:/docker-entrypoint-initdb.d:ro
+      - ./infra/db/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    networks:
+      will-finance-data:
+        ipv4_address: 172.20.3.10
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-will_finance_pro}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=100M,noexec,nosuid,nodev
+
+  # ===== CACHE - Redis 7 Enterprise ===== #
+  redis:
+    image: redis:7-alpine
+    container_name: will-finance-redis
+    restart: unless-stopped
+    user: redis
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --requirepass ${REDIS_PASSWORD:-WillFinanceRedis2024!}
+      --tcp-keepalive 60
+      --timeout 300
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-WillFinanceRedis2024!}
+    volumes:
+      - redis_data:/data
+      - ./infra/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      will-finance-data:
+        ipv4_address: 172.20.3.11
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD:-WillFinanceRedis2024!}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=50M,noexec,nosuid,nodev
+
+  # ===== BACKEND - NestJS API Enterprise ===== #
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        NODE_VERSION: 20
+      target: production
+    image: will-finance-backend:5.0.0
+    container_name: will-finance-backend
+    restart: unless-stopped
+    user: nestjs
+    environment:
+      # Application
+      NODE_ENV: production
+      PORT: 3001
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      
+      # Database
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-WillFinance2024!Enterprise}@postgres:5432/${DB_NAME:-will_finance_pro}?schema=public&sslmode=disable
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-will_finance_pro}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-WillFinance2024!Enterprise}
+      
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-WillFinanceRedis2024!}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-WillFinanceRedis2024!}@redis:6379
+      
+      # Security
+      JWT_SECRET: ${JWT_SECRET:-WillFinance2024SuperSecretJWTKeyForEnterprise!@#$%^&*()}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      BCRYPT_ROUNDS: ${BCRYPT_ROUNDS:-12}
+      
+      # API Configuration
+      API_PREFIX: ${API_PREFIX:-/api/v1}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000,http://localhost:80,https://localhost:443}
+      
+      # File Storage
+      UPLOAD_PATH: /app/uploads
+      UPLOAD_MAX_SIZE: ${UPLOAD_MAX_SIZE:-10485760}
+      
+      # Features
+      ENABLE_SWAGGER: ${ENABLE_SWAGGER:-true}
+      ENABLE_METRICS: ${ENABLE_METRICS:-true}
+      ENABLE_RATE_LIMITING: ${ENABLE_RATE_LIMITING:-true}
+      
+      # Timezone
+      TZ: ${TZ:-America/Sao_Paulo}
+    volumes:
+      - app_uploads:/app/uploads
+      - app_logs:/app/logs
+      - ./server/config:/app/config:ro
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    networks:
+      will-finance-backend:
+        ipv4_address: 172.20.2.10
+      will-finance-data:
+        ipv4_address: 172.20.3.20
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M,noexec,nosuid,nodev
+
+  # ===== FRONTEND - React/Vite Enterprise ===== #
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        NODE_VERSION: 20
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
+        VITE_APP_NAME: ${VITE_APP_NAME:-Will Finance 5.0 Pro}
+        VITE_APP_VERSION: ${VITE_APP_VERSION:-5.0.0}
+        VITE_ENVIRONMENT: ${VITE_ENVIRONMENT:-production}
+      target: production
+    image: will-finance-frontend:5.0.0
+    container_name: will-finance-frontend
+    restart: unless-stopped
+    user: nginx
+    environment:
+      NODE_ENV: production
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
+      VITE_APP_NAME: ${VITE_APP_NAME:-Will Finance 5.0 Pro}
+      VITE_APP_VERSION: ${VITE_APP_VERSION:-5.0.0}
+      VITE_ENVIRONMENT: ${VITE_ENVIRONMENT:-production}
+      TZ: ${TZ:-America/Sao_Paulo}
+    volumes:
+      - ./client/nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx_logs:/var/log/nginx
+    ports:
+      - "${FRONTEND_PORT:-3002}:80"
+    networks:
+      will-finance-frontend:
+        ipv4_address: 172.20.1.10
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.25'
+        reservations:
+          memory: 64M
+          cpus: '0.1'
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:size=50M,noexec,nosuid,nodev
+      - /var/run:size=10M,noexec,nosuid,nodev
+      - /tmp:size=50M,noexec,nosuid,nodev
+
+  # ===== REVERSE PROXY - Nginx Enterprise ===== #
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: will-finance-proxy
+    restart: unless-stopped
+    user: nginx
+    environment:
+      TZ: ${TZ:-America/Sao_Paulo}
+    volumes:
+      # Configuration
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infra/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./infra/nginx/templates:/etc/nginx/templates:ro
+      
+      # SSL Certificates
+      - ssl_certs:/etc/nginx/ssl:ro
+      
+      # Static files and uploads
+      - app_uploads:/var/www/uploads:ro
+      
+      # Logs
+      - nginx_logs:/var/log/nginx
+      
+      # Security configurations
+      - ./infra/nginx/security:/etc/nginx/security:ro
+      - ./infra/nginx/mime.types:/etc/nginx/mime.types:ro
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    networks:
+      will-finance-frontend:
+        ipv4_address: 172.20.1.20
+      will-finance-backend:
+        ipv4_address: 172.20.2.20
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || nginx -t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.25'
+        reservations:
+          memory: 64M
+          cpus: '0.1'
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:size=100M,noexec,nosuid,nodev
+      - /var/run:size=10M,noexec,nosuid,nodev
+      - /tmp:size=50M,noexec,nosuid,nodev
+
+  # ===== MONITORING - Prometheus Enterprise ===== #
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: will-finance-prometheus
+    restart: unless-stopped
+    user: nobody
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.size=512MB'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.external-url=http://localhost:9090'
+      - '--log.level=info'
+    environment:
+      TZ: ${TZ:-America/Sao_Paulo}
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infra/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    networks:
+      will-finance-backend:
+        ipv4_address: 172.20.2.30
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+    security_opt:
+      - no-new-privileges:true
+
+  # ===== MONITORING - Grafana Enterprise ===== #
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: will-finance-grafana
+    restart: unless-stopped
+    user: grafana
+    environment:
+      # Security
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-WillFinanceGrafana2024!}
+      GF_SECURITY_SECRET_KEY: ${GRAFANA_SECRET:-will_finance_grafana_secret_2024}
+      
+      # Server
+      GF_SERVER_ROOT_URL: http://localhost:3030
+      GF_SERVER_SERVE_FROM_SUB_PATH: false
+      
+      # Database
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: postgres:5432
+      GF_DATABASE_NAME: ${DB_NAME:-will_finance_pro}
+      GF_DATABASE_USER: ${DB_USER:-postgres}
+      GF_DATABASE_PASSWORD: ${DB_PASSWORD:-WillFinance2024!Enterprise}
+      
+      # Auth
+      GF_AUTH_ANONYMOUS_ENABLED: false
+      GF_AUTH_DISABLE_LOGIN_FORM: false
+      
+      # Features
+      GF_FEATURE_TOGGLES_ENABLE: dashboardPreviews
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+      
+      # Timezone
+      TZ: ${TZ:-America/Sao_Paulo}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "${GRAFANA_PORT:-3030}:3000"
+    networks:
+      will-finance-backend:
+        ipv4_address: 172.20.2.31
+      will-finance-data:
+        ipv4_address: 172.20.3.31
+    depends_on:
+      postgres:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+    security_opt:
+      - no-new-privileges:true
+
+  # ===== LOG AGGREGATION - Loki ===== #
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: will-finance-loki
+    restart: unless-stopped
+    user: loki
+    command: -config.file=/etc/loki/local-config.yaml
+    environment:
+      TZ: ${TZ:-America/Sao_Paulo}
+    volumes:
+      - ./infra/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    ports:
+      - "${LOKI_PORT:-3100}:3100"
+    networks:
+      will-finance-backend:
+        ipv4_address: 172.20.2.32
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+    security_opt:
+      - no-new-privileges:true

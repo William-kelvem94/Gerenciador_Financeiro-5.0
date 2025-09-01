@@ -1,191 +1,165 @@
-import { useCallback } from 'react';
+// useBudgets.ts - Hook otimizado para integração com BudgetStore
+import { useCallback, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
-import { useAuthStore } from '@/stores/authStore';
-import { useBudgetStore } from '@/stores/budgetStore';
-
-const API_BASE = 'http://localhost:8080/api';
+import { useAuthStore } from '../stores/authStore';
+import { useBudgetStore, Budget } from '../stores/budgetStore';
 
 interface CreateBudgetData {
   name: string;
   amount: number;
-  period: 'monthly' | 'yearly';
+  period: 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
+  categoryId: string;
+  category: string;
   startDate: string;
   endDate: string;
+  description?: string;
+  alertThreshold?: number;
 }
 
-interface UpdateBudgetData extends Partial<CreateBudgetData> {
+interface UpdateBudgetData extends Partial<Omit<Budget, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'spent' | 'remaining'>> {}
+
+interface BudgetFilters {
+  period?: 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
+  category?: string;
   isActive?: boolean;
+  search?: string;
+  page?: number;
+  limit?: number;
 }
 
 export const useBudgets = () => {
-  const { token } = useAuthStore();
+  const { user } = useAuthStore();
   const {
     budgets,
     isLoading,
     error,
-    setBudgets,
-    addBudget,
-    updateBudget,
-    removeBudget,
-    setLoading,
-    setError,
+    fetchBudgets: storeFetchBudgets,
+    addBudget: storeAddBudget,
+    updateBudget: storeUpdateBudget,
+    deleteBudget: storeDeleteBudget,
   } = useBudgetStore();
 
-  const getAuthHeaders = useCallback(
-    () => ({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    }),
-    [token]
-  );
-
-  const fetchBudgets = useCallback(async () => {
-    if (!token) {
-      setError('Authentication required');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(`${API_BASE}/budgets`, {
-        headers: getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || errorData.error || 'Failed to fetch budgets');
+  // Integração otimizada com store
+  const fetchBudgets = useCallback(
+    async (filters: BudgetFilters = {}) => {
+      if (!user?.id) {
+        toast.error('Usuário não autenticado');
+        return;
       }
-
-      const data = await response.json();
-      setBudgets(data.budgets || []);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch budgets';
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, [token, getAuthHeaders, setBudgets, setLoading, setError]);
+      
+      try {
+        await storeFetchBudgets(filters);
+      } catch (error) {
+        console.error('Error fetching budgets:', error);
+      }
+    },
+    [user?.id, storeFetchBudgets]
+  );
 
   const createBudget = useCallback(
-    async (data: CreateBudgetData) => {
-      if (!token) {
-        toast.error('Authentication required');
-        return null;
+    async (data: CreateBudgetData): Promise<boolean> => {
+      if (!user?.id) {
+        toast.error('Usuário não autenticado');
+        return false;
       }
-
-      setLoading(true);
 
       try {
-        const response = await fetch(`${API_BASE}/budgets`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify(data),
-        });
+        const budgetData = {
+          ...data,
+          userId: user.id,
+          isActive: true,
+          spent: 0,
+          remaining: data.amount,
+        };
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.details || errorData.error || 'Failed to create budget');
-        }
-
-        const newBudget = await response.json();
-        addBudget(newBudget);
-        toast.success('Budget created successfully');
-        return newBudget;
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to create budget';
-        setError(errorMessage);
+        await storeAddBudget(budgetData);
+        return true;
+      } catch (error: any) {
+        const errorMessage = error?.message || 'Falha ao criar orçamento';
         toast.error(errorMessage);
-        return null;
-      } finally {
-        setLoading(false);
+        return false;
       }
     },
-    [token, getAuthHeaders, addBudget, setLoading, setError]
+    [user?.id, storeAddBudget]
   );
 
-  const updateBudgetById = useCallback(
-    async (id: string, data: UpdateBudgetData) => {
-      if (!token) {
-        toast.error('Authentication required');
-        return null;
+  const updateBudget = useCallback(
+    async (id: string, data: UpdateBudgetData): Promise<boolean> => {
+      if (!user?.id) {
+        toast.error('Usuário não autenticado');
+        return false;
       }
-
-      setLoading(true);
 
       try {
-        const response = await fetch(`${API_BASE}/budgets/${id}`, {
-          method: 'PUT',
-          headers: getAuthHeaders(),
-          body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.details || errorData.error || 'Failed to update budget');
-        }
-
-        const updatedBudget = await response.json();
-        updateBudget(id, updatedBudget);
-        toast.success('Budget updated successfully');
-        return updatedBudget;
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to update budget';
-        setError(errorMessage);
+        await storeUpdateBudget(id, data);
+        return true;
+      } catch (error: any) {
+        const errorMessage = error?.message || 'Falha ao atualizar orçamento';
         toast.error(errorMessage);
-        return null;
-      } finally {
-        setLoading(false);
+        return false;
       }
     },
-    [token, getAuthHeaders, updateBudget, setLoading, setError]
+    [user?.id, storeUpdateBudget]
   );
 
   const deleteBudget = useCallback(
-    async (id: string) => {
-      if (!token) {
-        toast.error('Authentication required');
+    async (id: string): Promise<boolean> => {
+      if (!user?.id) {
+        toast.error('Usuário não autenticado');
         return false;
       }
-
-      setLoading(true);
 
       try {
-        const response = await fetch(`${API_BASE}/budgets/${id}`, {
-          method: 'DELETE',
-          headers: getAuthHeaders(),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.details || errorData.error || 'Failed to delete budget');
-        }
-
-        const result = await response.json();
-        removeBudget(id);
-        toast.success(result.message || 'Budget deleted successfully');
+        await storeDeleteBudget(id);
         return true;
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to delete budget';
-        setError(errorMessage);
+      } catch (error: any) {
+        const errorMessage = error?.message || 'Falha ao deletar orçamento';
         toast.error(errorMessage);
         return false;
-      } finally {
-        setLoading(false);
       }
     },
-    [token, getAuthHeaders, removeBudget, setLoading, setError]
+    [user?.id, storeDeleteBudget]
   );
 
+  // Calculados memoizados para performance
+  const statistics = useMemo(() => {
+    const activeBudgets = budgets.filter((budget) => budget.isActive);
+    const totalBudgetAmount = activeBudgets.reduce((sum, budget) => sum + budget.amount, 0);
+    const totalSpent = activeBudgets.reduce((sum, budget) => sum + budget.spent, 0);
+    const totalRemaining = activeBudgets.reduce((sum, budget) => sum + budget.remaining, 0);
+
+    // Calculado de utilização por categoria
+    const categoryUsage = activeBudgets.reduce((acc, budget) => {
+      const usagePercentage = budget.amount > 0 ? (budget.spent / budget.amount) * 100 : 0;
+      acc[budget.category] = {
+        used: budget.spent,
+        total: budget.amount,
+        percentage: usagePercentage,
+        status: usagePercentage >= 90 ? 'critical' : usagePercentage >= 75 ? 'warning' : 'good'
+      };
+      return acc;
+    }, {} as Record<string, any>);
+
+    return {
+      activeBudgets,
+      totalBudgetAmount,
+      totalSpent,
+      totalRemaining,
+      utilizationPercentage: totalBudgetAmount > 0 ? (totalSpent / totalBudgetAmount) * 100 : 0,
+      categoryUsage,
+      overbudgetCount: activeBudgets.filter(b => b.spent > b.amount).length,
+    };
+  }, [budgets]);
+
+  // Performance optimized return
   return {
     budgets,
     isLoading,
     error,
+    statistics,
     fetchBudgets,
     createBudget,
-    updateBudget: updateBudgetById,
+    updateBudget,
     deleteBudget,
-  };
+  } as const;
 };

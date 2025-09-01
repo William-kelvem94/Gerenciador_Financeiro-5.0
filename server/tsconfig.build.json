@@ -1,4 +1,23 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts", "src/utils/index.ts"]
+  "compilerOptions": {
+    "declaration": false,
+    "sourceMap": false,
+    "removeComments": true,
+    "incremental": false
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "test",
+    "dist",
+    "coverage",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.e2e-spec.ts",
+    "prisma/migrations",
+    "prisma/seeds"
+  ]
 }

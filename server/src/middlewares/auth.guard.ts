@@ -6,6 +6,26 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@/services/prisma.service';
+import { Request } from 'express';
+
+interface JwtPayload {
+  userId: string;
+  email: string;
+  role: string;
+  permissions: string[];
+}
+
+interface AuthenticatedUser {
+  userId: string;
+  email: string;
+  name: string;
+  role: string;
+  permissions: string[];
+}
+
+interface AuthenticatedRequest extends Request {
+  user?: AuthenticatedUser;
+}
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -15,7 +35,7 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
@@ -23,7 +43,7 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token);
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
       const user = await this.prisma.user.findUnique({
         where: { id: payload.userId },
         select: { id: true, email: true, name: true },
@@ -46,8 +66,15 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  private extractTokenFromHeader(request: any): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+  private extractTokenFromHeader(
+    request: AuthenticatedRequest,
+  ): string | undefined {
+    const authHeader = request.headers.authorization;
+    if (!authHeader || typeof authHeader !== 'string') {
+      return undefined;
+    }
+
+    const [type, token] = authHeader.split(' ');
     return type === 'Bearer' ? token : undefined;
   }
 }

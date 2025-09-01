@@ -533,6 +533,8 @@ export const FinancialReportGenerator: React.FC = () => {
                 setSelectedUser(user || null);
               }}
               className="w-full rounded-lg border border-gray-600/50 bg-gray-800/50 px-3 py-2 text-white focus:border-cyan-400/50 focus:outline-none"
+              title="Selecionar usuário para gerar relatório"
+              aria-label="Selecionar usuário para gerar relatório"
             >
               <option value="">Selecione um usuário</option>
               {users.map(user => (
@@ -586,7 +588,7 @@ export const FinancialReportGenerator: React.FC = () => {
               fileName={`relatorio-financeiro-${reportData.user.name}-${new Date().toISOString().split('T')[0]}.pdf`}
               className="flex items-center gap-2 rounded-lg bg-purple-500 px-4 py-2 text-white transition-colors hover:bg-purple-600"
             >
-              {({ _blob, _url, loading, _error }) =>
+              {({ blob: _blob, url: _url, loading, error: _error }) =>
                 loading ? '⏳ Carregando...' : '📁 Download PDF (React-PDF)'
               }
             </PDFDownloadLink>

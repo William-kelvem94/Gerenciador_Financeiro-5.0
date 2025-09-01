@@ -12,6 +12,7 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [currentTheme, setCurrentTheme] = useState<CyberpunkTheme>(defaultTheme);
   const [soundConfig, setSoundConfig] = useState<SoundConfig>({

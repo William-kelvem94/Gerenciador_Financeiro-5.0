@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 const TablePropsSchema = z.object({
   columns: z.array(z.string()),
-  data: z.array(z.record(z.unknown())),
+  data: z.array(z.record(z.string(), z.unknown())),
   className: z.string().optional(),
 });
 

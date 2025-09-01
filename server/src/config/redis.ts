@@ -1,18 +1,18 @@
 import { createClient } from 'redis';
+import { Logger } from '@nestjs/common';
 
-let client: ReturnType<typeof createClient> | null = null;
+const logger = new Logger('RedisClient');
 
-export async function connectRedis(): Promise<void> {
-  if (!client) {
-    client = createClient({
-      url: process.env.REDIS_URL || 'redis://localhost:6379',
-    });
-    client.on('error', (err: unknown) =>
-      console.error('Redis Client Error', err),
-    );
-    await client.connect();
-    console.log('✅ Redis connected');
-  }
-}
+const redisClient = createClient({
+  url: process.env.REDIS_URL || 'redis://localhost:6379',
+});
 
-export { client };
+redisClient
+  .on('error', (err: Error) => {
+    logger.error('Redis Client Error', err);
+  })
+  .on('connect', () => {
+    logger.log('Redis connected');
+  });
+
+export default redisClient;

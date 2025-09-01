@@ -10,14 +10,25 @@
   "scripts": {
     "preinstall": "echo '🚀 Iniciando instalação do Will Finance 5.0...'",
     "postinstall": "echo '✅ Dependências instaladas com sucesso!'",
+    
     "dev": "concurrently --kill-others-on-fail --names \"SERVER,CLIENT\" --prefix-colors \"cyan,magenta\" \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
     "dev:ai": "docker-compose -f docker-compose.yml -f docker-compose.ia.yml up -d",
     "dev:silent": "concurrently --kill-others-on-fail --success first \"npm run dev:server\" \"npm run dev:client\" > /dev/null 2>&1",
+    
     "build": "npm run install:all && npm run build:client && npm run build:server",
     "build:client": "cd client && npm run build",
     "build:server": "cd server && npm run build",
+    
+    "docker:build": "docker-compose build --no-cache",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down --remove-orphans",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "npm run docker:down && npm run docker:up",
+    "docker:deploy": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy.ps1",
+    "docker:deploy:build": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy.ps1 -Build",
+    "docker:stop": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy.ps1 -Stop",
     "build:docker": "docker-compose build --no-cache",
     "start": "cd server && npm start",
     "start:prod": "docker-compose up -d",
@@ -51,17 +62,15 @@
     "format": "npm run format:client && npm run format:server",
     "format:client": "cd client && npm run format",
     "format:server": "cd server && npm run format",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
-    "docker:logs": "docker-compose logs -f",
-    "docker:restart": "docker-compose restart",
-    "docker:build": "docker-compose build",
+    
     "docker:rebuild": "npm run docker:down && npm run docker:build && npm run docker:up",
     "docker:clean": "docker system prune -af && docker volume prune -f",
     "docker:prod": "docker-compose --profile production up -d",
+    
     "security:audit": "npm audit && cd client && npm audit && cd ../server && npm audit",
     "security:fix": "npm audit fix && cd client && npm audit fix && cd ../server && npm audit fix",
     "security:check": "cd server && npm run security:check",
+    
     "clean": "rm -rf node_modules client/node_modules server/node_modules client/dist server/dist",
     "clean:cache": "npm cache clean --force && cd client && npm cache clean --force && cd ../server && npm cache clean --force",
     "clean:data": "node ./scripts/testing/clean-demo-data.js",
