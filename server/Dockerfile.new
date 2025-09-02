@@ -1,0 +1,99 @@
+# === 🏗️ WILL FINANCE 5.0 - BACKEND DOCKERFILE ENTERPRISE === #
+# Multi-stage production-ready NestJS container
+
+# Stage 1: Dependencies and build
+FROM node:20-alpine AS builder
+
+# Build arguments
+ARG NODE_VERSION=20
+ARG USER_ID=1001
+ARG GROUP_ID=1001
+
+# Metadata
+LABEL maintainer="Will Finance Team" \
+      version="5.0" \
+      description="Will Finance 5.0 Backend - Enterprise Financial Management System"
+
+# Environment optimization
+ENV NODE_ENV=production
+ENV NPM_CONFIG_CACHE=/tmp/.npm
+
+# Install system dependencies
+RUN apk add --no-cache \
+    dumb-init \
+    curl \
+    bash \
+    openssl \
+    && npm install -g pnpm@latest
+
+WORKDIR /app
+
+# Copy package files for better caching
+COPY package*.json ./
+COPY pnpm-lock.yaml* ./
+
+# Install dependencies
+RUN npm install --frozen-lockfile
+
+# Copy source code
+COPY . .
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build application
+RUN npm run build
+
+# Stage 2: Production runtime
+FROM node:20-alpine AS runtime
+
+# Install system dependencies
+RUN apk add --no-cache \
+    dumb-init \
+    curl \
+    bash \
+    tini
+
+# Create non-root user
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup
+
+# Create app directory with proper permissions
+RUN mkdir -p /app/uploads /app/logs && \
+    chown -R appuser:appgroup /app
+
+WORKDIR /app
+
+# Copy built application and dependencies
+COPY --from=builder --chown=appuser:appgroup /app/dist ./dist
+COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
+COPY --from=builder --chown=appuser:appgroup /app/package*.json ./
+COPY --from=builder --chown=appuser:appgroup /app/prisma ./prisma
+
+# Create and copy startup script
+RUN echo '#!/bin/bash\n\
+set -e\n\
+echo "🚀 Starting Will Finance 5.0 Backend..."\n\
+echo "🔄 Running database migrations..."\n\
+npx prisma migrate deploy\n\
+echo "✅ Migrations completed!"\n\
+echo "🎯 Starting NestJS application..."\n\
+exec node dist/main.js' > /app/docker-entrypoint.sh && \
+    chmod +x /app/docker-entrypoint.sh && \
+    chown appuser:appgroup /app/docker-entrypoint.sh
+
+# Switch to non-root user
+USER appuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:3001/health || exit 1
+
+# Expose port
+EXPOSE 3001
+
+# Use tini as init system
+ENTRYPOINT ["tini", "--"]
+
+# Start application
+CMD ["./docker-entrypoint.sh"]

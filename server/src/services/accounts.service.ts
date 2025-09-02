@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/services/prisma.service';
-import { CreateAccountDto } from '@/types/dto/create-account.dto';
+import { CreateAccountDto } from '@/dto/create-account.dto';
+import { UpdateAccountDto } from '@/dto/update-account.dto';
 import { Account } from '@prisma/client';
 
 @Injectable()
@@ -34,8 +35,7 @@ export class AccountsService {
 
   async update(
     id: string,
-    userId: string,
-    updateData: Partial<CreateAccountDto>,
+    updateData: UpdateAccountDto,
   ): Promise<Account> {
     return this.prisma.account.update({
       where: { id },

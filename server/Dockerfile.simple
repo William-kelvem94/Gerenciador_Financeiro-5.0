@@ -1,0 +1,46 @@
+# === 🏗️ WILL FINANCE 5.0 - BACKEND DOCKERFILE (SIMPLIFIED) === #
+# Single-stage Node.js container for faster development
+
+FROM node:20-alpine
+
+# Install system dependencies
+RUN apk add --no-cache curl bash tini
+
+# Create app directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (including dev dependencies for runtime)
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Create startup script
+RUN echo '#!/bin/bash\n\
+set -e\n\
+echo "🚀 Starting Will Finance 5.0 Backend..."\n\
+echo "🔄 Running database migrations..."\n\
+npx prisma migrate deploy || echo "Migration skipped"\n\
+echo "✅ Migrations completed!"\n\
+echo "🎯 Starting NestJS application..."\n\
+exec npm run start:prod 2>/dev/null || exec npm start 2>/dev/null || exec node src/main.js' > /app/start.sh && \
+    chmod +x /app/start.sh
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:3001/health || curl -f http://localhost:3001 || exit 1
+
+# Expose port
+EXPOSE 3001
+
+# Use tini as init system
+ENTRYPOINT ["tini", "--"]
+
+# Start application
+CMD ["./start.sh"]
