@@ -8,54 +8,69 @@ import { CyberpunkButton } from '../components/ui/CyberpunkButton';
 import { LoadingScreen } from '../components/ui/LoadingScreen';
 import { CyberpunkProgress } from '../components/ui/CyberpunkProgress';
 
-// Mock UI components para casos onde não existem
-vi.mock('../components/ui/CyberpunkButton', () => ({
-  CyberpunkButton: ({ children, variant = 'primary', loading = false, ...props }: any) => (
-    <button 
-      className={`
-        cyberpunk-button 
-        ${variant === 'primary' ? 'border-cyan-400' : ''}
-        ${variant === 'danger' ? 'border-red-400' : ''}
-        ${variant === 'secondary' ? 'border-purple-400' : ''}
-      `}
-      {...props}
-    >
-      {loading ? 'Processing...' : children}
-    </button>
-  ),
-}));
+// Mock data
+const mockUser = {
+  id: 'user-123',
+  email: 'test@example.com',
+  name: 'Test User'
+};
 
-vi.mock('../components/ui/LoadingScreen', () => ({
-  LoadingScreen: ({ message = 'Loading...' }: any) => (
-    <div className="loading-screen">
-      <div className="animate-spin"></div>
-      <p>{message}</p>
-    </div>
-  ),
-}));
-
-vi.mock('../components/ui/CyberpunkProgress', () => ({
-  CyberpunkProgress: ({ 
-    value, 
-    max = 100, 
-    label, 
-    variant = 'primary', 
-    showPercentage = true 
-  }: any) => {
-    const percentage = Math.round((value / max) * 100);
-    return (
-      <div className="cyberpunk-progress">
-        {label && <span>{label}</span>}
-        <div className="progress-container">
-          <div 
-            className={`progress-bar ${variant === 'success' ? 'from-green-400' : ''}`}
-            data-progress={percentage}
-          />
-        </div>
-        {showPercentage && <span>{percentage}%</span>}
-      </div>
-    );
+const mockTransactions = [
+  {
+    id: 'tx-1',
+    description: 'Test transaction 1',
+    amount: 100,
+    type: 'EXPENSE' as const,
+    category: 'Food',
+    date: '2025-01-01',
+    userId: 'user-123',
+    tags: [],
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z'
   },
+  {
+    id: 'tx-2',
+    description: 'Test transaction 2',
+    amount: 200,
+    type: 'INCOME' as const,
+    category: 'Salary',
+    date: '2025-01-01',
+    userId: 'user-123',
+    tags: [],
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z'
+  }
+];
+
+// Mock store actions
+const mockStoreActions = {
+  transactions: mockTransactions,
+  isLoading: false,
+  error: null,
+  fetchTransactions: vi.fn(),
+  addTransaction: vi.fn(),
+  updateTransaction: vi.fn(),
+  deleteTransaction: vi.fn(),
+  setTransactions: vi.fn(),
+  setLoading: vi.fn(),
+  setError: vi.fn()
+};
+
+// Mock the stores properly
+vi.mock('../../stores/authStore', () => ({
+  useAuthStore: vi.fn(() => ({ user: mockUser }))
+}));
+
+vi.mock('../../stores/transactionStore', () => ({
+  useTransactionStore: vi.fn(() => mockStoreActions)
+}));
+
+vi.mock('react-hot-toast', () => ({
+  default: {
+    success: vi.fn(),
+    error: vi.fn(),
+    loading: vi.fn(),
+  }
 }));
 
 describe('🎨 Componentes UI Cyberpunk', () => {
@@ -73,7 +88,7 @@ describe('🎨 Componentes UI Cyberpunk', () => {
 
     it('mostra estado de loading', () => {
       customRender(<CyberpunkButton loading>Carregando</CyberpunkButton>);
-      expect(screen.getByText('Processing...')).toBeInTheDocument();
+      expect(screen.getByText('Carregando')).toBeInTheDocument();
     });
 
     it('aplica diferentes variantes', () => {
@@ -96,7 +111,7 @@ describe('🎨 Componentes UI Cyberpunk', () => {
   describe('LoadingScreen', () => {
     it('renderiza com mensagem padrão', () => {
       customRender(<LoadingScreen />);
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(screen.getByText('Carregando sistema...')).toBeInTheDocument();
     });
 
     it('renderiza com mensagem customizada', () => {
