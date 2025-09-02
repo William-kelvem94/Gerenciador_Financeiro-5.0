@@ -1,0 +1,105 @@
+# === 🚀 WILL FINANCE 5.0 - BACKEND DOCKERFILE PRODUÇÃO === #
+# Build otimizado para produção multiplataforma
+
+# ===== STAGE 1: Dependências ===== #
+FROM node:20-alpine AS dependencies
+
+# Metadados
+LABEL maintainer="Will Finance Team"
+LABEL version="5.0.0"
+LABEL description="Will Finance 5.0 Backend - Production Build"
+
+# Diretório de trabalho
+WORKDIR /app
+
+# Instalar dependências do sistema
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    openssl \
+    curl \
+    && rm -rf /var/cache/apk/*
+
+# Copiar arquivos de dependências
+COPY package*.json ./
+COPY yarn.lock* ./
+
+# Instalar dependências de produção
+RUN npm ci --only=production --silent && npm cache clean --force
+
+# ===== STAGE 2: Build da aplicação ===== #
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Instalar dependências de build
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/cache/apk/*
+
+# Copiar dependências instaladas
+COPY --from=dependencies /app/node_modules ./node_modules
+
+# Copiar código fonte
+COPY . .
+
+# Build da aplicação
+RUN npm run build
+
+# ===== STAGE 3: Produção ===== #
+FROM node:20-alpine AS production
+
+# Argumentos de build
+ARG NODE_ENV=production
+ARG PORT=8080
+
+# Variáveis de ambiente
+ENV NODE_ENV=${NODE_ENV}
+ENV PORT=${PORT}
+ENV NPM_CONFIG_LOGLEVEL=warn
+
+# Instalar dependências de runtime
+RUN apk add --no-cache \
+    dumb-init \
+    curl \
+    tzdata \
+    && rm -rf /var/cache/apk/*
+
+# Criar usuário não-root
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nestjs -u 1001 -G nodejs
+
+# Diretório de trabalho
+WORKDIR /app
+
+# Copiar dependências de produção
+COPY --from=dependencies --chown=nestjs:nodejs /app/node_modules ./node_modules
+
+# Copiar aplicação buildada
+COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./
+COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
+
+# Criar diretórios necessários
+RUN mkdir -p logs uploads tmp && \
+    chown -R nestjs:nodejs logs uploads tmp
+
+# Gerar cliente Prisma
+RUN npx prisma generate
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:${PORT}/health || exit 1
+
+# Expor porta
+EXPOSE ${PORT}
+
+# Usar usuário não-root
+USER nestjs
+
+# Comando de inicialização
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/main"]

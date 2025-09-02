@@ -1,66 +1,17 @@
-// 🚀 SOLUÇÃO DEFINITIVA ReactCurrentDispatcher - Will Finance 5.0
-// Esta configuração resolve 100% dos problemas de React em testes
+// setupTests.ts - Configuração simplificada para resolver ReactCurrentDispatcher
+import { expect, afterEach, vi } from 'vitest';
+import { cleanup } from '@testing-library/react';
+import * as matchers from '@testing-library/jest-dom/matchers';
 
-// 1. Interceptar o global ANTES de qualquer import do React
-const reactInternals = {
-  ReactCurrentDispatcher: {
-    current: null
-  },
-  ReactCurrentBatchConfig: {
-    transition: null
-  }
-};
+// Extende expect com matchers do jest-dom
+expect.extend(matchers);
 
-// 2. Aplicar no escopo global IMEDIATAMENTE
-Object.defineProperty(globalThis, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
-  value: {
-    isDisabled: true,
-    supportsFiber: true,
-    inject: () => {},
-    onCommitFiberRoot: () => {},
-    onCommitFiberUnmount: () => {},
-  },
-  writable: false
+// Limpa após cada teste
+afterEach(() => {
+  cleanup();
 });
 
-// 3. Mock direto no módulo React ANTES de importação
-const originalModule = globalThis.require || (() => {});
-(globalThis as any).require = function(moduleName: string) {
-  if (moduleName === 'react') {
-    return {
-      ...originalModule.call(this, moduleName),
-      __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED: reactInternals
-    };
-  }
-  if (moduleName === 'react-dom') {
-    return {
-      ...originalModule.call(this, moduleName),
-      __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED: reactInternals
-    };
-  }
-  return originalModule.call(this, moduleName);
-};
-
-// 4. Mock usando Vitest
-import { vi } from 'vitest';
-
-vi.mock('react', async () => {
-  const actual = await vi.importActual('react');
-  return {
-    ...actual,
-    __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED: reactInternals
-  };
-});
-
-vi.mock('react-dom', async () => {
-  const actual = await vi.importActual('react-dom');
-  return {
-    ...actual,
-    __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED: reactInternals
-  };
-});
-
-// 5. Mocks de APIs essenciais
+// Mock do localStorage
 Object.defineProperty(window, 'localStorage', {
   value: {
     getItem: vi.fn(() => null),
@@ -71,6 +22,7 @@ Object.defineProperty(window, 'localStorage', {
   writable: true,
 });
 
+// Mock do sessionStorage
 Object.defineProperty(window, 'sessionStorage', {
   value: {
     getItem: vi.fn(() => null),
@@ -81,22 +33,44 @@ Object.defineProperty(window, 'sessionStorage', {
   writable: true,
 });
 
+// Mock do fetch
 global.fetch = vi.fn(() =>
   Promise.resolve({
     ok: true,
     json: () => Promise.resolve({}),
+    text: () => Promise.resolve(''),
   } as Response)
 );
 
-// 6. Prevenir warnings React em testes
-const originalError = console.error;
-console.error = (...args: any[]) => {
-  if (
-    typeof args[0] === 'string' &&
-    (args[0].includes('Warning: ReactDOM.render is no longer supported') ||
-     args[0].includes('Warning: React.createFactory() is deprecated'))
-  ) {
-    return;
-  }
-  originalError.call(console, ...args);
-};
+// Mock do ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
+// Mock do IntersectionObserver
+global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
+// Mock do matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
+// Mock do requestAnimationFrame
+global.requestAnimationFrame = vi.fn().mockImplementation(cb => setTimeout(cb, 16));
+global.cancelAnimationFrame = vi.fn().mockImplementation(id => clearTimeout(id));

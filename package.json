@@ -4,8 +4,8 @@
   "description": "🚀 Sistema de gerenciamento financeiro cyberpunk completo e multiplataforma com React + TypeScript + Vite frontend, NestJS backend, PostgreSQL, IA integrada, dockerizado e pronto para Electron/React Native.",
   "main": "index.js",
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
+    "node": ">=20.0.0",
+    "npm": ">=9.0.0"
   },
   "scripts": {
     "preinstall": "echo '🚀 Iniciando instalação do Will Finance 5.0...'",
@@ -26,9 +26,9 @@
     "docker:down": "docker-compose down --remove-orphans",
     "docker:logs": "docker-compose logs -f",
     "docker:restart": "npm run docker:down && npm run docker:up",
-    "docker:deploy": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy.ps1",
-    "docker:deploy:build": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy.ps1 -Build",
-    "docker:stop": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy.ps1 -Stop",
+    "docker:deploy": "node ./scripts/deploy.js",
+    "docker:deploy:build": "node ./scripts/deploy.js --build",
+    "docker:stop": "node ./scripts/deploy.js --stop",
     "build:docker": "docker-compose build --no-cache",
     "start": "cd server && npm start",
     "start:prod": "docker-compose up -d",
@@ -86,6 +86,13 @@
     "logs:client": "docker-compose logs -f client",
     "logs:db": "docker-compose logs -f postgres",
     "backup": "npm run db:backup && echo 'Backup completed!'",
+    "// === DEPLOY MASTER === //": "",
+    "deploy:master": "node scripts/deploy-master.js",
+    "deploy:quick:dev": "node scripts/deploy-master.js --dev",
+    "deploy:quick:prod": "node scripts/deploy-master.js --prod",
+    "check:requirements": "node scripts/deploy-master.js --check",
+    "setup:master": "node scripts/deploy-master.js --install",
+    
     "deploy": "npm run build && npm run db:deploy && npm run start:prod",
     "deploy:staging": "npm run build && docker-compose -f docker-compose.staging.yml up -d",
     "docs:generate": "cd client && npm run docs:generate && cd ../server && npm run docs:generate",
@@ -149,12 +156,7 @@
   "workspaces": {
     "packages": [
       "client",
-      "server",
-      "ia"
-    ],
-    "nohoist": [
-      "**/esbuild",
-      "esbuild"
+      "server"
     ]
   },
   "husky": {

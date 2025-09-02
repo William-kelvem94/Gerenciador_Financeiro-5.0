@@ -190,6 +190,37 @@ npm run docker:logs      # View container logs
 npm run docker:ai        # Start with AI service
 ```
 
+## 🚀 **DEPLOY MULTIPLATAFORMA - NOVO!**
+
+### ⚡ **Deploy em 1 Comando**
+```bash
+# Desenvolvimento
+npm run deploy:quick:dev
+
+# Produção  
+npm run deploy:quick:prod
+
+# Menu Interativo
+npm run deploy:master
+```
+
+### 🌍 **Compatibilidade Total**
+- ✅ **Windows** (10/11)
+- ✅ **Linux** (Ubuntu, Debian, CentOS)
+- ✅ **macOS**
+- ✅ **Docker** (Local + Produção)
+- ✅ **Execução Local**
+
+### 📊 **Recursos Implementados**
+- 🛡️ **Segurança Avançada**: Rate limiting, headers de segurança
+- ⚡ **Performance**: Gzip, cache, resource limits
+- 🏥 **Health Checks**: Monitoramento automatizado
+- 🧹 **Zero Duplicidade**: Arquitetura limpa e organizada
+
+📖 **[Guia Completo de Deploy](./docs/DEPLOY_MULTIPLATAFORMA.md)**
+
+---
+
 ## 🔧 Configuration
 
 ### Environment Variables
